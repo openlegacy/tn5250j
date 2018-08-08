@@ -1069,6 +1069,8 @@ public final class tnvt implements Runnable {
             //				screen52.checkHotSpots();
             //			}
 
+            // reset pcCommand
+            screen52.setPcCommand(null);
             try {
                 if (!strpccmd) {
                     //               SwingUtilities.invokeAndWait(
