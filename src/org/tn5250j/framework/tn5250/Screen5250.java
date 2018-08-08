@@ -694,6 +694,7 @@ public class Screen5250 {
 
                 strokenizer.setKeyStrokes(text);
                 String s;
+                String args = null;
                 boolean done = false;
 
                 setCursorActive(false);
@@ -705,8 +706,17 @@ public class Screen5250 {
                         //   current field to that field
                         isInField(lastPos, true);
                         s = strokenizer.nextKeyStroke();
+                        args = strokenizer.nextKeyStroke();
                         if (s.length() == 1) {
                             simulateKeyStroke(s.charAt(0));
+                            //                     System.out.println(" s two " + s + " " +
+                            // cursorActive);
+                            //                  if (cursorActive && !keysBuffered) {
+                            //                     System.out.println(" s two" + s);
+                            //                     setCursorOn();
+                            //                  }
+                        } else if (args != null && !"".equals(args)) {
+                            simulateMnemonic(getMnemonicValue(s), args);
                         } else {
                             simulateMnemonic(keyMnemonicResolver.findMnemonicValue(s));
                         }
@@ -788,6 +798,20 @@ public class Screen5250 {
         restoreErrorLine();
         setStatus(STATUS_ERROR_CODE, STATUS_VALUE_OFF, "");
 
+    }
+
+    protected boolean simulateMnemonic(int mnem, String arg) {
+        boolean simulated = false;
+        switch (mnem) {
+            case SYSREQ:
+                sessionVT.systemRequest(arg);
+                simulated = true;
+                break;
+            default:
+                log.info(" Mnemonic not supported " + mnem);
+                break;
+        }
+        return simulated;
     }
 
     protected boolean simulateMnemonic(int mnem) {
