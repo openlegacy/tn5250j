@@ -47,16 +47,15 @@ import static org.tn5250j.keyboard.KeyMnemonic.ENTER;
 
 public final class tnvt implements Runnable {
 
-
     // negotiating commands
     private static final byte IAC = (byte) -1; // 255 FF
-    private static final byte DONT = (byte) -2; //254 FE
-    private static final byte DO = (byte) -3; //253 FD
-    private static final byte WONT = (byte) -4; //252 FC
-    private static final byte WILL = (byte) -5; //251 FB
-    private static final byte SB = (byte) -6; //250 Sub Begin FA
-    private static final byte SE = (byte) -16; //240 Sub End F0
-    private static final byte EOR = (byte) -17; //239 End of Record EF
+    private static final byte DONT = (byte) -2; // 254 FE
+    private static final byte DO = (byte) -3; // 253 FD
+    private static final byte WONT = (byte) -4; // 252 FC
+    private static final byte WILL = (byte) -5; // 251 FB
+    private static final byte SB = (byte) -6; // 250 Sub Begin FA
+    private static final byte SE = (byte) -16; // 240 Sub End F0
+    private static final byte EOR = (byte) -17; // 239 End of Record EF
     private static final byte TERMINAL_TYPE = (byte) 24; // 18
     private static final byte OPT_END_OF_RECORD = (byte) 25; // 19
     private static final byte TRANSMIT_BINARY = (byte) 0; // 0
@@ -161,7 +160,6 @@ public final class tnvt implements Runnable {
 
         return session;
     }
-
 
     public void setSSLType(String type) {
         sslType = type;
@@ -278,7 +276,10 @@ public final class tnvt implements Runnable {
             bout = new BufferedOutputStream(out);
 
             byte abyte0[];
-            while (negotiate(abyte0 = readNegotiations())) ;
+            while (negotiate(abyte0 = readNegotiations())) {
+                // do nothing
+            }
+            negotiated = true;
             try {
                 screen52.setCursorActive(false);
             } catch (Exception excc) {
@@ -469,10 +470,10 @@ public final class tnvt implements Runnable {
         baosp.write(screen52.getCurrentCol());
         baosp.write(aid);
 
-        if (dataIncluded(aid))
-
+        if (dataIncluded(aid)) {
             screen52.getScreenFields().readFormatTable(baosp, readType,
                     codePage);
+        }
 
         try {
 
@@ -2127,6 +2128,31 @@ public final class tnvt implements Runnable {
 
     }
 
+    private boolean isAttribute(int byte0) {
+        int byte1 = byte0 & 0xff;
+        return (byte1 & 0xe0) == 0x20;
+    }
+
+    //LDC - 12/02/2003 - Function name changed from isData to isDataEBCDIC
+    private boolean isDataEBCDIC(int byte0) {
+        int byte1 = byte0 & 0xff;
+        // here it should always be less than 255
+        if (byte1 >= 64 && byte1 < 255)
+            return true;
+        else
+            return false;
+
+    }
+
+    //LDC - 12/02/2003 - Test if the unicode character is a displayable
+    // character.
+    //  The first 32 characters are non displayable characters
+    //  This is normally the inverse of isDataEBCDIC (That's why there is a
+    //  check on 255 -> 0xFFFF
+    private boolean isDataUnicode(int data) {
+        return (((data < 0) || (data >= 32)) && (data != 0xFFFF));
+    }
+
     private void writeStructuredField() {
 
         boolean done = false;
@@ -2549,20 +2575,7 @@ public final class tnvt implements Runnable {
      * @return String
      */
     private String negDeviceName() {
-        if (devSeq++ == -1) {
-            devNameUsed = devName;
-            return devName;
-        } else {
-            StringBuilder sb = new StringBuilder(devName + devSeq);
-            int ei = 1;
-            while (sb.length() > 10) {
-                sb.setLength(0);
-                sb.append(devName.substring(0, devName.length() - ei++));
-                sb.append(devSeq);
-            }
-            devNameUsed = sb.toString();
-            return devNameUsed;
-        }
+        return devName;
     }
 
     public final ICodePage getCodePage() {
