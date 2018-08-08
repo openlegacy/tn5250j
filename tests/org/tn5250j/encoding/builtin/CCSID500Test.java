@@ -27,6 +27,7 @@
 package org.tn5250j.encoding.builtin;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tn5250j.encoding.CharMappings;
 import org.tn5250j.encoding.ICodePage;
