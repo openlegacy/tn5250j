@@ -20,25 +20,17 @@
  */
 package org.tn5250j.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-
-import javax.swing.Action;
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.BoxLayout;
-import javax.swing.Box;
-
 import org.tn5250j.tools.LangTool;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Class to create and manage a Wizard style framework for you.
  */
 public class WizardPage extends JPanel {
 
-    private static final long serialVersionUID = 1L;
     static public final int NO_BUTTONS = 0x00;
     static public final int PREVIOUS = 0x01;
     static public final int NEXT = 0x02;
@@ -46,30 +38,26 @@ public class WizardPage extends JPanel {
     static public final int CANCEL = 0x08;
     static public final int HELP = 0x10;
     static public final int ALL = PREVIOUS | NEXT | FINISH | CANCEL | HELP;
-
+    protected static final int GROUP_SPACING = 10;
+    protected static final int MARGIN = 10;
+    protected static final int BUTTON_SPACING = 5;
+    private static final long serialVersionUID = 1L;
     protected JButton previousButton;
     protected JButton nextButton;
     protected JButton finishButton;
     protected JButton cancelButton;
     protected JButton helpButton;
-
+    // Box containing the buttons used
+    protected JPanel buttonPanel;
+    protected JSeparator separator;
+    // Pane returned by getContentPane.  This is the pane the
+    // developer adds his/her code to.
+    protected Container contentPane;
     private Action nextAction;
     private Action previousAction;
     private Action finishAction;
     private Action cancelAction;
     private Action helpAction;
-
-    protected static final int GROUP_SPACING = 10;
-    protected static final int MARGIN = 10;
-    protected static final int BUTTON_SPACING = 5;
-
-    // Box containing the buttons used
-    protected JPanel buttonPanel;
-    protected JSeparator separator;
-
-    // Pane returned by getContentPane.  This is the pane the
-    // developer adds his/her code to.
-    protected Container contentPane;
 
     public WizardPage() {
         this(ALL);
@@ -191,6 +179,14 @@ public class WizardPage extends JPanel {
         return helpButton;
     }
 
+    /**
+     * Overrides normal getContentPane to provide specially
+     * managed area
+     */
+    public Container getContentPane() {
+        return contentPane;
+    }
+
     public void setContentPane(Container new_pane) {
         if (new_pane == null) {
             throw new NullPointerException("content pane must be non-null");
@@ -203,12 +199,12 @@ public class WizardPage extends JPanel {
         add(buttonPanel);
     }
 
-    /**
-     * Overrides normal getContentPane to provide specially
-     * managed area
-     */
-    public Container getContentPane() {
-        return contentPane;
-    }
+   /**
+    * Overrides normal getContentPane to provide specially
+    * managed area
+    */
+   public Container getContentPane() {
+      return contentPane;
+   }
 
 }

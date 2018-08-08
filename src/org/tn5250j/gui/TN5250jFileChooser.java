@@ -25,12 +25,10 @@
  */
 package org.tn5250j.gui;
 
-import javax.swing.JFileChooser;
-import javax.swing.UIManager;
-
 import org.tn5250j.tools.LangTool;
 
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Custom JFileChooser class to work around bug 4416982 on some versions of the
@@ -47,22 +45,6 @@ public class TN5250jFileChooser extends JFileChooser {
     public TN5250jFileChooser(String dir) {
         super(dir);
     }
-
-    /**
-     * This is to fix
-     * Bug Id - 4416982
-     * Synopsis JFileChooser does not use its resources to size itself initially
-     **/
-
-    public Dimension getPreferredSize() {
-        return getLayout().preferredLayoutSize(this);
-    }
-
-    /* This method is included because Sun does not supports translations
-     * for various languages at this time, for example dutch and russian
-     * are not included yet. So until Sun fixes this we need to use this
-     * self-made method (doTranslation) to translate the JFileChoosers.
-     */
 
     static void doTranslation() {
         UIManager.put("FileChooser.lookInLabelText",
@@ -94,4 +76,21 @@ public class TN5250jFileChooser extends JFileChooser {
         UIManager.put("FileChooser.saveButtonToolTipText",
                 LangTool.getString("jfc.SaveSelectedFile"));
     }
+
+    /* This method is included because Sun does not supports translations
+     * for various languages at this time, for example dutch and russian
+     * are not included yet. So until Sun fixes this we need to use this
+     * self-made method (doTranslation) to translate the JFileChoosers.
+     */
+
+    /**
+     * This is to fix
+     * Bug Id - 4416982
+     * Synopsis JFileChooser does not use its resources to size itself initially
+     **/
+
+    public Dimension getPreferredSize() {
+        return getLayout().preferredLayoutSize(this);
+    }
 }
+

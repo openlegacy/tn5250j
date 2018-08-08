@@ -25,17 +25,10 @@
  */
 package org.tn5250j.tools;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Toolkit;
+import org.tn5250j.tools.system.OperatingSystem;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
@@ -43,22 +36,39 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-
-import org.tn5250j.tools.system.OperatingSystem;
-
 public class GUIGraphicsUtils {
 
-    private static final Insets GROOVE_INSETS = new Insets(2, 2, 2, 2);
-    private static final Insets ETCHED_INSETS = new Insets(2, 2, 2, 2);
     public static final int RAISED = 1;
     public static final int INSET = 2;
     public static final int WINDOW_NORMAL = 3;
     public static final int WINDOW_GRAPHIC = 4;
+    /**
+     * Windows fonts to search for in order of precedence
+     */
+    static final String[] windowsFonts = {"Andale Mono", "Letter Gothic Bold",
+            "Lucida Sans Typewriter Regular",
+            "Lucida Sans Typewriter Bold",
+            "Lucida Console",
+            "Courier New Bold",
+            "Courier New", "Courier"};
+    /**
+     * *nix fonts to search for in order of precedence
+     */
+    static final String[] nixFonts = {"Lucida Sans Typewriter Regular",
+            "Lucida Sans Typewriter Bold",
+            "Courier New Bold",
+            "Courier New",
+            "Courier Bold",
+            "Courier"};
+    /**
+     * Mac fonts to search for in order of precedence
+     */
+    static final String[] macFonts = {"Monaco",
+            "Courier New Bold",
+            "Courier New", "Courier"};
+    private static final Insets GROOVE_INSETS = new Insets(2, 2, 2, 2);
+    private static final Insets ETCHED_INSETS = new Insets(2, 2, 2, 2);
     private static String defaultFont;
-
     private static ImageIcon lockImgOpen;
     private static ImageIcon lockImgClose;
     private static List<Image> tnicon;
@@ -1443,33 +1453,6 @@ public class GUIGraphicsUtils {
             x = xCoord - popupSize.width;
         jpm.show(component, x != 0 ? x : xCoord, y != 0 ? y : yCoord);
     }
-
-    /**
-     * Windows fonts to search for in order of precedence
-     */
-    static final String[] windowsFonts = {"Andale Mono", "Letter Gothic Bold",
-            "Lucida Sans Typewriter Regular",
-            "Lucida Sans Typewriter Bold",
-            "Lucida Console",
-            "Courier New Bold",
-            "Courier New", "Courier"};
-
-    /**
-     * *nix fonts to search for in order of precedence
-     */
-    static final String[] nixFonts = {"Lucida Sans Typewriter Regular",
-            "Lucida Sans Typewriter Bold",
-            "Courier New Bold",
-            "Courier New",
-            "Courier Bold",
-            "Courier"};
-
-    /**
-     * Mac fonts to search for in order of precedence
-     */
-    static final String[] macFonts = {"Monaco",
-            "Courier New Bold",
-            "Courier New", "Courier"};
 
     public static String getDefaultFont() {
 

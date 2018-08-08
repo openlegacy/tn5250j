@@ -30,3 +30,4 @@ public interface SessionConfigListener {
      */
     public void onConfigChanged(SessionConfigEvent sessionConfigEvent);
 }
+

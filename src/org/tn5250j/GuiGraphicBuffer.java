@@ -25,13 +25,19 @@
  */
 package org.tn5250j;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import org.tn5250j.event.ScreenListener;
+import org.tn5250j.event.ScreenOIAListener;
+import org.tn5250j.event.SessionConfigEvent;
+import org.tn5250j.event.SessionConfigListener;
+import org.tn5250j.framework.tn5250.Screen5250;
+import org.tn5250j.framework.tn5250.ScreenOIA;
+import org.tn5250j.settings.ColumnSeparator;
+import org.tn5250j.tools.GUIGraphicsUtils;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.font.FontRenderContext;
@@ -43,19 +49,6 @@ import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.SwingUtilities;
-
-import org.tn5250j.event.ScreenListener;
-import org.tn5250j.event.ScreenOIAListener;
-import org.tn5250j.event.SessionConfigEvent;
-import org.tn5250j.event.SessionConfigListener;
-import org.tn5250j.framework.tn5250.Screen5250;
-import org.tn5250j.framework.tn5250.ScreenOIA;
-import org.tn5250j.sessionsettings.ColumnSeparator;
-import org.tn5250j.tools.GUIGraphicsUtils;
-import org.tn5250j.tools.logging.TN5250jLogFactory;
-import org.tn5250j.tools.logging.TN5250jLogger;
-
 public class GuiGraphicBuffer implements ScreenOIAListener,
         ScreenListener,
         PropertyChangeListener,
@@ -64,9 +57,20 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
 
     // Dup Character array for display output
     private static final transient char[] dupChar = {'*'};
-
-    private BufferedImage bi;
+    private final static String xSystem = "X - System";
+    private final static String xError = "X - II";
     private final Object lock = new Object();
+    private final StringBuffer hsMore = new StringBuffer("More...");
+    private final StringBuffer hsBottom = new StringBuffer("Bottom");
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger("GFX");
+    protected int columnWidth;
+    protected int rowHeight;
+    protected int crossHair = 0;
+    protected boolean hotSpots = false;
+    protected Rectangle clipper;
+    /*default*/ Font font;
+    /*default*/ Color colorBg;
+    private BufferedImage bi;
     private Line2D separatorLine = new Line2D.Float();
     private Rectangle2D tArea; // text area
     private Rectangle2D aArea; // all screen area
@@ -78,8 +82,6 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     private Rectangle2D kbArea; // keybuffer indicator
     private Rectangle2D scriptArea; // script indicator
     private Rectangle2D cursor = new Rectangle2D.Float();
-    private final static String xSystem = "X - System";
-    private final static String xError = "X - II";
     private int crossRow;
     private Rectangle crossRect = new Rectangle();
     private int offTop = 0;   // offset from top
@@ -88,12 +90,8 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     private Graphics2D gg2d;
     private Screen5250 screen;
     private Data updateRect;
-    protected int columnWidth;
-    protected int rowHeight;
     private SessionPanel gui;
-
     private LineMetrics lm;
-    /*default*/ Font font;
     private int lenScreen;
     private boolean showHex;
     private Color colorBlue;
@@ -102,16 +100,13 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     private Color colorGreen;
     private Color colorPink;
     private Color colorYellow;
-    /*default*/ Color colorBg;
     private Color colorTurq;
     private Color colorGUIField;
     private Color colorCursor;
     private Color colorSep;
     private Color colorHexAttr;
-    protected int crossHair = 0;
     private boolean updateFont;
     private int cursorSize = 0;
-    protected boolean hotSpots = false;
     private float sfh = 1.2f; // font scale height
     private float sfw = 1.0f; // font scale height
     private float ps132 = 0; // Font point size
@@ -121,21 +116,13 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     private boolean rulerFixed;
     private javax.swing.Timer blinker;
     private ColumnSeparator colSepLine;
-    private final StringBuffer hsMore = new StringBuffer("More...");
-    private final StringBuffer hsBottom = new StringBuffer("Bottom");
     private Rectangle workR = new Rectangle();
-
     private boolean colSep = false;
     private boolean underLine = false;
     private boolean nonDisplay = false;
     private Color fg;
     private Color bg;
-
     private SessionConfig config;
-
-    protected Rectangle clipper;
-
-    private final TN5250jLogger log = TN5250jLogFactory.getLogger("GFX");
 
     public GuiGraphicBuffer(Screen5250 screen, SessionPanel gui, SessionConfig config) {
 
@@ -1973,61 +1960,6 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
 
     }
 
-    protected class Data {
-
-        public char[] text;
-        public char[] attr;
-        public char[] isAttr;
-        public char[] color;
-        public char[] extended;
-        public final char[] graphic;
-        public final char[] field;
-
-        public Data(char[] text, char[] attr, char[] color, char[] extended, char[] graphic) {
-            this.text = text;
-            this.color = color;
-            this.extended = extended;
-            this.graphic = graphic;
-            this.attr = attr;
-            this.field = null;
-        }
-
-        public Data(int startRow, int startCol, int endRow, int endCol) {
-            startRow++;
-            startCol++;
-            endRow++;
-            endCol++;
-            int size = ((endCol - startCol) + 1) * ((endRow - startRow) + 1);
-
-            text = new char[size];
-            attr = new char[size];
-            isAttr = new char[size];
-            color = new char[size];
-            extended = new char[size];
-            graphic = new char[size];
-            field = new char[size];
-
-            if (size == lenScreen) {
-                screen.GetScreen(text, size, TN5250jConstants.PLANE_TEXT);
-                screen.GetScreen(attr, size, TN5250jConstants.PLANE_ATTR);
-                screen.GetScreen(isAttr, size, TN5250jConstants.PLANE_IS_ATTR_PLACE);
-                screen.GetScreen(color, size, TN5250jConstants.PLANE_COLOR);
-                screen.GetScreen(extended, size, TN5250jConstants.PLANE_EXTENDED);
-                screen.GetScreen(graphic, size, TN5250jConstants.PLANE_EXTENDED_GRAPHIC);
-                screen.GetScreen(field, size, TN5250jConstants.PLANE_FIELD);
-            } else {
-                screen.GetScreenRect(text, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_TEXT);
-                screen.GetScreenRect(attr, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_ATTR);
-                screen.GetScreenRect(isAttr, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_IS_ATTR_PLACE);
-                screen.GetScreenRect(color, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_COLOR);
-                screen.GetScreenRect(extended, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_EXTENDED);
-                screen.GetScreenRect(graphic, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_EXTENDED_GRAPHIC);
-                screen.GetScreenRect(field, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_FIELD);
-            }
-        }
-
-    }
-
     public final Rectangle modelToView(int row, int col) {
         return modelToView(row, col, new Rectangle());
     }
@@ -2089,6 +2021,59 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
         colSep = (updateRect.extended[pos] & TN5250jConstants.EXTENDED_5250_COL_SEP) != 0;
         nonDisplay = (updateRect.extended[pos] & TN5250jConstants.EXTENDED_5250_NON_DSP) != 0;
 
+    }
+
+    protected class Data {
+
+
+        public final char[] graphic;
+        public final char[] field;
+        public char[] text;
+        public char[] attr;
+        public char[] isAttr;
+        public char[] color;
+        public char[] extended;
+        public Data(char[] text, char[] attr, char[] color, char[] extended, char[] graphic) {
+            this.text = text;
+            this.color = color;
+            this.extended = extended;
+            this.graphic = graphic;
+            this.attr = attr;
+            this.field = null;
+        }
+        public Data(int startRow, int startCol, int endRow, int endCol) {
+            startRow++;
+            startCol++;
+            endRow++;
+            endCol++;
+            int size = ((endCol - startCol) + 1) * ((endRow - startRow) + 1);
+
+            text = new char[size];
+            attr = new char[size];
+            isAttr = new char[size];
+            color = new char[size];
+            extended = new char[size];
+            graphic = new char[size];
+            field = new char[size];
+
+            if (size == lenScreen) {
+                screen.GetScreen(text, size, TN5250jConstants.PLANE_TEXT);
+                screen.GetScreen(attr, size, TN5250jConstants.PLANE_ATTR);
+                screen.GetScreen(isAttr, size, TN5250jConstants.PLANE_IS_ATTR_PLACE);
+                screen.GetScreen(color, size, TN5250jConstants.PLANE_COLOR);
+                screen.GetScreen(extended, size, TN5250jConstants.PLANE_EXTENDED);
+                screen.GetScreen(graphic, size, TN5250jConstants.PLANE_EXTENDED_GRAPHIC);
+                screen.GetScreen(field, size, TN5250jConstants.PLANE_FIELD);
+            } else {
+                screen.GetScreenRect(text, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_TEXT);
+                screen.GetScreenRect(attr, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_ATTR);
+                screen.GetScreenRect(isAttr, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_IS_ATTR_PLACE);
+                screen.GetScreenRect(color, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_COLOR);
+                screen.GetScreenRect(extended, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_EXTENDED);
+                screen.GetScreenRect(graphic, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_EXTENDED_GRAPHIC);
+                screen.GetScreenRect(field, size, startRow, startCol, endRow, endCol, TN5250jConstants.PLANE_FIELD);
+            }
+        }
     }
 
 

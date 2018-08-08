@@ -25,9 +25,9 @@
  */
 package org.tn5250j.tools.encoder;
 
-import java.awt.Component;
-import java.io.OutputStream;
+import java.awt.*;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Interface that defines an encoder

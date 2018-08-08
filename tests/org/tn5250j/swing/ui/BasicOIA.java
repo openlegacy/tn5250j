@@ -1,21 +1,20 @@
 package org.tn5250j.swing.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-
 import org.tn5250j.event.ScreenListener;
 import org.tn5250j.event.ScreenOIAListener;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.ScreenOIA;
 
+import java.awt.*;
+
 /**
  * For testing purpose
  */
 public class BasicOIA extends BasicSubUI implements ScreenListener, ScreenOIAListener {
+    transient ScreenOIA oia;
+    private transient Rectangle locationRectangle;
+    private transient Rectangle inhibitedRectangle;
+
     public BasicOIA(ScreenOIA oia) {
         this.oia = oia;
     }
@@ -149,10 +148,6 @@ public class BasicOIA extends BasicSubUI implements ScreenListener, ScreenOIALis
 
     public final void setPosition(int row, int column) {
     }
-
-    transient ScreenOIA oia;
-    private transient Rectangle locationRectangle;
-    private transient Rectangle inhibitedRectangle;
 
     private void clearLayout() {
         locationRectangle = null;

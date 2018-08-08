@@ -25,19 +25,18 @@
  */
 package org.tn5250j.tools;
 
-import java.awt.Component;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import javax.swing.JFileChooser;
-
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.gui.TN5250jFileChooser;
 import org.tn5250j.gui.TN5250jFileFilter;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class SendScreenToFile {
 

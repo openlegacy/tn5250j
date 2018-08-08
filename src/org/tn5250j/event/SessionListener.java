@@ -25,3 +25,4 @@ public interface SessionListener {
 
     public void onSessionChanged(SessionChangeEvent changeEvent);
 }
+

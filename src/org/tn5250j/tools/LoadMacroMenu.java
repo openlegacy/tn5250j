@@ -25,6 +25,14 @@
  */
 package org.tn5250j.tools;
 
+import org.tn5250j.SessionPanel;
+import org.tn5250j.interfaces.ConfigureFactory;
+import org.tn5250j.scripting.ExecuteScriptAction;
+import org.tn5250j.scripting.InterpreterDriverManager;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -35,25 +43,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-
-import org.tn5250j.SessionPanel;
-import org.tn5250j.interfaces.ConfigureFactory;
-import org.tn5250j.scripting.ExecuteScriptAction;
-import org.tn5250j.scripting.InterpreterDriverManager;
-import org.tn5250j.tools.logging.TN5250jLogFactory;
-import org.tn5250j.tools.logging.TN5250jLogger;
-
 public final class LoadMacroMenu {
 
-    private static Vector macroVector = new Vector();
-
     private static final TN5250jLogger log = TN5250jLogFactory.getLogger(LoadMacroMenu.class);
+    private static Vector macroVector = new Vector();
 
     public static void loadMacros(SessionPanel session, JMenu menu) {
 

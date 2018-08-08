@@ -26,24 +26,16 @@
  */
 package org.tn5250j.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
+import org.tn5250j.encoding.ICodePage;
+import org.tn5250j.tools.LangTool;
+
+import javax.swing.*;
+import java.awt.*;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-
-import org.tn5250j.encoding.ICodePage;
-import org.tn5250j.tools.LangTool;
 
 /**
  * Shows a dialog, containing all HEX values and their corresponding chars.

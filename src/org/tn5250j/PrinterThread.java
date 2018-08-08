@@ -272,3 +272,4 @@ class PrinterThread extends Thread implements Printable {
         return (row * numCols) + col;
     }
 }
+

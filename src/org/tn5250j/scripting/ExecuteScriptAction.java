@@ -17,6 +17,9 @@ import org.tn5250j.SessionPanel;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 public class ExecuteScriptAction extends AbstractAction {
 
     private static final long serialVersionUID = 181938308216785668L;

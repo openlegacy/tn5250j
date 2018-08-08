@@ -5,6 +5,8 @@ import java.util.EventObject;
 public class SessionChangeEvent extends EventObject {
 
     private static final long serialVersionUID = 1L;
+    private String message;
+    private int state;
 
     public SessionChangeEvent(Object obj) {
         super(obj);
@@ -33,7 +35,4 @@ public class SessionChangeEvent extends EventObject {
 
         state = s;
     }
-
-    private String message;
-    private int state;
 }

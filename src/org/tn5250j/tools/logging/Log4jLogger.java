@@ -103,6 +103,30 @@ public final class Log4jLogger implements TN5250jLogger {
         return (Level.ERROR.equals(log.getLevel()));
     }
 
+    public int getLevel() {
+
+        switch (log.getLevel().toInt()) {
+
+            case (org.apache.log4j.Level.DEBUG_INT):
+                return DEBUG;
+
+            case (org.apache.log4j.Level.INFO_INT):
+                return INFO;
+
+            case (org.apache.log4j.Level.WARN_INT):
+                return WARN;
+
+            case (org.apache.log4j.Level.ERROR_INT):
+                return ERROR;
+
+            case (org.apache.log4j.Level.FATAL_INT):
+                return FATAL;
+            default:
+                return WARN;
+        }
+
+    }
+
     public void setLevel(int newLevel) {
 
         switch (newLevel) {
@@ -132,28 +156,5 @@ public final class Log4jLogger implements TN5250jLogger {
         }
 
     }
-
-    public int getLevel() {
-
-        switch (log.getLevel().toInt()) {
-
-            case (org.apache.log4j.Level.DEBUG_INT):
-                return DEBUG;
-
-            case (org.apache.log4j.Level.INFO_INT):
-                return INFO;
-
-            case (org.apache.log4j.Level.WARN_INT):
-                return WARN;
-
-            case (org.apache.log4j.Level.ERROR_INT):
-                return ERROR;
-
-            case (org.apache.log4j.Level.FATAL_INT):
-                return FATAL;
-            default:
-                return WARN;
-        }
-
-    }
 }
+

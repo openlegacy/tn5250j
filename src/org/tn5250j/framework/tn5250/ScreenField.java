@@ -27,6 +27,30 @@ package org.tn5250j.framework.tn5250;
 
 public class ScreenField {
 
+    protected boolean checkCanSend;
+    protected boolean rightAdjd;
+    protected boolean manditoried;
+    int startPos = 0;
+    int endPos = 0;
+    boolean mdt = false;
+    boolean canSend = true;
+    int attr = 0;
+    int length = 0;
+    int ffw1 = 0;
+    int ffw2 = 0;
+    int fcw1 = 0;
+    int fcw2 = 0;
+    int cursorPos = 0;
+    Screen5250 s;
+    int cursorProg = 0;
+    int fieldId = 0;
+    ScreenField next = null;
+    ScreenField prev = null;
+    boolean isSelectionField;
+    int selectionFieldType;
+    int selectionIndex;
+    int selectionPos;
+
     protected ScreenField(Screen5250 s) {
 
         this.s = s;
@@ -252,6 +276,34 @@ public class ScreenField {
 
         return text.toString();
 
+    }
+
+    /**
+     * Sets the field's text plane to the specified string. If the string is
+     * shorter than the length of the field, the rest of the field is cleared.
+     * If the string is longer than the field, the text is truncated. A
+     * subsequent call to getText on this field will not show the changed text.
+     * To see the changed text, do a refresh on the iOhioFields collection and
+     * retrieve the refreshed field object.
+     *
+     * @param text
+     *            - The text to be placed in the field's text plane.
+     */
+    public void setString(String text) {
+
+        cursorPos = isRightToLeft() ? endPos - text.length() + 1 : startPos;
+
+        if (isRightToLeft()) {
+            text = new StringBuilder(text).reverse().toString();
+        }
+
+        for (int x = 0, textLen = text.length(); x < length; x++) {
+            char tc = x < textLen ? text.charAt(x) : ' ';
+            s.getPlanes().setChar(cursorPos, tc);
+            changePos(1);
+        }
+        setMDT();
+        s.getScreenFields().setMasterMDT();
     }
 
     public void setFieldChar(char c) {
@@ -519,34 +571,6 @@ public class ScreenField {
 
     }
 
-    /**
-     * Sets the field's text plane to the specified string. If the string is
-     * shorter than the length of the field, the rest of the field is cleared.
-     * If the string is longer than the field, the text is truncated. A
-     * subsequent call to getText on this field will not show the changed text.
-     * To see the changed text, do a refresh on the iOhioFields collection and
-     * retrieve the refreshed field object.
-     *
-     * @param text
-     *            - The text to be placed in the field's text plane.
-     */
-    public void setString(String text) {
-
-        cursorPos = isRightToLeft() ? endPos - text.length() + 1 : startPos;
-
-        if (isRightToLeft()) {
-            text = new StringBuilder(text).reverse().toString();
-        }
-
-        for (int x = 0, textLen = text.length(); x < length; x++) {
-            char tc = x < textLen ? text.charAt(x) : ' ';
-            s.getPlanes().setChar(cursorPos, tc);
-            changePos(1);
-        }
-        setMDT();
-        s.getScreenFields().setMasterMDT();
-    }
-
     @Override
     public String toString() {
         int fcw = (fcw1 & 0xff) << 8 | fcw2 & 0xff;
@@ -570,28 +594,5 @@ public class ScreenField {
                 + " last continued edit field = " + isContinuedLast()
                 + " mdt = " + mdt;
     }
-
-    int startPos = 0;
-    int endPos = 0;
-    boolean mdt = false;
-    protected boolean checkCanSend;
-    protected boolean rightAdjd;
-    protected boolean manditoried;
-    boolean canSend = true;
-    int attr = 0;
-    int length = 0;
-    int ffw1 = 0;
-    int ffw2 = 0;
-    int fcw1 = 0;
-    int fcw2 = 0;
-    int cursorPos = 0;
-    Screen5250 s;
-    int cursorProg = 0;
-    int fieldId = 0;
-    ScreenField next = null;
-    ScreenField prev = null;
-    boolean isSelectionField;
-    int selectionFieldType;
-    int selectionIndex;
-    int selectionPos;
 }
+

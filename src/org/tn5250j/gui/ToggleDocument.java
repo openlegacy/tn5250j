@@ -20,12 +20,12 @@
  */
 package org.tn5250j.gui;
 
-import java.util.Vector;
-import javax.swing.text.PlainDocument;
+import org.tn5250j.event.ToggleDocumentListener;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-
-import org.tn5250j.event.ToggleDocumentListener;
+import javax.swing.text.PlainDocument;
+import java.util.Vector;
 
 public class ToggleDocument extends PlainDocument {
 

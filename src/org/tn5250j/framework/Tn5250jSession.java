@@ -19,10 +19,11 @@
  */
 package org.tn5250j.framework;
 
-import org.tn5250j.framework.tn5250.Screen5250;
-//import org.tn5250j.Screen5250;
 import org.tn5250j.SessionPanel;
+import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.tnvt;
+
+//import org.tn5250j.Screen5250;
 
 public class Tn5250jSession {
     private Screen5250 sessionScreen;

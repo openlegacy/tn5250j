@@ -1,43 +1,64 @@
 package org.tn5250j.swing.ui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.LayoutManager;
-import java.awt.Rectangle;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.RepaintManager;
-import javax.swing.SwingUtilities;
-import javax.swing.plaf.ActionMapUIResource;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.plaf.InputMapUIResource;
-import javax.swing.plaf.UIResource;
-
 import org.tn5250j.Session5250;
 import org.tn5250j.event.SessionChangeEvent;
 import org.tn5250j.event.SessionListener;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.swing.JTerminal;
 
+import javax.swing.*;
+import javax.swing.plaf.*;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 /**
  * For testing purpose
  */
 public class BasicTerminalUI {
+    public static final int MAX_POINT = 36;
+    public static final ColorUIResource DFT_BACKGROUND = new ColorUIResource(Color.black);
+    public static final ColorUIResource DFT_FOREGROUND = new ColorUIResource(Color.green);
+    public static final Font DFT_FONT = new FontUIResource("Monospaced", Font.BOLD, 12);
+    //============================================================================
+    //                              C o n s a n t s
+    //============================================================================
+    private static final String SIZE_POL_FIXED = "fixed";
+    private static final String SIZE_POL_DYNAMIC = "dynamic";
     boolean graphicsDebugMode = false;
+    //============================================================================
+    //                             V a r i a b l e s
+    //============================================================================
+    transient JTerminal terminal;
+    transient Session5250 session;
+    transient BasicScreen screen;
+    transient BasicOIA oia;
+    transient String fontName;
+    transient int fontStyle;
+    transient int[] widthMap;
+    transient int[] heightMap;
+    transient String sizePolicy;
+    //============================================================================
+    //                             L i s t e n e r s
+    //============================================================================
+    transient PropertyChangeListener propListener = new PropertyChangeHandler();
+    transient FocusListener focusListener = new FocusHandler();
+
+    /* *** NEVER USED LOCALLY ************************************************ */
+//  private int deriveFontSize(int width, int height)
+//  {
+//    int index = this.deriveScaleIndex(width, height);
+//
+//    return this.widthMap[index + 1];
+//  }
+    transient SessionListener sessListener = new SessionHandler();
+    transient RepaintHandler repainter = new RepaintHandler();
+
+    public BasicTerminalUI() {
+        super();
+    }
 
     public static void paintSubComponent(Graphics g, BasicSubUI component) {
         Rectangle tr = new Rectangle();
@@ -57,9 +78,31 @@ public class BasicTerminalUI {
         };
     }
 
-    public BasicTerminalUI() {
-        super();
-    }
+//     public class MouseHandler implements MouseListener
+//     {
+//       Rectangle bounds = new Rectangle();
+//
+//       public void mouseClicked(MouseEvent e)
+//       {
+//         if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK)
+//         {
+//           int       x = e.getX();
+//           int       y = e.getY();
+//   //        System.out.println("Mouse clicked "+x+","+y);
+//
+//           screen.getBounds(bounds);
+//
+//           if (bounds.contains(x, y))
+//   //          screen.setCursor(364, 85);
+//             screen.setCursor(x - bounds.x, y - bounds.y);
+//         }
+//       }
+//
+//       public void mousePressed(MouseEvent e) {};
+//       public void mouseReleased(MouseEvent e) {};
+//       public void mouseEntered(MouseEvent e) {};
+//       public void mouseExited(MouseEvent e) {};
+//     }
 
     public void paint(Graphics g, JComponent c) {
         if (session.isConnected())
@@ -90,13 +133,55 @@ public class BasicTerminalUI {
             throw new Error("TerminalUI needs JTerminal");
     }
 
+//     //============================================================================
+//     //                               A c t i o n s
+//     //============================================================================
+//     public class SendAidAction extends AbstractAction
+//     {
+//       public SendAidAction(int aidKey)
+//       {
+//         this.aidKey = aidKey;
+//       }
+//
+//       public void actionPerformed(ActionEvent e)
+//       {
+//         session.getScreen().sendAid(this.aidKey);
+//       }
+//
+//       public boolean isEnabled()
+//       {
+//         return session != null;
+//       }
+//
+//       private int aidKey;
+//     }
+//
+//     public class SendStringAction extends AbstractAction
+//     {
+//       public SendStringAction(String stringKey)
+//       {
+//         this.stringKey = stringKey;
+//       }
+//
+//       public void actionPerformed(ActionEvent e)
+//       {
+//         session.getScreen().sendKeys(this.stringKey, null);
+//       }
+//
+//       public boolean isEnabled()
+//       {
+//         return session != null;
+//       }
+//
+//       private String stringKey;
+//     }
+
     public void uninstallUI(JComponent c) {
         uninstallKeyboardActions();
         uninstallListeners();
         uninstallDefaults();
         uninstallComponents();
     }
-
 
     protected void installComponents() {
         Screen5250 screen = this.session.getScreen();
@@ -199,7 +284,6 @@ public class BasicTerminalUI {
 
         return map;
     }
-
 
     protected ActionMap getActionMap() {
         ActionMap componentMap = new ActionMapUIResource();
@@ -322,14 +406,6 @@ public class BasicTerminalUI {
         }
     }
 
-    /* *** NEVER USED LOCALLY ************************************************ */
-//  private int deriveFontSize(int width, int height)
-//  {
-//    int index = this.deriveScaleIndex(width, height);
-//
-//    return this.widthMap[index + 1];
-//  }
-
     private int deriveScaleIndex(int width, int height) {
         int w = width / screen.columns;
         int h = height / screen.rows;
@@ -342,6 +418,35 @@ public class BasicTerminalUI {
 
         return i;
     }
+
+    private void adjustScreen(int x, int y, int width, int height) {
+        int index = deriveScaleIndex(width, height);
+        Font font = new Font(fontName, fontStyle, widthMap[index + 1]);
+
+        if (sizePolicy == SIZE_POL_FIXED) {
+            int cW = widthMap[index];
+            int cH = heightMap[index];
+
+            screen.setFont(font, cW, cH);
+
+            cW = cW * screen.columns;
+            cH = cH * screen.rows;
+
+            width = width - cW;
+            height = height - cH;
+            x += width / 2;
+            y += height / 2;
+
+            screen.setBounds(x, y, cW, cH);
+        } else {
+            int cW = width / screen.columns;
+            int cH = height / screen.rows;
+
+            screen.setFont(font, cW, cH);
+            screen.setBounds(x, y, width, height);
+        }
+    }
+//  transient MouseHandler           mouselistener= new MouseHandler();
 
     //============================================================================
     //                             L a y o u t
@@ -397,35 +502,6 @@ public class BasicTerminalUI {
         }
     }
 
-    private void adjustScreen(int x, int y, int width, int height) {
-        int index = deriveScaleIndex(width, height);
-        Font font = new Font(fontName, fontStyle, widthMap[index + 1]);
-
-        if (SIZE_POL_FIXED.equals(sizePolicy)) {
-            int cW = widthMap[index];
-            int cH = heightMap[index];
-
-            screen.setFont(font, cW, cH);
-
-            cW = cW * screen.columns;
-            cH = cH * screen.rows;
-
-            width = width - cW;
-            height = height - cH;
-            x += width / 2;
-            y += height / 2;
-
-            screen.setBounds(x, y, cW, cH);
-        } else {
-            int cW = width / screen.columns;
-            int cH = height / screen.rows;
-
-            screen.setFont(font, cW, cH);
-            screen.setBounds(x, y, width, height);
-        }
-    }
-
-
     //============================================================================
     //                             L i s t e n e r s
     //============================================================================
@@ -452,6 +528,9 @@ public class BasicTerminalUI {
         }
     }
 
+//  private static final String          KEY_POL_STRING   = "string";
+//  private static final String          KEY_POL_AID      = "aid";
+
     public class FocusHandler implements FocusListener {
         public void focusGained(FocusEvent e) {
 //      System.out.println("Focus gained");
@@ -463,32 +542,6 @@ public class BasicTerminalUI {
             screen.setCursorEnabled(false);
         }
     }
-
-//     public class MouseHandler implements MouseListener
-//     {
-//       Rectangle bounds = new Rectangle();
-//
-//       public void mouseClicked(MouseEvent e)
-//       {
-//         if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK)
-//         {
-//           int       x = e.getX();
-//           int       y = e.getY();
-//   //        System.out.println("Mouse clicked "+x+","+y);
-//
-//           screen.getBounds(bounds);
-//
-//           if (bounds.contains(x, y))
-//   //          screen.setCursor(364, 85);
-//             screen.setCursor(x - bounds.x, y - bounds.y);
-//         }
-//       }
-//
-//       public void mousePressed(MouseEvent e) {};
-//       public void mouseReleased(MouseEvent e) {};
-//       public void mouseEntered(MouseEvent e) {};
-//       public void mouseExited(MouseEvent e) {};
-//     }
 
     public class RepaintHandler implements BasicSubUI.Repainter {
         public void addDirtyRectangle(BasicSubUI origin, int x, int y, int width, int height) {
@@ -503,87 +556,4 @@ public class BasicTerminalUI {
             terminal.repaint();
         }
     }
-
-//     //============================================================================
-//     //                               A c t i o n s
-//     //============================================================================
-//     public class SendAidAction extends AbstractAction
-//     {
-//       public SendAidAction(int aidKey)
-//       {
-//         this.aidKey = aidKey;
-//       }
-//
-//       public void actionPerformed(ActionEvent e)
-//       {
-//         session.getScreen().sendAid(this.aidKey);
-//       }
-//
-//       public boolean isEnabled()
-//       {
-//         return session != null;
-//       }
-//
-//       private int aidKey;
-//     }
-//
-//     public class SendStringAction extends AbstractAction
-//     {
-//       public SendStringAction(String stringKey)
-//       {
-//         this.stringKey = stringKey;
-//       }
-//
-//       public void actionPerformed(ActionEvent e)
-//       {
-//         session.getScreen().sendKeys(this.stringKey, null);
-//       }
-//
-//       public boolean isEnabled()
-//       {
-//         return session != null;
-//       }
-//
-//       private String stringKey;
-//     }
-
-    //============================================================================
-    //                             V a r i a b l e s
-    //============================================================================
-    transient JTerminal terminal;
-    transient Session5250 session;
-
-    transient BasicScreen screen;
-    transient BasicOIA oia;
-
-    transient String fontName;
-    transient int fontStyle;
-    transient int[] widthMap;
-    transient int[] heightMap;
-
-    transient String sizePolicy;
-
-    public static final int MAX_POINT = 36;
-
-    //============================================================================
-    //                             L i s t e n e r s
-    //============================================================================
-    transient PropertyChangeListener propListener = new PropertyChangeHandler();
-    transient FocusListener focusListener = new FocusHandler();
-    transient SessionListener sessListener = new SessionHandler();
-    transient RepaintHandler repainter = new RepaintHandler();
-//  transient MouseHandler           mouselistener= new MouseHandler();
-
-    //============================================================================
-    //                              C o n s a n t s
-    //============================================================================
-    private static final String SIZE_POL_FIXED = "fixed";
-    private static final String SIZE_POL_DYNAMIC = "dynamic";
-
-//  private static final String          KEY_POL_STRING   = "string";
-//  private static final String          KEY_POL_AID      = "aid";
-
-    public static final ColorUIResource DFT_BACKGROUND = new ColorUIResource(Color.black);
-    public static final ColorUIResource DFT_FOREGROUND = new ColorUIResource(Color.green);
-    public static final Font DFT_FONT = new FontUIResource("Monospaced", Font.BOLD, 12);
 }

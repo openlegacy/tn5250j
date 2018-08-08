@@ -33,6 +33,8 @@ package org.tn5250j.encoding;
  */
 public abstract class AbstractCodePage implements ICodePage {
 
+    protected String encoding;
+
     protected AbstractCodePage(String encoding) {
         this.encoding = encoding;
     }
@@ -40,6 +42,4 @@ public abstract class AbstractCodePage implements ICodePage {
     public String getEncoding() {
         return encoding;
     }
-
-    protected String encoding;
 }

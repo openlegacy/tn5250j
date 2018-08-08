@@ -25,13 +25,16 @@ import java.util.ArrayList;
 
 import org.tn5250j.tools.*;
 
+import org.tn5250j.tools.AlignLayout;
+import org.tn5250j.tools.LangTool;
+
 import javax.swing.*;
 
 public class DelimitedOutputFilter implements OutputFilterInterface {
 
-    PrintStream fout = null;
     static String delimiter = ",";
     static String stringQualifier = "\"";
+    PrintStream fout = null;
     StringBuffer sb = new StringBuffer();
 
     // create instance of file for output
@@ -210,3 +213,4 @@ public class DelimitedOutputFilter implements OutputFilterInterface {
         }
     }
 }
+

@@ -25,8 +25,8 @@
  */
 package org.tn5250j.gui;
 
-import java.awt.*;
 import javax.swing.*;
+import java.awt.*;
 
 public class TN5250jFontsSelection extends JComboBox {
 

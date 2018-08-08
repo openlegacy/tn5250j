@@ -1,5 +1,4 @@
-/*
- *
+/**
  * <p>Title: SessionBean</p>
  * <p>Description: TN5250 Session as a bean with auto signon features</p>
  * <p>Copyright: Copyright (c) 2000 - 2004</p>
@@ -7,17 +6,17 @@
  *
  * @author Luc Gorrens
  * @version 1.0
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
@@ -45,16 +44,25 @@ import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Properties;
 
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.border.Border;
-import javax.swing.plaf.ComponentUI;
+import static org.tn5250j.TN5250jConstants.*;
 
 
 public class SessionBean extends SessionPanel {
 
     private static final long serialVersionUID = 1L;
+    private Dimension preferredSize;
+    private Rectangle prevRect;
+    private Properties sessionProperties;
+    private boolean embeddedSignon;
+    private String user;
+    private String password;
+    private String library;
+    private String menu;
+    private String program;
+    private String initialCommand;
+    private String afterSignon;
+    private int visibilityInterval;
+
 
     //      // ===========================================================================
 //      //                      C o n s t r u c t o r s
@@ -80,12 +88,50 @@ public class SessionBean extends SessionPanel {
 //    this.getConfiguration().addSessionConfigListener(this);
     }
 
+
     public SessionBean(Session5250 session) {
 
         super(session);
         this.sessionProperties = session.sesProps;
         this.sessionProperties.put(SESSION_LOCALE, Locale.getDefault());
         this.getSession().getConfiguration().addSessionConfigListener(this);
+    }
+
+    //============================================================================
+    //                    U t i l i t y   M e t h o d s
+    //============================================================================
+    private static boolean isSignificant(String param) {
+        if ((param != null) && (param.length() != 0))
+            return true;
+
+        return false;
+    }
+
+    private static Dimension deriveOptimalSize(JComponent comp, Font f
+            , int nrChars, int nrLines) {
+        return deriveOptimalSize(comp, f, comp.getBorder(), nrChars, nrLines);
+    }
+
+    private static Dimension deriveOptimalSize(JComponent comp, Font f
+            , Border brdr, int nrChars
+            , int nrLines) {
+        if (comp == null)
+            return null;
+
+        FontMetrics fm = null;
+        Graphics g = comp.getGraphics();
+
+        if (g != null)
+            fm = g.getFontMetrics(f);
+        else
+            fm = comp.getFontMetrics(f);
+
+        Insets insets = (brdr == null) ? new Insets(0, 0, 0, 0)
+                : brdr.getBorderInsets(comp);
+        int height = (fm.getHeight() * nrLines) + insets.top + insets.bottom;
+        int width = (nrChars * fm.charWidth('M')) + insets.left + insets.right;
+
+        return new Dimension(width + 2, height);
     }
 
     // ===========================================================================
@@ -99,7 +145,6 @@ public class SessionBean extends SessionPanel {
         this.setIPAddress(InetAddress.getByName(hostName).getHostAddress());
     }
 
-
     public void setIPAddress(String ipAddress)
             throws IllegalStateException {
         failIfConnected();
@@ -107,7 +152,6 @@ public class SessionBean extends SessionPanel {
         if (isSignificant(ipAddress))
             sessionProperties.put(SESSION_HOST, ipAddress);
     }
-
 
     public void setIPPort(int ipPort) {
         failIfConnected();
@@ -118,6 +162,9 @@ public class SessionBean extends SessionPanel {
         sessionProperties.put(SESSION_HOST_PORT, Integer.toString(ipPort));
     }
 
+    // ===========================================================================
+    //             J C o m p o n e n t   I m p l e m e n t a t i o n
+    // ===========================================================================
 
     public void setCodePage(String charEncoding) {
         failIfConnected();
@@ -136,7 +183,6 @@ public class SessionBean extends SessionPanel {
             sessionProperties.put(SESSION_DEVICE_NAME, deviceName);
     }
 
-
     public void setScreenSize(String screenSize) {
         failIfConnected();
 
@@ -146,13 +192,11 @@ public class SessionBean extends SessionPanel {
             sessionProperties.put(SESSION_SCREEN_SIZE, SCREEN_SIZE_24X80_STR);
     }
 
-
     public void setSignonEmbedded(boolean embed) {
         failIfConnected();
 
         this.embeddedSignon = embed;
     }
-
 
     public void setSignonUser(String user) {
         failIfConnected();
@@ -161,14 +205,12 @@ public class SessionBean extends SessionPanel {
         this.user = user;
     }
 
-
     public void setSignonPassword(String password) {
         failIfConnected();
         failIfNot10(password);
 
         this.password = password;
     }
-
 
     public void setSignonLibrary(String library) {
         failIfConnected();
@@ -177,14 +219,12 @@ public class SessionBean extends SessionPanel {
         this.library = library;
     }
 
-
     public void setSignonMenu(String menu) {
         failIfConnected();
         failIfNot10(menu);
 
         this.menu = menu;
     }
-
 
     public void setSignonProgram(String program) {
         failIfConnected();
@@ -193,20 +233,17 @@ public class SessionBean extends SessionPanel {
         this.program = program;
     }
 
-
     public void setAfterSignonMacro(String macro) {
         failIfConnected();
 
         this.afterSignon = macro;
     }
 
-
     public void setInitialCommand(String command) {
         failIfConnected();
 
         this.initialCommand = command;
     }
-
 
     public void setVisibilityInterval(int interval) {
         failIfConnected();
@@ -218,7 +255,6 @@ public class SessionBean extends SessionPanel {
 //    else
 //      this.setVisible(false);
     }
-
 
     public void connect() {
         failIfConnected();
@@ -266,10 +302,6 @@ public class SessionBean extends SessionPanel {
         this.session.getVT().systemRequest(srCode);
     }
 
-    // ===========================================================================
-    //             J C o m p o n e n t   I m p l e m e n t a t i o n
-    // ===========================================================================
-
     /**
      * Causes this component to lay out its components. Overruled in this case
      * dynamically adjust the font size to the new layout.
@@ -296,13 +328,12 @@ public class SessionBean extends SessionPanel {
         prevRect = rect;
     }
 
-
     /**
      * If the <code>preferredSize</code> has been set to a
      * non-<code>null</code> value just returns it.
      * Otherwise, the preferred size is calculated from the font size to fill
      * a rectangle of <code>80 x 24</code> character.
-     * <p>
+     *<p>
      * So this overrules the normal behaviour to delegate the preferred size first
      * to the UI component or the layoutmanager in case the UI returns nothing.
      *
@@ -317,22 +348,22 @@ public class SessionBean extends SessionPanel {
         return super.getPreferredSize();
     }
 
-
     /**
      * Sets the preferred size of this component.
      *
      * @param preferredSize to use when laying out this component.
      *                      If <code>preferredSize</code> is <code>null</code>,
      *                      the UI will be asked for the preferred size.
-     * @beaninfo preferred: true
-     * bound: true
+     *
+      @beaninfo
+        preferred: true
+     *       bound: true
      * description: The preferred size of the component.
      */
     public void setPreferredSize(Dimension preferredSize) {
         this.preferredSize = preferredSize;
         super.setPreferredSize(preferredSize);
     }
-
 
     //============================================================================
     //            P r i v a t e   M e t h o d s   a n d   F i e l d s
@@ -397,7 +428,6 @@ public class SessionBean extends SessionPanel {
         this.getScreen().sendKeys(sb.toString());
     }
 
-
     private void doAfterSignon() {
         if (isSignificant(afterSignon))
             this.getScreen().sendKeys(afterSignon);
@@ -437,62 +467,9 @@ public class SessionBean extends SessionPanel {
             throw new IllegalArgumentException("The length of the parameter cannot exceed 10 positions!");
     }
 
-
-    private Dimension preferredSize;
-    private Rectangle prevRect;
-    private Properties sessionProperties;
-
-    private boolean embeddedSignon;
-    private String user;
-    private String password;
-    private String library;
-    private String menu;
-    private String program;
-    private String initialCommand;
-    private String afterSignon;
-    private int visibilityInterval;
-
-    //============================================================================
-    //                    U t i l i t y   M e t h o d s
-    //============================================================================
-    private static boolean isSignificant(String param) {
-        if ((param != null) && (param.length() != 0))
-            return true;
-
-        return false;
-    }
-
-
-    private static Dimension deriveOptimalSize(JComponent comp, Font f
-            , int nrChars, int nrLines) {
-        return deriveOptimalSize(comp, f, comp.getBorder(), nrChars, nrLines);
-    }
-
-
-    private static Dimension deriveOptimalSize(JComponent comp, Font f
-            , Border brdr, int nrChars
-            , int nrLines) {
-        if (comp == null)
-            return null;
-
-        FontMetrics fm = null;
-        Graphics g = comp.getGraphics();
-
-        if (g != null)
-            fm = g.getFontMetrics(f);
-        else
-            fm = comp.getFontMetrics(f);
-
-        Insets insets = (brdr == null) ? new Insets(0, 0, 0, 0)
-                : brdr.getBorderInsets(comp);
-        int height = (fm.getHeight() * nrLines) + insets.top + insets.bottom;
-        int width = (nrChars * fm.charWidth('M')) + insets.left + insets.right;
-
-        return new Dimension(width + 2, height);
-    }
-
     public void setNoSaveConfigFile() {
         this.sesConfig.removeProperty("saveme");
+//     sessionProperties.remove("saveme");
     }
 
 

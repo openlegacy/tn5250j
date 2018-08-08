@@ -20,13 +20,16 @@
  */
 package org.tn5250j.framework.common;
 
-import java.util.*;
-import java.awt.event.*;
-import javax.swing.Timer;
-
 import org.tn5250j.Session5250;
-import org.tn5250j.tools.logging.*;
 import org.tn5250j.interfaces.SessionsInterface;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

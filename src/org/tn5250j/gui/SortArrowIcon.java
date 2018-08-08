@@ -14,8 +14,8 @@ package org.tn5250j.gui;
 =====================================================================
 */
 
-import java.awt.*;
 import javax.swing.*;
+import java.awt.*;
 
 public class SortArrowIcon implements Icon {
 

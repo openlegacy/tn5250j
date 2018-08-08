@@ -26,15 +26,10 @@
  */
 package org.tn5250j.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 import org.tn5250j.tools.LangTool;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Small dialog asking the user to confirm the close tab request

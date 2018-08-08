@@ -32,6 +32,10 @@ import org.tn5250j.tools.AlignLayout;
 
 import org.tn5250j.event.ToggleDocumentListener;
 import org.tn5250j.gui.ToggleDocument;
+import org.tn5250j.tools.AlignLayout;
+
+import javax.swing.*;
+import java.awt.event.ItemEvent;
 
 public class SpoolNameTabPanel extends JPanel implements QueueFilterInterface,
         ToggleDocumentListener {
@@ -125,3 +129,4 @@ public class SpoolNameTabPanel extends JPanel implements QueueFilterInterface,
         spoolName.setText(filter);
     }
 }
+

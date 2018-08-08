@@ -26,6 +26,7 @@
 package org.tn5250j.keyboard.actions;
 
 import org.tn5250j.SessionPanel;
+import org.tn5250j.TN5250jConstants;
 import org.tn5250j.keyboard.KeyMapper;
 
 import javax.swing.*;
@@ -53,3 +54,4 @@ public class PrintAction extends EmulatorAction {
         session.printMe();
     }
 }
+

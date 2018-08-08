@@ -15,11 +15,10 @@ import static org.tn5250j.framework.tn5250.Stream5250.OPCODE_OFFSET;
 public class DataStreamProducer implements Runnable {
 
     private static final int MINIMAL_PARTIAL_STREAM_LEN = 2;
-
+    private final BlockingQueue<Object> dsq;
     private BufferedInputStream bin;
     private ByteArrayOutputStream baosin;
     private byte[] saveStream;
-    private final BlockingQueue<Object> dsq;
     private tnvt vt;
     private byte[] dataStream;
 
@@ -232,3 +231,4 @@ public class DataStreamProducer implements Runnable {
         dataStreamDumper.toggleDebug(codePage);
     }
 }
+

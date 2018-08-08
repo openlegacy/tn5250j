@@ -1,43 +1,29 @@
 package org.tn5250j;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Properties;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
-
 import org.tn5250j.interfaces.ConfigureFactory;
 import org.tn5250j.tools.AlignLayout;
 import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
+import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Properties;
+
 public class ExternalProgramConfig {
 
-    private static TN5250jLogger log =
-            TN5250jLogFactory.getLogger("org.tn5250j.ExternalProgramConfig");
-
-    private static ExternalProgramConfig etnConfig;
     public static final String EXTERNAL_PROGRAM_REGISTRY_KEY = "etnPgmProps";
     public static final String EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME = "tn5250jExternalProgram.properties";
     public static final String EXTERNAL_PROGRAM_HEADER = "External Program Settings";
-    private Properties etnPgmProps;
-
+    private static TN5250jLogger log =
+            TN5250jLogFactory.getLogger("org.tn5250j.ExternalProgramConfig");
+    private static ExternalProgramConfig etnConfig;
     private static Properties props = null;
     private static JTextField name = null;
     private static JTextField wCommand = null;
@@ -45,57 +31,17 @@ public class ExternalProgramConfig {
     private static JDialog dialog = null;
     private static Object[] options;
     private static String num = "1";
+    private Properties etnPgmProps;
+
+    private ExternalProgramConfig() {
+        etnPgmProps = loadExternalProgramSettings();
+    }
 
     public static ExternalProgramConfig getInstance() {
         if (etnConfig == null) {
             etnConfig = new ExternalProgramConfig();
         }
         return etnConfig;
-    }
-
-    private ExternalProgramConfig() {
-        etnPgmProps = loadExternalProgramSettings();
-    }
-
-    public Properties getEtnPgmProps() {
-        return this.etnPgmProps;
-    }
-
-    private final Properties loadExternalProgramSettings() {
-        Properties etnProps = null;
-        try {
-            etnProps = ConfigureFactory.getInstance().getProperties(
-                    EXTERNAL_PROGRAM_REGISTRY_KEY,
-                    EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME, false,
-                    "Default Settings");
-            log.info("begin loading external program settings");
-            if (etnProps.size() == 0) {
-                Properties defaultProps = new Properties();
-                java.net.URL file = null;
-                ClassLoader cl = this.getClass().getClassLoader();
-                if (cl == null)
-                    cl = ClassLoader.getSystemClassLoader();
-                file = cl.getResource(EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME);
-                defaultProps.load(file.openStream());
-
-                // we will now load the default settings
-                for (Enumeration e = defaultProps.keys(); e.hasMoreElements(); ) {
-                    String key = (String) e.nextElement();
-                    etnProps.setProperty(key, defaultProps.getProperty(key));
-
-                }
-                ConfigureFactory.getInstance().saveSettings(EXTERNAL_PROGRAM_REGISTRY_KEY,
-                        EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME,
-                        EXTERNAL_PROGRAM_HEADER);
-            }
-
-        } catch (IOException ioe) {
-            log.error(ioe.getMessage());
-        } catch (SecurityException se) {
-            log.error(se.getMessage());
-        }
-
-        return etnProps;
     }
 
     public static String doEntry(Frame parent, String propKey, Properties props2) {
@@ -106,7 +52,7 @@ public class ExternalProgramConfig {
         if (propKey != null) {
             for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
                 String key = (String) e.nextElement();
-                if (propKey.equals(props.getProperty(key))) {
+                if (props.getProperty(key) == propKey) {
                     String subKey = key.substring(8);
                     int index = subKey.indexOf(".");
                     num = subKey.substring(0, index);
@@ -231,6 +177,55 @@ public class ExternalProgramConfig {
 
     }
 
+    private static void doSomethingEntered() {
+        ((JButton) options[0]).setEnabled(true);
+    }
+
+    private static void doNothingEntered() {
+        ((JButton) options[0]).setEnabled(false);
+    }
+
+    public Properties getEtnPgmProps() {
+        return this.etnPgmProps;
+    }
+
+    private final Properties loadExternalProgramSettings() {
+        Properties etnProps = null;
+        try {
+            etnProps = ConfigureFactory.getInstance().getProperties(
+                    EXTERNAL_PROGRAM_REGISTRY_KEY,
+                    EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME, false,
+                    "Default Settings");
+            log.info("begin loading external program settings");
+            if (etnProps.size() == 0) {
+                Properties defaultProps = new Properties();
+                java.net.URL file = null;
+                ClassLoader cl = this.getClass().getClassLoader();
+                if (cl == null)
+                    cl = ClassLoader.getSystemClassLoader();
+                file = cl.getResource(EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME);
+                defaultProps.load(file.openStream());
+
+                // we will now load the default settings
+                for (Enumeration e = defaultProps.keys(); e.hasMoreElements(); ) {
+                    String key = (String) e.nextElement();
+                    etnProps.setProperty(key, defaultProps.getProperty(key));
+
+                }
+                ConfigureFactory.getInstance().saveSettings(EXTERNAL_PROGRAM_REGISTRY_KEY,
+                        EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME,
+                        EXTERNAL_PROGRAM_HEADER);
+            }
+
+        } catch (IOException ioe) {
+            log.error(ioe.getMessage());
+        } catch (SecurityException se) {
+            log.error(se.getMessage());
+        }
+
+        return etnProps;
+    }
+
     private static class SomethingEnteredDocument extends PlainDocument {
 
         private static final long serialVersionUID = 1L;
@@ -248,13 +243,5 @@ public class ExternalProgramConfig {
             if (getText(0, getLength()).length() == 0)
                 doNothingEntered();
         }
-    }
-
-    private static void doSomethingEntered() {
-        ((JButton) options[0]).setEnabled(true);
-    }
-
-    private static void doNothingEntered() {
-        ((JButton) options[0]).setEnabled(false);
     }
 }

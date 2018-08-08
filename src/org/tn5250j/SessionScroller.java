@@ -40,6 +40,7 @@ import static org.tn5250j.keyboard.KeyMnemonic.PAGE_UP;
 public class SessionScroller implements MouseWheelListener {
 
     private Screen5250 screen = null;
+    ;
 
     public void addMouseWheelListener(SessionPanel ses) {
         this.screen = ses.getScreen();

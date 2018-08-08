@@ -23,8 +23,6 @@ package org.tn5250j;
 import org.tn5250j.event.SessionConfigEvent;
 import org.tn5250j.event.SessionConfigListener;
 import org.tn5250j.interfaces.ConfigureFactory;
-import org.tn5250j.keyboard.KeyMnemonic;
-import org.tn5250j.keyboard.KeyMnemonicSerializer;
 import org.tn5250j.tools.GUIGraphicsUtils;
 import org.tn5250j.tools.LangTool;
 
@@ -51,23 +49,12 @@ import static org.tn5250j.keyboard.KeyMnemonic.*;
  */
 public class SessionConfig {
 
-    public static final float KEYPAD_FONT_SIZE_DEFAULT_VALUE = 12.0f;
-    public static final String CONFIG_KEYPAD_FONT_SIZE = "keypadFontSize";
-    public static final String CONFIG_KEYPAD_ENABLED = "keypad";
-    public static final String CONFIG_KEYPAD_MNEMONICS = "keypadMnemonics";
-    public static final String YES = "Yes";
-    public static final String NO = "No";
-
-    private final SessionConfiguration sessionConfiguration = new SessionConfiguration();
-    private final KeyMnemonicSerializer keyMnemonicSerializer = new KeyMnemonicSerializer();
-
+    private final ReadWriteLock sessionCfglistenersLock = new ReentrantReadWriteLock();
     private String configurationResource;
     private String sessionName;
     private Properties sesProps;
     private boolean usingDefaults;
-
     private List<SessionConfigListener> sessionCfglisteners = null;
-    private final ReadWriteLock sessionCfglistenersLock = new ReentrantReadWriteLock();
 
     public SessionConfig(String configurationResource, String sessionName) {
         this.configurationResource = configurationResource;
@@ -110,17 +97,19 @@ public class SessionConfig {
 
     }
 
-    /**
-     * @return
-     * @deprecated see {@link SessionConfiguration}
-     */
-    @Deprecated
     public Properties getProperties() {
 
         return sesProps;
     }
 
+    public void setSessionProps(Properties props) {
+
+        sesProps.putAll(props);
+
+    }
+
     public void setModified() {
+
         sesProps.setProperty("saveme", "");
     }
 
@@ -241,11 +230,6 @@ public class SessionConfig {
         return sesProps.containsKey(prop);
     }
 
-    /**
-     * @return
-     * @deprecated see {@link SessionConfiguration}
-     */
-    @Deprecated
     public String getStringProperty(String prop) {
 
         if (sesProps.containsKey(prop)) {
@@ -255,11 +239,6 @@ public class SessionConfig {
 
     }
 
-    /**
-     * @return
-     * @deprecated see {@link SessionConfiguration}
-     */
-    @Deprecated
     public int getIntegerProperty(String prop) {
 
         if (sesProps.containsKey(prop)) {
@@ -273,11 +252,6 @@ public class SessionConfig {
 
     }
 
-    /**
-     * @return
-     * @deprecated see {@link SessionConfiguration}
-     */
-    @Deprecated
     public Color getColorProperty(String prop) {
 
         if (sesProps.containsKey(prop)) {
@@ -424,3 +398,4 @@ public class SessionConfig {
     }
 
 }
+

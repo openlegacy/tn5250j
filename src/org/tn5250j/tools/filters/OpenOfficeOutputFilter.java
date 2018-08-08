@@ -21,17 +21,18 @@ package org.tn5250j.tools.filters;
  *
  */
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.util.ArrayList;
 
 public class OpenOfficeOutputFilter implements OutputFilterInterface {
 
-    private int row;
     StringBuffer sb;
-
     ZipOutputStream fout = null;
+    private int row;
 
     // create instance of file for output
     public void createFileInstance(String fileName) throws
@@ -472,3 +473,4 @@ public class OpenOfficeOutputFilter implements OutputFilterInterface {
     }
 
 }
+

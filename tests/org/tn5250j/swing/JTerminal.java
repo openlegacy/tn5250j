@@ -1,12 +1,11 @@
 package org.tn5250j.swing;
 
-import java.awt.AWTEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.JComponent;
-
 import org.tn5250j.Session5250;
 import org.tn5250j.keyboard.KeyboardHandler;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 
 /**
  * For testing purpose
@@ -16,6 +15,7 @@ public class JTerminal extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private KeyboardHandler keyHandler;
+    private Session5250 session;
 
     public JTerminal(Session5250 session) {
         super();
@@ -45,10 +45,6 @@ public class JTerminal extends JComponent {
         return true;
     }
 
-    public boolean isFocusTraversalKeysEnabled() {
-        return false;
-    }
-
 //  protected void processComponentKeyEvent(KeyEvent e)
 //  {
 //    if (e.getID() == KeyEvent.KEY_TYPED)
@@ -61,6 +57,10 @@ public class JTerminal extends JComponent {
 //      }
 //    }
 //  }
+
+    public boolean isFocusTraversalKeysEnabled() {
+        return false;
+    }
 
     public void processKeyEvent(KeyEvent evt) {
 
@@ -112,6 +112,5 @@ public class JTerminal extends JComponent {
 //    map.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), OS_OHIO_MNEMONIC_RIGHT);
 //    map.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false), OS_OHIO_MNEMONIC_UP);
     }
-
-    private Session5250 session;
 }
+

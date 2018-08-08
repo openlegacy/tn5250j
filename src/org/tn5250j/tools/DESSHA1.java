@@ -33,13 +33,11 @@ import java.security.MessageDigest;
 public class DESSHA1 implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    /** Message digest object. */
-    private final MessageDigest md;
-
     /** quick array to convert byte values to hex codes. */
     private final static char[] HEX = {'0', '1', '2', '3', '4', '5', '6', '7',
             '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    /** Message digest object. */
+    private final MessageDigest md;
 
     /**
      * Creates a new <code>MessageDigest</code> instance.
@@ -51,23 +49,6 @@ public class DESSHA1 implements Serializable {
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new InstantiationException("No such algorithm: SHA");
         }
-    }
-
-    /**
-     * used to hash passwords and other key data to fireSend over the wire,
-     * to prevent plaintext transmit.
-     *
-     * @param identifier prefix, such as the SessionID
-     * @param key passkey, such as password or handshake
-     * @return <code>String</code> with the hash in hex string form
-     */
-    public String digest(String identifier, String key) {
-        if (identifier != null)
-            md.update(identifier.getBytes());
-        if (key != null)
-            md.update(key.getBytes());
-
-        return DESSHA1.bytesToHex(md.digest());
     }
 
     /**
@@ -89,5 +70,22 @@ public class DESSHA1 implements Serializable {
         }
 
         return retval.toString();
+    }
+
+    /**
+     * used to hash passwords and other key data to fireSend over the wire,
+     * to prevent plaintext transmit.
+     *
+     * @param identifier prefix, such as the SessionID
+     * @param key passkey, such as password or handshake
+     * @return <code>String</code> with the hash in hex string form
+     */
+    public String digest(String identifier, String key) {
+        if (identifier != null)
+            md.update(identifier.getBytes());
+        if (key != null)
+            md.update(key.getBytes());
+
+        return DESSHA1.bytesToHex(md.digest());
     }
 }

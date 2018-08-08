@@ -678,6 +678,14 @@ public class SessionPopup {
 
     }
 
+    /* *** NEVER USED LOCALLY ************************************************** */
+    //   private void runScript () {
+    //
+    //      Macronizer.showRunScriptDialog(session);
+    //     session.getFocusForMe();
+    //
+    //   }
+
     private void doMeTransfer() {
 
         new XTFRFile((Frame) SwingUtilities.getRoot(sessiongui), vt, sessiongui);

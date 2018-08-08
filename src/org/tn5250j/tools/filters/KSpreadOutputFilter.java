@@ -21,15 +21,17 @@ package org.tn5250j.tools.filters;
  *
  */
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class KSpreadOutputFilter implements OutputFilterInterface {
 
-    private int row;
     StringBuffer sb;
-
     PrintStream fout = null;
+    private int row;
 
     // create instance of file for output
     public void createFileInstance(String fileName) throws
@@ -199,3 +201,4 @@ public class KSpreadOutputFilter implements OutputFilterInterface {
     }
 
 }
+

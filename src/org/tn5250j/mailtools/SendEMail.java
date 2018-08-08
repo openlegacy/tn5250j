@@ -25,30 +25,24 @@
  */
 package org.tn5250j.mailtools;
 
-import java.util.Date;
+import org.tn5250j.interfaces.ConfigureFactory;
+import org.tn5250j.tools.LangTool;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.SendFailedException;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
-import org.tn5250j.interfaces.ConfigureFactory;
-import org.tn5250j.tools.LangTool;
+import javax.swing.*;
+import java.util.Date;
 
 public class SendEMail {
 
+    // SMTP Properties file
+    java.util.Properties SMTPProperties;
     private String to;
     private String from;
     private String pers;
@@ -60,68 +54,60 @@ public class SendEMail {
     private String attachmentName;
     private String fileName;
 
-    // SMTP Properties file
-    java.util.Properties SMTPProperties;
-
-    public void setTo(String to) {
-        this.to = to;
-    }
-
     public String getTo() {
         return to;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setTo(String to) {
+        this.to = to;
     }
 
     public String getFrom() {
         return from;
     }
 
-    public void setCC(String cc) {
-        this.cc = cc;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public String getCC() {
         return cc;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setCC(String cc) {
+        this.cc = cc;
     }
 
     public String getSubject() {
         return subject;
     }
 
-    public void setConfigFile(String file) {
-        this.configFile = file;
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public String getConfigFile() {
         return configFile;
     }
 
-    public void setAttachment(String text) {
-        this.attachment = text;
+    public void setConfigFile(String file) {
+        this.configFile = file;
     }
 
     public String getAttachment() {
         return attachment;
     }
 
-    public void setMessage(String text) {
-        this.message = text;
+    public void setAttachment(String text) {
+        this.attachment = text;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setAttachmentName(String desc) {
-
-        attachmentName = desc;
+    public void setMessage(String text) {
+        this.message = text;
     }
 
     public String getAttachmentName() {
@@ -130,14 +116,18 @@ public class SendEMail {
 
     }
 
-    public void setFileName(String name) {
-        this.fileName = name;
+    public void setAttachmentName(String desc) {
+
+        attachmentName = desc;
     }
 
     public String getFileName() {
         return fileName;
     }
 
+    public void setFileName(String name) {
+        this.fileName = name;
+    }
 
     /**
      * <p>Loads the given configuration file.

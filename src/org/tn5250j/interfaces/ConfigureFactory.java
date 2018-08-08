@@ -100,3 +100,4 @@ public abstract class ConfigureFactory {
     abstract public void saveSettings(String regKey, String fileName, String header);
 
 }
+

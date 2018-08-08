@@ -26,7 +26,8 @@ package org.tn5250j;
  */
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 public interface RubberBandCanvasIF {
     void addMouseListener(MouseListener l);
@@ -47,3 +48,4 @@ public interface RubberBandCanvasIF {
     Graphics getDrawingGraphics();
 
 }
+

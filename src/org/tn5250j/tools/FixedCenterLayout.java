@@ -26,13 +26,8 @@
 
 package org.tn5250j.tools;
 
-import java.awt.LayoutManager2;
+import java.awt.*;
 import java.io.Serializable;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Container;
-import java.awt.BorderLayout;
-import java.awt.Insets;
 
 /**
  * Fixed Center layout.

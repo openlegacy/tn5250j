@@ -25,23 +25,14 @@
  */
 package org.tn5250j.framework.tn5250;
 
-import static org.tn5250j.TN5250jConstants.BOTTOM;
-import static org.tn5250j.TN5250jConstants.GUI_LEFT;
-import static org.tn5250j.TN5250jConstants.GUI_RIGHT;
-import static org.tn5250j.TN5250jConstants.LOWER_LEFT;
-import static org.tn5250j.TN5250jConstants.LOWER_RIGHT;
-import static org.tn5250j.TN5250jConstants.NO_GUI;
-import static org.tn5250j.TN5250jConstants.NR_REQUEST_ERROR;
-import static org.tn5250j.TN5250jConstants.UPPER;
-import static org.tn5250j.TN5250jConstants.UPPER_LEFT;
-import static org.tn5250j.TN5250jConstants.UPPER_RIGHT;
+import org.tn5250j.encoding.ICodePage;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.tn5250j.encoding.ICodePage;
-import org.tn5250j.tools.logging.TN5250jLogFactory;
-import org.tn5250j.tools.logging.TN5250jLogger;
+import static org.tn5250j.TN5250jConstants.*;
 
 /**
  *
@@ -53,19 +44,17 @@ import org.tn5250j.tools.logging.TN5250jLogger;
  */
 public class WTDSFParser {
 
-    private Screen5250 screen52;
-    private tnvt vt;
-    private ICodePage codePage;
+    private final List<Window> guiStructs = new ArrayList<Window>(3);
+    private final List<ChoiceField> choices = new ArrayList<ChoiceField>(3);
     int pos;
     byte[] segment;
     int length;
     boolean error;
     boolean guiStructsExist;
-
+    private Screen5250 screen52;
+    private tnvt vt;
+    private ICodePage codePage;
     private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
-
-    private final List<Window> guiStructs = new ArrayList<Window>(3);
-    private final List<ChoiceField> choices = new ArrayList<ChoiceField>(3);
 
 
     WTDSFParser(tnvt vt) {
@@ -73,41 +62,6 @@ public class WTDSFParser {
         this.vt = vt;
         screen52 = vt.screen52;
         codePage = vt.codePage;
-
-    }
-
-    protected class ChoiceField {
-
-        int x;
-        int y;
-        int row;
-        int col;
-        int width;
-        int height;
-        char mnemonic;
-        int fieldId;
-        int selectIndex;
-
-        ChoiceField(int row, int col, int fldRow, int fldCol) {
-            this.x = row;
-            this.y = col;
-            this.row = fldRow;
-            this.col = fldCol;
-        }
-    }
-
-    protected class Window {
-
-        byte[] window;
-        int pos;
-
-        Window(byte[] seg, int pos) {
-
-            //log.info("window created at " + pos);
-            window = seg;
-            this.pos = pos;
-            guiStructsExist = true;
-        }
 
     }
 
@@ -642,76 +596,6 @@ public class WTDSFParser {
 
     }
 
-    /* *** NEVER USED LOCALLY ************************************************** */
-//	private void clearWindowBody(ScreenPlanes planes, int startPos, int depth, int width) {
-//
-//	   int lastPos = startPos;
-//		char initChar = Screen5250.initChar;
-//		int initAttr = Screen5250.initAttr;
-//
-//		// now handle body of window
-//		while (depth-- > 0) {
-//
-//			// set leading attribute byte
-////				planes.setScreenCharAndAttr(lastPos,initChar, initAttr, true);
-////				setDirty(lastPos);
-////				advancePos();
-////
-////				// set left
-////				planes.setScreenCharAndAttr(lastPos, (char) left, colorAttr, false);
-////
-////				if (gui) {
-////					planes.setUseGUI(lastPos,GUI_LEFT);
-////				}
-////				setDirty(lastPos);
-////				advancePos();
-//
-//			int w = width;
-//			// fill it in
-//			while (w-- >= 0) {
-////				screen[lastPos].setCharAndAttr(initChar, initAttr, true);
-//				planes.setScreenCharAndAttr(lastPos,initChar, initAttr, true);
-////				screen[lastPos].setUseGUI(NO_GUI);
-//				planes.setUseGUI(lastPos,NO_GUI);
-////				setDirty(lastPos);
-//				lastPos++;
-//				advancePos();
-//			}
-//
-////				// set right
-////	//			screen[lastPos].setCharAndAttr((char) right, colorAttr, false);
-////				planes.setScreenCharAndAttr(lastPos,(char) right, colorAttr, false);
-////				if (gui) {
-////	//				screen[lastPos].setUseGUI(RIGHT);
-////					planes.setUseGUI(lastPos,GUI_RIGHT);
-////				}
-////
-////				setDirty(lastPos);
-////				advancePos();
-////
-////				// set ending attribute byte
-////	//			screen[lastPos].setCharAndAttr(initChar, initAttr, true);
-////				planes.setScreenCharAndAttr(lastPos,initChar, initAttr, true);
-////				setDirty(lastPos);
-//
-//			lastPos = startPos;
-//		}
-//
-//	}
-
-    /* *** NEVER USED LOCALLY ************************************************** */
-//	private void setDirty(int pos) {
-//
-//	   screen52.setDirty(pos);
-//
-//	}
-
-    /* *** NEVER USED LOCALLY ************************************************** */
-//	private void advancePos() {
-//
-//	   screen52.advancePos();
-//	}
-
     private void defineSelectionField(int majLen) {
 
         //   0030:  20 00 2C 3E 00 00 00 69 12 A0 00 00 04 00 00 03  .,>...i........
@@ -933,6 +817,111 @@ public class WTDSFParser {
         }
     }
 
+    protected class ChoiceField {
+
+        int x;
+        int y;
+        int row;
+        int col;
+        int width;
+        int height;
+        char mnemonic;
+        int fieldId;
+        int selectIndex;
+
+        ChoiceField(int row, int col, int fldRow, int fldCol) {
+            x = row;
+            y = col;
+            row = fldRow;
+            col = fldCol;
+        }
+    }
+
+    /* *** NEVER USED LOCALLY ************************************************** */
+//	private void clearWindowBody(ScreenPlanes planes, int startPos, int depth, int width) {
+//
+//	   int lastPos = startPos;
+//		char initChar = Screen5250.initChar;
+//		int initAttr = Screen5250.initAttr;
+//
+//		// now handle body of window
+//		while (depth-- > 0) {
+//
+//			// set leading attribute byte
+////				planes.setScreenCharAndAttr(lastPos,initChar, initAttr, true);
+////				setDirty(lastPos);
+////				advancePos();
+////
+////				// set left
+////				planes.setScreenCharAndAttr(lastPos, (char) left, colorAttr, false);
+////
+////				if (gui) {
+////					planes.setUseGUI(lastPos,GUI_LEFT);
+////				}
+////				setDirty(lastPos);
+////				advancePos();
+//
+//			int w = width;
+//			// fill it in
+//			while (w-- >= 0) {
+////				screen[lastPos].setCharAndAttr(initChar, initAttr, true);
+//				planes.setScreenCharAndAttr(lastPos,initChar, initAttr, true);
+////				screen[lastPos].setUseGUI(NO_GUI);
+//				planes.setUseGUI(lastPos,NO_GUI);
+////				setDirty(lastPos);
+//				lastPos++;
+//				advancePos();
+//			}
+//
+////				// set right
+////	//			screen[lastPos].setCharAndAttr((char) right, colorAttr, false);
+////				planes.setScreenCharAndAttr(lastPos,(char) right, colorAttr, false);
+////				if (gui) {
+////	//				screen[lastPos].setUseGUI(RIGHT);
+////					planes.setUseGUI(lastPos,GUI_RIGHT);
+////				}
+////
+////				setDirty(lastPos);
+////				advancePos();
+////
+////				// set ending attribute byte
+////	//			screen[lastPos].setCharAndAttr(initChar, initAttr, true);
+////				planes.setScreenCharAndAttr(lastPos,initChar, initAttr, true);
+////				setDirty(lastPos);
+//
+//			lastPos = startPos;
+//		}
+//
+//	}
+
+    /* *** NEVER USED LOCALLY ************************************************** */
+//	private void setDirty(int pos) {
+//
+//	   screen52.setDirty(pos);
+//
+//	}
+
+    /* *** NEVER USED LOCALLY ************************************************** */
+//	private void advancePos() {
+//
+//	   screen52.advancePos();
+//	}
+
+    protected class Window {
+
+        byte[] window;
+        int pos;
+
+        Window(byte[] seg, int pos) {
+
+            //log.info("window created at " + pos);
+            window = seg;
+            this.pos = pos;
+            guiStructsExist = true;
+        }
+
+    }
+
     // negotiating commands
 //   private static final byte IAC = (byte)-1; // 255  FF
 //   private static final byte DONT = (byte)-2; //254  FE
@@ -964,3 +953,4 @@ public class WTDSFParser {
 
 
 }
+

@@ -28,38 +28,20 @@
  */
 package org.tn5250j.gui;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.plaf.basic.BasicButtonUI;
-
 import org.tn5250j.TN5250jConstants;
 import org.tn5250j.event.SessionChangeEvent;
 import org.tn5250j.event.SessionListener;
 import org.tn5250j.event.TabClosedListener;
 import org.tn5250j.tools.LangTool;
+
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicButtonUI;
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Component to be used as tabComponent; Contains a JLabel to show the text and
@@ -71,10 +53,26 @@ import org.tn5250j.tools.LangTool;
 public final class ButtonTabComponent extends JPanel implements SessionListener {
 
     private static final long serialVersionUID = 1L;
+    private final static MouseListener buttonMouseListener = new MouseAdapter() {
+        public void mouseEntered(MouseEvent e) {
+            Component component = e.getComponent();
+            if (component instanceof AbstractButton) {
+                AbstractButton button = (AbstractButton) component;
+                button.setBorderPainted(true);
+            }
+        }
 
+        public void mouseExited(MouseEvent e) {
+            Component component = e.getComponent();
+            if (component instanceof AbstractButton) {
+                AbstractButton button = (AbstractButton) component;
+                button.setBorderPainted(false);
+            }
+        }
+    };
     private final JTabbedPane pane;
-    private List<TabClosedListener> closeListeners;
     private final JLabel label;
+    private List<TabClosedListener> closeListeners;
 
     public ButtonTabComponent(final JTabbedPane pane) {
         super(new BorderLayout(0, 0));
@@ -146,6 +144,8 @@ public final class ButtonTabComponent extends JPanel implements SessionListener 
         closeListeners.remove(listener);
     }
 
+    // =======================================================================
+
     /**
      * Notify all the tab listeners that this specific tab was selected to close.
      *
@@ -160,8 +160,6 @@ public final class ButtonTabComponent extends JPanel implements SessionListener 
             }
         }
     }
-
-    // =======================================================================
 
     /**
      * Label delegating icon and text to the corresponding tab.
@@ -299,23 +297,5 @@ public final class ButtonTabComponent extends JPanel implements SessionListener 
             g2.dispose();
         }
     }
-
-    private final static MouseListener buttonMouseListener = new MouseAdapter() {
-        public void mouseEntered(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(true);
-            }
-        }
-
-        public void mouseExited(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(false);
-            }
-        }
-    };
 
 }

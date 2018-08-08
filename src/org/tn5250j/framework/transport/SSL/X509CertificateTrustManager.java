@@ -24,13 +24,12 @@ package org.tn5250j.framework.transport.SSL;
 
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.security.cert.X509Certificate;
+import javax.swing.*;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import javax.swing.JOptionPane;
 
 /**
  * This class is used to trust certificates exchanged during an SSL socket
@@ -100,3 +99,4 @@ public class X509CertificateTrustManager implements X509TrustManager {
         return acceptedIssuers;
     }
 }
+

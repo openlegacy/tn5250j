@@ -25,31 +25,19 @@
  */
 package org.tn5250j.mailtools;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import org.tn5250j.interfaces.ConfigureFactory;
+import org.tn5250j.tools.LangTool;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
-import org.tn5250j.interfaces.ConfigureFactory;
-import org.tn5250j.tools.LangTool;
-
 public class SMTPConfig extends JDialog {
 
     private static final long serialVersionUID = 1L;
-
+    private static final String smtpFileName = "SMTPProperties.cfg";
     JPanel mainPanel = new JPanel();
     BorderLayout borderLayout1 = new BorderLayout();
     JPanel configPanel = new JPanel(new GridBagLayout());
@@ -68,10 +56,8 @@ public class SMTPConfig extends JDialog {
     JButton optCancel = new JButton();
     JLabel labelFileName = new JLabel();
     JTextField fieldFileName = new JTextField();
-    Properties SMTPProperties;
     //   String fileName;
-
-    private static final String smtpFileName = "SMTPProperties.cfg";
+    Properties SMTPProperties;
 
     public SMTPConfig(Frame frame, String title, boolean modal) {
         super(frame, title, modal);
@@ -293,3 +279,4 @@ public class SMTPConfig extends JDialog {
     }
 
 }
+

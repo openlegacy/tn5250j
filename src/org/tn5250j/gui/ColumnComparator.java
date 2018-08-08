@@ -14,7 +14,8 @@ package org.tn5250j.gui;
 =====================================================================
 */
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Vector;
 
 public class ColumnComparator implements Comparator {
     protected int index;

@@ -4,7 +4,14 @@ import java.util.EventObject;
 
 public class FTPStatusEvent extends EventObject {
 
+    static final int OK = 0;
+    static final int ERROR = 1;
+    static final int ERROR_NULLS_ALLOWED = 2;
     private static final long serialVersionUID = 1L;
+    private String message;
+    private int fileLength;
+    private int currentRecord;
+    private int messageType;
 
     public FTPStatusEvent(Object obj) {
         super(obj);
@@ -57,15 +64,6 @@ public class FTPStatusEvent extends EventObject {
 
         currentRecord = current;
     }
-
-    private String message;
-    private int fileLength;
-    private int currentRecord;
-    private int messageType;
-
-    static final int OK = 0;
-    static final int ERROR = 1;
-    static final int ERROR_NULLS_ALLOWED = 2;
 
 
 }

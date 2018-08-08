@@ -21,20 +21,17 @@
 
 package org.tn5250j.gui;
 
-import java.awt.CardLayout;
-import java.awt.Component;
+import org.tn5250j.event.WizardEvent;
+import org.tn5250j.event.WizardListener;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.Enumeration;
 import java.util.Vector;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
-import org.tn5250j.event.WizardEvent;
-import org.tn5250j.event.WizardListener;
 
 /**
  * Class to create and manage a <i>Wizard</i> style framework.  Create and add
@@ -51,6 +48,127 @@ public class Wizard extends JPanel {
      * list of wizard listeners registered with the bean
      */
     transient protected Vector<WizardListener> listeners;
+    /**
+     * A listener on the "next" button that is implemented as an anonymous
+     * inner class that simply invokes the containing classes "next()"
+     * method.
+     *
+     * @see #next
+     */
+    transient protected ActionListener nextListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            next();
+        }
+    };
+    /**
+     * A listener on the "previous" button that is implemented as an anonymous
+     * inner class that simply invokes the containing classes "previous()"
+     * method.
+     *
+     * @see #previous
+     */
+    transient protected ActionListener previousListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            previous();
+        }
+    };
+    /**
+     * A listener on the "finish" button that is implemented as an anonymous
+     * inner class that simply invokes the containing classes "finish()"
+     * method.
+     *
+     * @see #finish
+     */
+    transient protected ActionListener finishListener = new ActionListener() {
+        public void actionPerformed(ActionEvent ev) {
+            finish();
+        }
+    };
+    /**
+     * A listener on the "cancel" button that is implemented as an anonymous
+     * inner class that simply invokes the containing classes "cancel()"
+     * method.
+     *
+     * @see #cancel
+     */
+    transient protected ActionListener cancelListener = new ActionListener() {
+        public void actionPerformed(ActionEvent ev) {
+            cancel();
+        }
+    };
+    /**
+     * A listener on the "help" button that is implemented as an anonymous
+     * inner class that simply invokes the containing classes "help()"
+     * method.
+     *
+     * @see #help
+     */
+    transient protected ActionListener helpListener = new ActionListener() {
+        public void actionPerformed(ActionEvent ev) {
+            help();
+        }
+    };
+    /**
+     * Container listner that listens for new pages that are added, and adds
+     * listeners to the buttons of the children so that the container knows
+     * when to post the proper "Wizard" events.
+     */
+    transient protected ContainerListener containerListener
+            = new ContainerListener() {
+        public void componentAdded(ContainerEvent e) {
+            if (e.getChild() instanceof WizardPage) {
+                WizardPage wp = (WizardPage) e.getChild();
+                JButton b;
+                b = wp.getNextButton();
+                if (b != null) {
+                    b.addActionListener(nextListener);
+                }
+                b = wp.getPreviousButton();
+                if (b != null) {
+                    b.addActionListener(previousListener);
+                }
+                b = wp.getFinishButton();
+                if (b != null) {
+                    b.addActionListener(finishListener);
+                }
+                b = wp.getCancelButton();
+                if (b != null) {
+                    b.addActionListener(cancelListener);
+                }
+                b = wp.getHelpButton();
+                if (b != null) {
+                    b.addActionListener(helpListener);
+                }
+            }
+        }
+
+        public void componentRemoved(ContainerEvent e) {
+            if (e.getChild() instanceof WizardPage) {
+                WizardPage wp = (WizardPage) e.getChild();
+                JButton b;
+                b = wp.getNextButton();
+                if (b != null) {
+                    b.removeActionListener(nextListener);
+                }
+                b = wp.getPreviousButton();
+                if (b != null) {
+                    b.removeActionListener(previousListener);
+                }
+                b = wp.getFinishButton();
+                if (b != null) {
+                    b.removeActionListener(finishListener);
+                }
+                b = wp.getCancelButton();
+                if (b != null) {
+                    b.removeActionListener(cancelListener);
+                }
+                b = wp.getHelpButton();
+                if (b != null) {
+                    b.removeActionListener(helpListener);
+                }
+            }
+        }
+    };
 
     /**
      * Create a <code>Wizard</code> component.
@@ -368,132 +486,5 @@ public class Wizard extends JPanel {
         return page;
     }
 
-    /**
-     * A listener on the "next" button that is implemented as an anonymous
-     * inner class that simply invokes the containing classes "next()"
-     * method.
-     *
-     * @see #next
-     */
-    transient protected ActionListener nextListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            next();
-        }
-    };
-
-    /**
-     * A listener on the "previous" button that is implemented as an anonymous
-     * inner class that simply invokes the containing classes "previous()"
-     * method.
-     *
-     * @see #previous
-     */
-    transient protected ActionListener previousListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            previous();
-        }
-    };
-
-    /**
-     * A listener on the "finish" button that is implemented as an anonymous
-     * inner class that simply invokes the containing classes "finish()"
-     * method.
-     *
-     * @see #finish
-     */
-    transient protected ActionListener finishListener = new ActionListener() {
-        public void actionPerformed(ActionEvent ev) {
-            finish();
-        }
-    };
-
-    /**
-     * A listener on the "cancel" button that is implemented as an anonymous
-     * inner class that simply invokes the containing classes "cancel()"
-     * method.
-     *
-     * @see #cancel
-     */
-    transient protected ActionListener cancelListener = new ActionListener() {
-        public void actionPerformed(ActionEvent ev) {
-            cancel();
-        }
-    };
-
-    /**
-     * A listener on the "help" button that is implemented as an anonymous
-     * inner class that simply invokes the containing classes "help()"
-     * method.
-     *
-     * @see #help
-     */
-    transient protected ActionListener helpListener = new ActionListener() {
-        public void actionPerformed(ActionEvent ev) {
-            help();
-        }
-    };
-
-
-    /**
-     * Container listner that listens for new pages that are added, and adds
-     * listeners to the buttons of the children so that the container knows
-     * when to post the proper "Wizard" events.
-     */
-    transient protected ContainerListener containerListener
-            = new ContainerListener() {
-        public void componentAdded(ContainerEvent e) {
-            if (e.getChild() instanceof WizardPage) {
-                WizardPage wp = (WizardPage) e.getChild();
-                JButton b;
-                b = wp.getNextButton();
-                if (b != null) {
-                    b.addActionListener(nextListener);
-                }
-                b = wp.getPreviousButton();
-                if (b != null) {
-                    b.addActionListener(previousListener);
-                }
-                b = wp.getFinishButton();
-                if (b != null) {
-                    b.addActionListener(finishListener);
-                }
-                b = wp.getCancelButton();
-                if (b != null) {
-                    b.addActionListener(cancelListener);
-                }
-                b = wp.getHelpButton();
-                if (b != null) {
-                    b.addActionListener(helpListener);
-                }
-            }
-        }
-
-        public void componentRemoved(ContainerEvent e) {
-            if (e.getChild() instanceof WizardPage) {
-                WizardPage wp = (WizardPage) e.getChild();
-                JButton b;
-                b = wp.getNextButton();
-                if (b != null) {
-                    b.removeActionListener(nextListener);
-                }
-                b = wp.getPreviousButton();
-                if (b != null) {
-                    b.removeActionListener(previousListener);
-                }
-                b = wp.getFinishButton();
-                if (b != null) {
-                    b.removeActionListener(finishListener);
-                }
-                b = wp.getCancelButton();
-                if (b != null) {
-                    b.removeActionListener(cancelListener);
-                }
-                b = wp.getHelpButton();
-                if (b != null) {
-                    b.removeActionListener(helpListener);
-                }
-            }
-        }
-    };
-
 }
+

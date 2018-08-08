@@ -20,13 +20,6 @@
  */
 package org.tn5250j;
 
-import java.awt.Toolkit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.tn5250j.event.SessionChangeEvent;
 import org.tn5250j.event.SessionListener;
 import org.tn5250j.framework.common.SessionManager;
@@ -36,28 +29,33 @@ import org.tn5250j.gui.SystemRequestDialog;
 import org.tn5250j.interfaces.ScanListener;
 import org.tn5250j.interfaces.SessionInterface;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
  * A host session
  */
 public class Session5250 implements SessionInterface {
 
+    private final String propFileName;
+    private final SessionConfig sesConfig;
+    private final Screen5250 screen;
+    private final ReadWriteLock sessionListenerLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock scanListenerLock = new ReentrantReadWriteLock();
+    protected Properties sesProps;
     private String configurationResource;
     private String sessionName;
     private int sessionType;
-    protected Properties sesProps;
     private boolean heartBeat;
-    private final String propFileName;
-    private final SessionConfig sesConfig;
     private tnvt vt;
-    private final Screen5250 screen;
     private SessionPanel guiComponent;
-
     private List<SessionListener> sessionListeners = null;
-    private final ReadWriteLock sessionListenerLock = new ReentrantReadWriteLock();
-
     private boolean scan; // = false;
     private List<ScanListener> scanListeners = null;
-    private final ReadWriteLock scanListenerLock = new ReentrantReadWriteLock();
 
     public Session5250(Properties props, String configurationResource,
                        String sessionName,
@@ -145,12 +143,12 @@ public class Session5250 implements SessionInterface {
         return sesProps;
     }
 
-    public void setGUI(SessionPanel gui) {
-        guiComponent = gui;
-    }
-
     public SessionPanel getGUI() {
         return guiComponent;
+    }
+
+    public void setGUI(SessionPanel gui) {
+        guiComponent = gui;
     }
 
     @Override
@@ -270,35 +268,16 @@ public class Session5250 implements SessionInterface {
         vt.disconnect();
     }
 
+    public tnvt getVT() {
+        return vt;
+    }
+
     // WVL - LDC : TR.000300 : Callback scenario from 5250
     protected void setVT(tnvt v) {
         vt = v;
         screen.setVT(vt);
         if (vt != null)
             vt.setScanningEnabled(this.scan);
-    }
-
-    public tnvt getVT() {
-        return vt;
-    }
-
-    // WVL - LDC : TR.000300 : Callback scenario from 5250
-
-    /**
-     * Enables or disables scanning.
-     *
-     * @param scan enables scanning when true; disables otherwise.
-     * @see tnvt#setCommandScanning(boolean);
-     * @see tnvt#isCommandScanning();
-     * @see tnvt#scan();
-     * @see tnvt#parseCommand();
-     * @see scanned(String,String)
-     */
-    public void setScanningEnabled(boolean scan) {
-        this.scan = scan;
-
-        if (this.vt != null)
-            this.vt.setScanningEnabled(scan);
     }
 
     // WVL - LDC : TR.000300 : Callback scenario from 5250
@@ -318,6 +297,25 @@ public class Session5250 implements SessionInterface {
             return this.vt.isScanningEnabled();
 
         return this.scan;
+    }
+
+    // WVL - LDC : TR.000300 : Callback scenario from 5250
+
+    /**
+     * Enables or disables scanning.
+     *
+     * @param scan enables scanning when true; disables otherwise.
+     * @see tnvt#setCommandScanning(boolean);
+     * @see tnvt#isCommandScanning();
+     * @see tnvt#scan();
+     * @see tnvt#parseCommand();
+     * @see scanned(String,String)
+     */
+    public void setScanningEnabled(boolean scan) {
+        this.scan = scan;
+
+        if (this.vt != null)
+            this.vt.setScanningEnabled(scan);
     }
 
     // WVL - LDC : TR.000300 : Callback scenario from 5250
@@ -435,3 +433,4 @@ public class Session5250 implements SessionInterface {
     }
 
 }
+

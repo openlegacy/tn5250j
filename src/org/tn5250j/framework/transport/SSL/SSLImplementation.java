@@ -23,6 +23,13 @@ package org.tn5250j.framework.transport.SSL;
  *
  */
 
+import org.tn5250j.GlobalConfigure;
+import org.tn5250j.framework.transport.SSLInterface;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.net.ssl.*;
+import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -30,19 +37,6 @@ import java.net.Socket;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-import javax.swing.JOptionPane;
-
-import org.tn5250j.GlobalConfigure;
-import org.tn5250j.framework.transport.SSLInterface;
-import org.tn5250j.tools.logging.TN5250jLogFactory;
-import org.tn5250j.tools.logging.TN5250jLogger;
 
 /**
  * <p>
@@ -57,18 +51,13 @@ public class SSLImplementation implements SSLInterface, X509TrustManager {
     SSLContext sslContext = null;
 
     KeyStore userks = null;
+    KeyManagerFactory userkmf = null;
+    TrustManagerFactory usertmf = null;
+    TrustManager[] userTrustManagers = null;
+    X509Certificate[] acceptedIssuers;
+    TN5250jLogger logger;
     private String userKsPath;
     private char[] userksPassword = "changeit".toCharArray();
-
-    KeyManagerFactory userkmf = null;
-
-    TrustManagerFactory usertmf = null;
-
-    TrustManager[] userTrustManagers = null;
-
-    X509Certificate[] acceptedIssuers;
-
-    TN5250jLogger logger;
 
     public SSLImplementation() {
         logger = TN5250jLogFactory.getLogger(getClass());
@@ -208,3 +197,4 @@ public class SSLImplementation implements SSLInterface, X509TrustManager {
 
     }
 }
+

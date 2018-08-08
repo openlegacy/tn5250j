@@ -26,20 +26,10 @@ package org.tn5250j.gui;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.Window;
-import java.awt.Cursor;
-import javax.swing.ImageIcon;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.MediaTracker;
-import java.awt.Canvas;
-import java.awt.Image;
-import java.awt.Graphics;
-import java.awt.Color;
-
 import org.tn5250j.tools.GUIGraphicsUtils;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Uses an Icon or the location of an image to create an application's introductory screen.

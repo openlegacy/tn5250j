@@ -27,6 +27,8 @@ import javax.swing.JFrame;
 
 import org.tn5250j.tools.GUIGraphicsUtils;
 
+
+
 /**
  * Convenient base class for all TN5250j windows/frames.
  * Supports the standard application icon and a {@link #centerFrame()} method.
@@ -75,3 +77,4 @@ public class GenericTn5250JFrame extends JFrame {
     }
 
 }
+

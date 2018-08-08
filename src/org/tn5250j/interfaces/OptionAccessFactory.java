@@ -60,6 +60,10 @@ public abstract class OptionAccessFactory {
         }
     }
 
+    abstract public Vector<String> getOptions();
+
+    abstract public Vector<String> getOptionDescriptions();
+
     abstract public boolean isValidOption(String option);
 
     abstract public boolean isRestrictedOption(String option);
@@ -69,3 +73,4 @@ public abstract class OptionAccessFactory {
     abstract public void reload();
 
 }
+

@@ -1,9 +1,9 @@
 package org.tn5250j.tools;
 
 import javax.swing.*;
-
-import java.awt.Toolkit;
-import java.text.*;
+import java.awt.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 public class DecimalField extends JTextField {
     private static final long serialVersionUID = 1L;

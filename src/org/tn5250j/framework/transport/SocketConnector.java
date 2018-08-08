@@ -1,4 +1,3 @@
-
 /**
  * @(#)SocketConnector.java
  * @author Stephen M. Kennedy
@@ -22,11 +21,11 @@
  */
 package org.tn5250j.framework.transport;
 
-import java.net.Socket;
-
 import org.tn5250j.TN5250jConstants;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import java.net.Socket;
 
 public class SocketConnector {
 
@@ -107,3 +106,4 @@ public class SocketConnector {
 
 
 }
+

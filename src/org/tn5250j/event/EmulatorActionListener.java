@@ -24,3 +24,4 @@ public interface EmulatorActionListener {
 
     public void onEmulatorAction(EmulatorActionEvent actionEvent);
 }
+

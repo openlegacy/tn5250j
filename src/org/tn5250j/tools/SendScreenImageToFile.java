@@ -26,15 +26,16 @@
 
 package org.tn5250j.tools;
 
-import java.io.*;
-import javax.swing.*;
-import java.awt.Frame;
-
-import org.tn5250j.tools.logging.*;
 import org.tn5250j.SessionPanel;
+import org.tn5250j.gui.TN5250jFileChooser;
 import org.tn5250j.tools.encoder.EncodeComponent;
 import org.tn5250j.tools.filters.XTFRFileFilter;
-import org.tn5250j.gui.TN5250jFileChooser;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
 
 public class SendScreenImageToFile {
 

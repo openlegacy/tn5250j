@@ -14,8 +14,9 @@ package org.tn5250j.gui;
 =====================================================================
 */
 
-import java.util.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
+import java.util.Collections;
+import java.util.Vector;
 
 public class DefaultSortTableModel extends DefaultTableModel
         implements SortTableModel {

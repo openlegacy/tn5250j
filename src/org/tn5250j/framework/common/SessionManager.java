@@ -20,10 +20,6 @@
  */
 package org.tn5250j.framework.common;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionConfig;
 import org.tn5250j.SessionPanel;
@@ -31,6 +27,10 @@ import org.tn5250j.TN5250jConstants;
 import org.tn5250j.interfaces.SessionManagerInterface;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 
 /**
@@ -41,12 +41,11 @@ public class SessionManager implements SessionManagerInterface {
 
     static private Sessions sessions;
     static private List<SessionConfig> configs;
-
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
     /**
      * A handle to the unique SessionManager class
      */
     static private SessionManager _instance;
+    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     /**
      * The constructor is made protected to allow overriding.
@@ -126,3 +125,4 @@ public class SessionManager implements SessionManagerInterface {
     }
 
 }
+

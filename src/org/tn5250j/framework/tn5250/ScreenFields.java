@@ -25,16 +25,15 @@
  */
 package org.tn5250j.framework.tn5250;
 
-import static org.tn5250j.TN5250jConstants.CMD_READ_INPUT_FIELDS;
-import static org.tn5250j.TN5250jConstants.CMD_READ_MDT_FIELDS;
-import static org.tn5250j.TN5250jConstants.CMD_READ_MDT_IMMEDIATE_ALT;
+import org.tn5250j.encoding.ICodePage;
 
 import java.io.ByteArrayOutputStream;
 
-import org.tn5250j.encoding.ICodePage;
+import static org.tn5250j.TN5250jConstants.*;
 
 public class ScreenFields {
 
+    protected boolean currentModified;
     private ScreenField[] screenFields;
     private ScreenField currentField;
     private ScreenField saveCurrent;
@@ -44,7 +43,6 @@ public class ScreenFields {
     private int fieldIds;
     private Screen5250 screen;
     private boolean masterMDT;
-    protected boolean currentModified;
 
     public ScreenFields(Screen5250 s) {
 
@@ -183,10 +181,6 @@ public class ScreenFields {
         currentField = saveCurrent;
     }
 
-    protected void setCurrentField(ScreenField sf) {
-        currentField = sf;
-    }
-
     protected void setCurrentFieldMDT() {
         currentField.setMDT();
         currentModified = true;
@@ -198,7 +192,6 @@ public class ScreenFields {
         masterMDT = currentField.setFFWs(ffw1, ffw2);
 
     }
-
 
     protected ScreenField setField(int attr, int row, int col, int len, int ffw1,
                                    int ffw2, int fcw1, int fcw2) {
@@ -247,6 +240,10 @@ public class ScreenFields {
 
     public ScreenField getCurrentField() {
         return currentField;
+    }
+
+    protected void setCurrentField(ScreenField sf) {
+        currentField = sf;
     }
 
     public int getCurrentFieldPos() {
@@ -712,3 +709,4 @@ public class ScreenFields {
     }
 
 }
+

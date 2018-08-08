@@ -25,32 +25,7 @@
  */
 package org.tn5250j;
 
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-
-import org.tn5250j.connectdialog.ConnectDialog;
-import org.tn5250j.event.BootEvent;
-import org.tn5250j.event.BootListener;
-import org.tn5250j.event.EmulatorActionEvent;
-import org.tn5250j.event.EmulatorActionListener;
-import org.tn5250j.event.SessionChangeEvent;
-import org.tn5250j.event.SessionListener;
+import org.tn5250j.event.*;
 import org.tn5250j.framework.Tn5250jController;
 import org.tn5250j.framework.common.SessionManager;
 import org.tn5250j.framework.common.Sessions;
@@ -61,20 +36,30 @@ import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
+import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.List;
+
 public class My5250 implements BootListener, SessionListener, EmulatorActionListener {
 
     private static final String PARAM_START_SESSION = "-s";
-
-    private GUIViewInterface frame1;
-    private String[] sessionArgs = null;
     private static Properties sessions = new Properties();
     private static BootStrapper strapper = null;
-    private SessionManager manager;
     private static List<GUIViewInterface> frames;
+    StringBuilder viewNamesForNextStartBuilder = null;
+    private GUIViewInterface frame1;
+    private String[] sessionArgs = null;
+    private SessionManager manager;
     private TN5250jSplashScreen splash;
     private int step;
-    private StringBuilder viewNamesForNextStartBuilder = null;
-
     private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     My5250() {
@@ -105,28 +90,6 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         manager = SessionManager.instance();
         splash.updateProgress(++step);
         Tn5250jController.getCurrent();
-    }
-
-
-    /**
-     * we only want to try and load the Nimbus look and feel if it is not
-     * for the MAC operating system.
-     */
-    private void loadLookAndFeel() {
-        try {
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception ex) {
-                // we don't care. Cause this should always work.
-            }
-        }
     }
 
     /**
@@ -163,72 +126,6 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         }
 
         return false;
-    }
-
-    public void bootOptionsReceived(BootEvent bootEvent) {
-        log.info(" boot options received " + bootEvent.getNewSessionOptions());
-
-        // reload setting, to ensure correct bootstraps
-        ConfigureFactory.getInstance().reloadSettings();
-
-        // If the options are not equal to the string 'null' then we have
-        //    boot options
-        if (!bootEvent.getNewSessionOptions().equals("null")) {
-            // check if a session parameter is specified on the command line
-            String[] args = new String[TN5250jConstants.NUM_PARMS];
-            parseArgs(bootEvent.getNewSessionOptions(), args);
-
-
-            if (isSpecified("-s", args)) {
-
-                String sd = getParm("-s", args);
-                if (sessions.containsKey(sd)) {
-                    parseArgs(sessions.getProperty(sd), args);
-                    final String[] args2 = args;
-                    final String sd2 = sd;
-                    SwingUtilities.invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    newSession(sd2, args2);
-
-                                }
-                            }
-                    );
-                }
-            } else {
-
-                if (args[0].startsWith("-")) {
-                    SwingUtilities.invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    startNewSession();
-
-                                }
-                            }
-                    );
-                } else {
-                    final String[] args2 = args;
-                    final String sd2 = args[0];
-                    SwingUtilities.invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    newSession(sd2, args2);
-
-                                }
-                            }
-                    );
-                }
-            }
-        } else {
-            SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void run() {
-                            startNewSession();
-
-                        }
-                    }
-            );
-        }
     }
 
     static public void main(String[] args) {
@@ -400,14 +297,6 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         return false;
     }
 
-    private void setDefaultLocale() {
-
-        if (sessions.containsKey("emul.locale")) {
-            Locale.setDefault(parseLocal(sessions.getProperty("emul.locale")));
-        }
-
-    }
-
     static private String getParm(String parm, String[] args) {
 
         for (int x = 0; x < args.length; x++) {
@@ -441,6 +330,129 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         return null;
     }
 
+    private static void parseArgs(String theStringList, String[] s) {
+        int x = 0;
+        StringTokenizer tokenizer = new StringTokenizer(theStringList, " ");
+        while (tokenizer.hasMoreTokens()) {
+            s[x++] = tokenizer.nextToken();
+        }
+    }
+
+    private static Locale parseLocal(String localString) {
+        int x = 0;
+        String[] s = {"", "", ""};
+        StringTokenizer tokenizer = new StringTokenizer(localString, "_");
+        while (tokenizer.hasMoreTokens()) {
+            s[x++] = tokenizer.nextToken();
+        }
+        return new Locale(s[0], s[1], s[2]);
+    }
+
+    private static void loadSessions() {
+
+        sessions = (ConfigureFactory.getInstance()).getProperties(
+                ConfigureFactory.SESSIONS);
+    }
+
+    static Properties getSessions() {
+        return sessions;
+    }
+
+    /**
+     * we only want to try and load the Nimbus look and feel if it is not
+     * for the MAC operating system.
+     */
+    private void loadLookAndFeel() {
+        try {
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception ex) {
+                // we don't care. Cause this should always work.
+            }
+        }
+    }
+
+    public void bootOptionsReceived(BootEvent bootEvent) {
+        log.info(" boot options received " + bootEvent.getNewSessionOptions());
+
+        // reload setting, to ensure correct bootstraps
+        ConfigureFactory.getInstance().reloadSettings();
+
+        // If the options are not equal to the string 'null' then we have
+        //    boot options
+        if (!bootEvent.getNewSessionOptions().equals("null")) {
+            // check if a session parameter is specified on the command line
+            String[] args = new String[TN5250jConstants.NUM_PARMS];
+            parseArgs(bootEvent.getNewSessionOptions(), args);
+
+
+            if (isSpecified("-s", args)) {
+
+                String sd = getParm("-s", args);
+                if (sessions.containsKey(sd)) {
+                    parseArgs(sessions.getProperty(sd), args);
+                    final String[] args2 = args;
+                    final String sd2 = sd;
+                    SwingUtilities.invokeLater(
+                            new Runnable() {
+                                public void run() {
+                                    newSession(sd2, args2);
+
+                                }
+                            }
+                    );
+                }
+            } else {
+
+                if (args[0].startsWith("-")) {
+                    SwingUtilities.invokeLater(
+                            new Runnable() {
+                                public void run() {
+                                    startNewSession();
+
+                                }
+                            }
+                    );
+                } else {
+                    final String[] args2 = args;
+                    final String sd2 = args[0];
+                    SwingUtilities.invokeLater(
+                            new Runnable() {
+                                public void run() {
+                                    newSession(sd2, args2);
+
+                                }
+                            }
+                    );
+                }
+            }
+        } else {
+            SwingUtilities.invokeLater(
+                    new Runnable() {
+                        public void run() {
+                            startNewSession();
+
+                        }
+                    }
+            );
+        }
+    }
+
+    private void setDefaultLocale() {
+
+        if (sessions.containsKey("emul.locale")) {
+            Locale.setDefault(parseLocal(sessions.getProperty("emul.locale")));
+        }
+
+    }
+
     private void startNewSession() {
 
         String sel = "";
@@ -464,7 +476,6 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
             newSession(sel, sessionArgs);
         }
     }
-
 
     private void openConnectSessionDialogAndStartSelectedSession() {
         String sel = openConnectSessionDialog();
@@ -749,30 +760,6 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         }
     }
 
-    private static void parseArgs(String theStringList, String[] s) {
-        int x = 0;
-        StringTokenizer tokenizer = new StringTokenizer(theStringList, " ");
-        while (tokenizer.hasMoreTokens()) {
-            s[x++] = tokenizer.nextToken();
-        }
-    }
-
-    private static Locale parseLocal(String localString) {
-        int x = 0;
-        String[] s = {"", "", ""};
-        StringTokenizer tokenizer = new StringTokenizer(localString, "_");
-        while (tokenizer.hasMoreTokens()) {
-            s[x++] = tokenizer.nextToken();
-        }
-        return new Locale(s[0], s[1], s[2]);
-    }
-
-    private static void loadSessions() {
-
-        sessions = (ConfigureFactory.getInstance()).getProperties(
-                ConfigureFactory.SESSIONS);
-    }
-
     public void onSessionChanged(SessionChangeEvent changeEvent) {
 
         Session5250 ses5250 = (Session5250) changeEvent.getSource();
@@ -864,10 +851,6 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
 
         splash.updateProgress(++step);
 
-    }
-
-    static Properties getSessions() {
-        return sessions;
     }
 
 }

@@ -25,65 +25,41 @@
  */
 package org.tn5250j.tools;
 
-import org.tn5250j.event.*;
-
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.border.*;
-import java.awt.event.*;
-import java.io.*;
-import java.beans.*;
-import java.util.*;
-import java.text.MessageFormat;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
-
-import org.tn5250j.sql.AS400Xtfr;
-import org.tn5250j.sql.SqlWizard;
-import org.tn5250j.tools.filters.*;
-import org.tn5250j.mailtools.SendEMailDialog;
-import org.tn5250j.SessionPanel;
 import org.tn5250j.SessionConfig;
+import org.tn5250j.SessionPanel;
+import org.tn5250j.event.FTPStatusEvent;
+import org.tn5250j.event.FTPStatusListener;
+import org.tn5250j.framework.tn5250.tnvt;
 import org.tn5250j.gui.GenericTn5250JFrame;
 import org.tn5250j.gui.TN5250jFileChooser;
 import org.tn5250j.gui.TN5250jFileFilter;
-import org.tn5250j.framework.tn5250.tnvt;
+import org.tn5250j.mailtools.SendEMailDialog;
+import org.tn5250j.sql.AS400Xtfr;
+import org.tn5250j.sql.SqlWizard;
+import org.tn5250j.tools.filters.XTFRFileFilter;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.*;
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.Properties;
 
 public class XTFRFile
         extends GenericTn5250JFrame
         implements ActionListener, FTPStatusListener, ItemListener {
 
     private static final long serialVersionUID = 1L;
-    private FTP5250Prot ftpProtocol;
-    private AS400Xtfr axtfr;
-
-    private GridBagConstraints gbc;
-    private JTextField user;
-    private JPasswordField password;
-    private JTextField systemName;
-    private JTextField hostFile;
-    private JTextField localFile;
-    private JRadioButton allFields;
-    private JRadioButton selectedFields;
-    private JComboBox decimalSeparator;
-    private JComboBox fileFormat;
-    private JCheckBox useQuery;
-    private JButton queryWizard;
-    private JTextArea queryStatement;
-    private JButton customize;
-    private JButton xtfrButton;
-
-    private JRadioButton intDesc;
-    private JRadioButton txtDesc;
-
-    private JPanel as400QueryP;
-    private JPanel as400p;
-
+    static String messageProgress;
     boolean fieldsSelected;
     boolean emailIt;
-
     tnvt vt;
     XTFRFileFilter htmlFilter;
     XTFRFileFilter KSpreadFilter;
@@ -91,11 +67,8 @@ public class XTFRFile
     XTFRFileFilter ExcelFilter;
     XTFRFileFilter DelimitedFilter;
     XTFRFileFilter FixedWidthFilter;
-    //   XTFRFileFilter ExcelWorkbookFilter;
-
     // default file filter used.
     XTFRFileFilter fileFilter;
-
     ProgressMonitor pm;
     JProgressBar progressBar;
     JTextArea taskOutput;
@@ -107,8 +80,28 @@ public class XTFRFile
     JDialog dialog;
     XTFRFileFilter filter;
     SessionPanel session;
-
-    static String messageProgress;
+    private FTP5250Prot ftpProtocol;
+    private AS400Xtfr axtfr;
+    private GridBagConstraints gbc;
+    private JTextField user;
+    private JPasswordField password;
+    private JTextField systemName;
+    private JTextField hostFile;
+    private JTextField localFile;
+    //   XTFRFileFilter ExcelWorkbookFilter;
+    private JRadioButton allFields;
+    private JRadioButton selectedFields;
+    private JComboBox decimalSeparator;
+    private JComboBox fileFormat;
+    private JCheckBox useQuery;
+    private JButton queryWizard;
+    private JTextArea queryStatement;
+    private JButton customize;
+    private JButton xtfrButton;
+    private JRadioButton intDesc;
+    private JRadioButton txtDesc;
+    private JPanel as400QueryP;
+    private JPanel as400p;
 
     public XTFRFile(Frame parent, tnvt pvt, SessionPanel session) {
 

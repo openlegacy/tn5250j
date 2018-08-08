@@ -25,13 +25,12 @@
  */
 package org.tn5250j.keyboard.actions;
 
-import javax.swing.AbstractAction;
-import java.awt.event.ActionEvent;
-import javax.swing.KeyStroke;
-
-import org.tn5250j.keyboard.KeyMapper;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.interfaces.OptionAccessFactory;
+import org.tn5250j.keyboard.KeyMapper;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Base class for all emulator actions
@@ -78,3 +77,4 @@ public abstract class EmulatorAction extends AbstractAction {
 
     abstract public void actionPerformed(ActionEvent e);
 }
+

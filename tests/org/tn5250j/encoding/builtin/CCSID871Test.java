@@ -26,13 +26,12 @@
  */
 package org.tn5250j.encoding.builtin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
 import org.tn5250j.encoding.CharMappings;
 import org.tn5250j.encoding.ICodePage;
-import org.tn5250j.encoding.builtin.CCSID871;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Testing the correctness of {@link CCSID871} and comparing with existing implementation.

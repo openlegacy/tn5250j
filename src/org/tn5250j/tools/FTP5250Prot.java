@@ -26,14 +26,15 @@ package org.tn5250j.tools;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.BorderLayout;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.io.PrintStream;
+import org.tn5250j.event.FTPStatusEvent;
+import org.tn5250j.event.FTPStatusListener;
+import org.tn5250j.framework.tn5250.tnvt;
+import org.tn5250j.tools.filters.FileFieldDef;
+import org.tn5250j.tools.filters.OutputFilterInterface;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -43,18 +44,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
-import org.tn5250j.event.FTPStatusEvent;
-import org.tn5250j.event.FTPStatusListener;
-import org.tn5250j.framework.tn5250.tnvt;
-import org.tn5250j.tools.filters.FileFieldDef;
-import org.tn5250j.tools.filters.OutputFilterInterface;
 
 public class FTP5250Prot {
 

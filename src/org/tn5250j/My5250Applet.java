@@ -1,18 +1,16 @@
 package org.tn5250j;
 
-import java.awt.Dimension;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import javax.swing.JApplet;
-import javax.swing.SwingUtilities;
-
 import org.tn5250j.framework.common.SessionManager;
 import org.tn5250j.gui.TN5250jSecurityAccessDialog;
 import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 //import org.tn5250j.swing.JTerminal;
 
@@ -20,10 +18,38 @@ public class My5250Applet extends JApplet {
 
     private static final long serialVersionUID = 1L;
 
+    //static initializer for setting look & feel
+    static {
+        try {
+            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        } catch (Exception e) {
+        }
+    }
+
     boolean isStandalone = true;
     private SessionManager manager;
-
     private TN5250jLogger log;
+
+    /**
+     * Construct the applet
+     */
+    public My5250Applet() {
+
+    }
+
+    /**
+     * Returns a local specified by the string localString
+     */
+    protected static Locale parseLocale(String localString) {
+        int x = 0;
+        String[] s = {"", "", ""};
+        StringTokenizer tokenizer = new StringTokenizer(localString, "_");
+        while (tokenizer.hasMoreTokens()) {
+            s[x++] = tokenizer.nextToken();
+        }
+        return new Locale(s[0], s[1], s[2]);
+    }
 
     /**
      * Get a parameter value
@@ -32,13 +58,6 @@ public class My5250Applet extends JApplet {
 
         return isStandalone ? System.getProperty(key, def) :
                 (getParameter(key) != null ? getParameter(key) : def);
-    }
-
-    /**
-     * Construct the applet
-     */
-    public My5250Applet() {
-
     }
 
     /**
@@ -180,26 +199,5 @@ public class My5250Applet extends JApplet {
         }
         return false;
     }
-
-    /**
-     * Returns a local specified by the string localString
-     */
-    protected static Locale parseLocale(String localString) {
-        int x = 0;
-        String[] s = {"", "", ""};
-        StringTokenizer tokenizer = new StringTokenizer(localString, "_");
-        while (tokenizer.hasMoreTokens()) {
-            s[x++] = tokenizer.nextToken();
-        }
-        return new Locale(s[0], s[1], s[2]);
-    }
-
-    //static initializer for setting look & feel
-    static {
-        try {
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception e) {
-        }
-    }
 }
+

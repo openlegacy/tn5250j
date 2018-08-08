@@ -25,31 +25,20 @@
  */
 package org.tn5250j;
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.event.WindowEvent;
-import java.util.Properties;
-
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import org.tn5250j.event.SessionChangeEvent;
-import org.tn5250j.event.SessionJumpEvent;
-import org.tn5250j.event.SessionJumpListener;
-import org.tn5250j.event.SessionListener;
-import org.tn5250j.event.TabClosedListener;
+import org.tn5250j.event.*;
 import org.tn5250j.gui.ButtonTabComponent;
 import org.tn5250j.interfaces.ConfigureFactory;
 import org.tn5250j.interfaces.GUIViewInterface;
 import org.tn5250j.tools.GUIGraphicsUtils;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.util.Properties;
 
 /**
  * This is the main {@link javax.swing.JFrame}, which contains multiple tabs.
@@ -79,6 +68,21 @@ public class Gui5250Frame extends GUIViewInterface implements
         } catch (Exception e) {
             log.warn("Error during initializing!", e);
         }
+    }
+
+    /**
+     * @param ses5250
+     * @return Icon or NULL depending on session State
+     */
+    private static final Icon determineIconForSession(Session5250 ses5250) {
+        if (ses5250 != null && ses5250.isSslConfigured()) {
+            if (ses5250.isSslSocket()) {
+                return GUIGraphicsUtils.getClosedLockIcon();
+            } else {
+                return GUIGraphicsUtils.getOpenLockIcon();
+            }
+        }
+        return null;
     }
 
     //Component initialization
@@ -363,7 +367,6 @@ public class Gui5250Frame extends GUIViewInterface implements
         sesspanel.confirmCloseSession(true);
     }
 
-
     /* (non-Javadoc)
      * @see org.tn5250j.interfaces.GUIViewInterface#removeSessionView(org.tn5250j.SessionGUI)
      */
@@ -455,21 +458,6 @@ public class Gui5250Frame extends GUIViewInterface implements
                 }
                 break;
         }
-    }
-
-    /**
-     * @param ses5250
-     * @return Icon or NULL depending on session State
-     */
-    private static final Icon determineIconForSession(Session5250 ses5250) {
-        if (ses5250 != null && ses5250.isSslConfigured()) {
-            if (ses5250.isSslSocket()) {
-                return GUIGraphicsUtils.getClosedLockIcon();
-            } else {
-                return GUIGraphicsUtils.getOpenLockIcon();
-            }
-        }
-        return null;
     }
 
     /* (non-Javadoc)

@@ -53,3 +53,4 @@ public class GuiAction extends EmulatorAction {
         session.getScreen().toggleGUIInterface();
     }
 }
+

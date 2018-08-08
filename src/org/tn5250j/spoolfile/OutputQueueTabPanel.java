@@ -25,12 +25,12 @@ package org.tn5250j.spoolfile;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.event.*;
-import javax.swing.*;
-
-import org.tn5250j.tools.*;
 import org.tn5250j.event.ToggleDocumentListener;
 import org.tn5250j.gui.ToggleDocument;
+import org.tn5250j.tools.AlignLayout;
+
+import javax.swing.*;
+import java.awt.event.ItemEvent;
 
 public class OutputQueueTabPanel extends JPanel implements QueueFilterInterface,
         ToggleDocumentListener {
@@ -135,3 +135,4 @@ public class OutputQueueTabPanel extends JPanel implements QueueFilterInterface,
 
     }
 }
+

@@ -25,7 +25,7 @@ package org.tn5250j.spoolfile;
  * Boston, MA 02111-1307 USA
  */
 
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 
 public class SpoolFilterPane extends JTabbedPane {
 
@@ -130,3 +130,4 @@ public class SpoolFilterPane extends JTabbedPane {
         }
     }
 }
+

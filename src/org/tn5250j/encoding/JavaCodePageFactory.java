@@ -42,6 +42,28 @@ import java.nio.charset.CharsetEncoder;
         this.decoder = decoder;
     }
 
+    /**
+     * @param encoding
+     * @return A new {@link CodePage} object OR null, if not available.
+     */
+    /* package */
+    static ICodePage getCodePage(final String encoding) {
+        CharsetDecoder dec = null;
+        CharsetEncoder enc = null;
+        try {
+            final Charset cs = java.nio.charset.Charset.forName(encoding);
+            dec = cs.newDecoder();
+            enc = cs.newEncoder();
+        } catch (Exception e) {
+            enc = null;
+            dec = null;
+        }
+        if ((enc != null) && (dec != null)) {
+            return new JavaCodePageFactory(encoding, enc, dec);
+        }
+        return null;
+    }
+
     /* (non-Javadoc)
      * @see org.tn5250j.encoding.CodePage#ebcdic2uni(int)
      */
@@ -70,36 +92,5 @@ import java.nio.charset.CharsetEncoder;
         }
     }
 
-    @Override
-    public boolean isDoubleByteActive() {
-        return false;
-    }
-
-    @Override
-    public boolean secondByteNeeded() {
-        return false;
-    }
-
-    /**
-     * @param encoding
-     * @return A new {@link CodePage} object OR null, if not available.
-     */
-    /* package */
-    static ICodePage getCodePage(final String encoding) {
-        CharsetDecoder dec = null;
-        CharsetEncoder enc = null;
-        try {
-            final Charset cs = java.nio.charset.Charset.forName(encoding);
-            dec = cs.newDecoder();
-            enc = cs.newEncoder();
-        } catch (Exception e) {
-            enc = null;
-            dec = null;
-        }
-        if ((enc != null) && (dec != null)) {
-            return new JavaCodePageFactory(encoding, enc, dec);
-        }
-        return null;
-    }
-
 }
+

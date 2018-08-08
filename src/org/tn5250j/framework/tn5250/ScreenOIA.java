@@ -24,9 +24,9 @@
  */
 package org.tn5250j.framework.tn5250;
 
-import java.util.Vector;
-
 import org.tn5250j.event.ScreenOIAListener;
+
+import java.util.Vector;
 
 /**
  * The operator information area of a host session. This area is used to provide
@@ -58,6 +58,19 @@ public class ScreenOIA {
     public static final int INPUTINHIBITED_PROGCHECK = 3;
     public static final int INPUTINHIBITED_MACHINECHECK = 4;
     public static final int INPUTINHIBITED_OTHER = 5;
+    private Vector<ScreenOIAListener> listeners = null;
+    private boolean insertMode;
+    private boolean locked;
+    private boolean keysBuffered;
+    private int owner = 0;
+    private int level = 0;
+    private Screen5250 source = null;
+    private int commCheck = 0;
+    private int machineCheck = 0;
+    private boolean messageWait;
+    private boolean scriptRunning;
+    private int inputInhibited = INPUTINHIBITED_NOTINHIBITED;
+    private String inhibitedText;
 
     public ScreenOIA(Screen5250 screen) {
 
@@ -96,6 +109,12 @@ public class ScreenOIA {
         return owner;
     }
 
+    public void setOwner(int newOwner) {
+
+        owner = newOwner;
+
+    }
+
     public int getProgCheckCode() {
         return 0;
     }
@@ -107,18 +126,6 @@ public class ScreenOIA {
      */
     public boolean isKeyBoardLocked() {
         return locked;
-    }
-
-    public boolean isKeysBuffered() {
-        return keysBuffered;
-    }
-
-    public void setKeysBuffered(boolean kb) {
-        level = OIA_LEVEL_KEYS_BUFFERED;
-        boolean oldKB = keysBuffered;
-        keysBuffered = kb;
-        if (keysBuffered != oldKB)
-            fireOIAChanged(ScreenOIAListener.OIA_CHANGED_KEYS_BUFFERED);
     }
 
     protected void setKeyBoardLocked(boolean lockIt) {
@@ -134,6 +141,18 @@ public class ScreenOIA {
 
         if (locked != oldLocked)
             fireOIAChanged(ScreenOIAListener.OIA_CHANGED_KEYBOARD_LOCKED);
+    }
+
+    public boolean isKeysBuffered() {
+        return keysBuffered;
+    }
+
+    public void setKeysBuffered(boolean kb) {
+        level = OIA_LEVEL_KEYS_BUFFERED;
+        boolean oldKB = keysBuffered;
+        keysBuffered = kb;
+        if (keysBuffered != oldKB)
+            fireOIAChanged(ScreenOIAListener.OIA_CHANGED_KEYS_BUFFERED);
     }
 
     public boolean isMessageWait() {
@@ -152,14 +171,14 @@ public class ScreenOIA {
         fireOIAChanged(ScreenOIAListener.OIA_CHANGED_MESSAGELIGHT);
     }
 
+    public boolean isScriptActive() {
+        return scriptRunning;
+    }
+
     public void setScriptActive(boolean running) {
         level = OIA_LEVEL_SCRIPT;
         scriptRunning = running;
         fireOIAChanged(ScreenOIAListener.OIA_CHANGED_SCRIPT);
-    }
-
-    public boolean isScriptActive() {
-        return scriptRunning;
     }
 
     public void setAudibleBell() {
@@ -205,16 +224,9 @@ public class ScreenOIA {
         return source;
     }
 
-
     public void setSource(Screen5250 screen) {
 
         source = screen;
-
-    }
-
-    public void setOwner(int newOwner) {
-
-        owner = newOwner;
 
     }
 
@@ -276,19 +288,5 @@ public class ScreenOIA {
             }
         }
     }
-
-    private Vector<ScreenOIAListener> listeners = null;
-    private boolean insertMode;
-    private boolean locked;
-    private boolean keysBuffered;
-    private int owner = 0;
-    private int level = 0;
-    private Screen5250 source = null;
-    private int commCheck = 0;
-    private int machineCheck = 0;
-    private boolean messageWait;
-    private boolean scriptRunning;
-    private int inputInhibited = INPUTINHIBITED_NOTINHIBITED;
-    private String inhibitedText;
 
 }

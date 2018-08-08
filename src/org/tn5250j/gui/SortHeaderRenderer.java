@@ -14,9 +14,10 @@ package org.tn5250j.gui;
 =====================================================================
 */
 
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import java.awt.*;
 
 public class SortHeaderRenderer extends DefaultTableCellRenderer {
 

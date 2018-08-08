@@ -65,3 +65,4 @@ public abstract class GUIViewInterface extends GenericTn5250JFrame {
     public abstract void onSessionChanged(SessionChangeEvent changeEvent);
 
 }
+

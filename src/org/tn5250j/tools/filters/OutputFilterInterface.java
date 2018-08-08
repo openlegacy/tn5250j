@@ -21,7 +21,7 @@ package org.tn5250j.tools.filters;
  *
  */
 
-import java.io.*;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public interface OutputFilterInterface {
@@ -41,3 +41,4 @@ public interface OutputFilterInterface {
 
     public abstract void setCustomProperties();
 }
+

@@ -26,28 +26,6 @@
  */
 package org.tn5250j.mailtools;
 
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.util.StringTokenizer;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
 import org.tn5250j.SessionConfig;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.TN5250jConstants;
@@ -56,6 +34,12 @@ import org.tn5250j.gui.GenericTn5250JFrame;
 import org.tn5250j.gui.TN5250jFileChooser;
 import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.encoder.EncodeComponent;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.StringTokenizer;
 
 /**
  * Send E-Mail dialog

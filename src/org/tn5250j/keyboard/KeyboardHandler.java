@@ -26,19 +26,15 @@
 
 package org.tn5250j.keyboard;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.KeyStroke;
-
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.event.KeyChangeListener;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.tools.system.OperatingSystem;
+
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  *

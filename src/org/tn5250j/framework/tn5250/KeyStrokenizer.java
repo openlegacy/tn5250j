@@ -27,12 +27,11 @@ import org.tn5250j.tools.logging.TN5250jLogger;
 
 public class KeyStrokenizer {
 
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
     private StringBuffer keyStrokes;
     private StringBuffer sb;
     private int index;
     private int length;
-
-    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     public KeyStrokenizer() {
 
@@ -151,3 +150,4 @@ public class KeyStrokenizer {
     }
 
 }
+

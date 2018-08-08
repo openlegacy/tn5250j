@@ -26,18 +26,19 @@
 
 package org.tn5250j.sql;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-
-import com.ibm.as400.vaccess.*;
-import com.ibm.as400.access.*;
-
-import java.sql.*;
-
-import org.tn5250j.tools.LangTool;
+import com.ibm.as400.access.AS400;
+import com.ibm.as400.vaccess.SQLConnection;
+import com.ibm.as400.vaccess.SQLQueryBuilderPane;
+import com.ibm.as400.vaccess.SQLResultSetTablePane;
 import org.tn5250j.tools.GUIGraphicsUtils;
+import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.system.OperatingSystem;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.sql.Driver;
+import java.sql.DriverManager;
 
 /**
  *

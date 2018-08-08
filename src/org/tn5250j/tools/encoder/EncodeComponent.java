@@ -25,10 +25,10 @@
  */
 package org.tn5250j.tools.encoder;
 
-import java.awt.Component;
-import java.io.OutputStream;
-import java.io.IOException;
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Used to encode components into different image file formats. ie .GIF and .PNG

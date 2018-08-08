@@ -37,6 +37,16 @@ import java.util.zip.Deflater;
  */
 public class PNGEncoder extends AbstractImageEncoder {
 
+    private long crc_table[] = null;
+
+    private final static long start_crc() {
+        return 0xffffffffL;
+    }
+
+    private final static long end_crc(final long crc) {
+        return crc ^ 0xffffffffL;
+    }
+
     public void saveImage() throws IOException, EncoderException {
         if (img == null)
             error("PNG encoding error: Image is NULL.");
@@ -268,8 +278,6 @@ public class PNGEncoder extends AbstractImageEncoder {
         }
     }
 
-    private long crc_table[] = null;
-
     private void make_crc_table() {
         crc_table = new long[256];
         long c;
@@ -287,14 +295,6 @@ public class PNGEncoder extends AbstractImageEncoder {
             crc_table[n] = c;
 
         }
-    }
-
-    private final static long start_crc() {
-        return 0xffffffffL;
-    }
-
-    private final static long end_crc(final long crc) {
-        return crc ^ 0xffffffffL;
     }
 
     private long update_crc(long crc, byte[] buf) {

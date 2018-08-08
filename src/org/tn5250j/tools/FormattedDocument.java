@@ -1,8 +1,11 @@
 package org.tn5250j.tools;
 
-import javax.swing.text.*;
-import java.awt.Toolkit;
-import java.text.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
+import java.awt.*;
+import java.text.Format;
+import java.text.ParseException;
 
 public class FormattedDocument extends PlainDocument {
     private static final long serialVersionUID = 1L;

@@ -25,28 +25,33 @@ import java.util.EventObject;
 public class SessionJumpEvent extends EventObject {
 
     private static final long serialVersionUID = 1L;
-
     private String message;
-    private int jumpDirection;
+    private int dir;
 
     public SessionJumpEvent(Object obj) {
         super(obj);
+    }
+
+    public SessionJumpEvent(Object obj, String s) {
+        super(obj);
+        message = s;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessage(String s) {
+        message = s;
     }
 
     public int getJumpDirection() {
-        return jumpDirection;
+
+        return dir;
     }
 
-    public void setJumpDirection(int direction) {
-        this.jumpDirection = direction;
-    }
+    public void setJumpDirection(int d) {
 
+        dir = d;
+    }
 }

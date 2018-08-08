@@ -1,16 +1,21 @@
 package org.tn5250j.swing.ui;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  * For testing purpose
  */
 public abstract class BasicSubUI {
+    protected transient Font font;
+    protected transient FontMetrics metrics;
+    protected transient int rowHeight;
+    protected transient int columnWidth;
+    protected transient int x;
+    protected transient int y;
+    protected transient int width;
+    protected transient int height;
+    protected transient Repainter repainter;
+
     public abstract void install();
 
     public abstract void uninstall();
@@ -80,18 +85,6 @@ public abstract class BasicSubUI {
 
         repainter.addDirtyRectangle(this, x + this.x, y + this.y, width, height);
     }
-
-    protected transient Font font;
-    protected transient FontMetrics metrics;
-    protected transient int rowHeight;
-    protected transient int columnWidth;
-
-    protected transient int x;
-    protected transient int y;
-    protected transient int width;
-    protected transient int height;
-
-    protected transient Repainter repainter;
 
     public static interface Repainter {
         public void addDirtyRectangle(BasicSubUI origin, int x, int y, int width, int height);

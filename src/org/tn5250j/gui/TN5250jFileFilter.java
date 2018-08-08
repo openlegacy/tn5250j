@@ -13,9 +13,10 @@
  */
 package org.tn5250j.gui;
 
+import javax.swing.filechooser.FileFilter;
 import java.io.File;
-import javax.swing.filechooser.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 public class TN5250jFileFilter extends FileFilter {
 
@@ -205,6 +206,21 @@ public class TN5250jFileFilter extends FileFilter {
     }
 
     /**
+     * Returns whether the extension list (.jpg, .gif, etc) should
+     * show up in the human readable description.
+     *
+     * Only relevent if a description was provided in the constructor
+     * or using setDescription();
+     *
+     * @see getDescription
+     * @see setDescription
+     * @see setExtensionListInDescription
+     */
+    public boolean isExtensionListInDescription() {
+        return useExtensionsInDescription;
+    }
+
+    /**
      * Determines whether the extension list (.jpg, .gif, etc) should
      * show up in the human readable description.
      *
@@ -218,21 +234,6 @@ public class TN5250jFileFilter extends FileFilter {
     public void setExtensionListInDescription(boolean b) {
         useExtensionsInDescription = b;
         fullDescription = null;
-    }
-
-    /**
-     * Returns whether the extension list (.jpg, .gif, etc) should
-     * show up in the human readable description.
-     *
-     * Only relevent if a description was provided in the constructor
-     * or using setDescription();
-     *
-     * @see getDescription
-     * @see setDescription
-     * @see setExtensionListInDescription
-     */
-    public boolean isExtensionListInDescription() {
-        return useExtensionsInDescription;
     }
 
     /**

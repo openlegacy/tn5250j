@@ -25,7 +25,8 @@ package org.tn5250j.spoolfile;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.event.*;
+import org.tn5250j.tools.AlignLayout;
+
 import javax.swing.*;
 
 import org.tn5250j.tools.*;
@@ -134,3 +135,4 @@ public class JobTabPanel extends JPanel implements QueueFilterInterface {
 
     }
 }
+

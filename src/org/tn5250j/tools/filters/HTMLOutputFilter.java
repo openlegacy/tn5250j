@@ -21,7 +21,10 @@ package org.tn5250j.tools.filters;
  *
  */
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class HTMLOutputFilter implements OutputFilterInterface {

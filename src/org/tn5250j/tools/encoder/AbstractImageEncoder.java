@@ -25,9 +25,7 @@
  */
 package org.tn5250j.tools.encoder;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -38,16 +36,6 @@ public abstract class AbstractImageEncoder implements Encoder {
 
     protected Image img = null;
     protected OutputStream ofile = null;
-
-    public void encode(Image image, OutputStream os) throws IOException, EncoderException {
-        img = image;
-        ofile = os;
-        saveImage();
-    }
-
-    public void encode(Component component, OutputStream os) throws IOException, EncoderException {
-        encode(snapshot(component), os);
-    }
 
     public static Image snapshot(Component component) {
         Image img = component.createImage(component.getSize().width,
@@ -60,21 +48,6 @@ public abstract class AbstractImageEncoder implements Encoder {
             component.paint(igc);
         }
         return img;
-    }
-
-    public abstract void saveImage() throws IOException, EncoderException;
-
-    public byte createByte(int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
-        byte bits = 0;
-        if (b0 == 1) bits = (byte) (bits | 1);
-        if (b1 == 1) bits = (byte) (bits | 2);
-        if (b2 == 1) bits = (byte) (bits | 4);
-        if (b3 == 1) bits = (byte) (bits | 8);
-        if (b4 == 1) bits = (byte) (bits | 16);
-        if (b5 == 1) bits = (byte) (bits | 32);
-        if (b6 == 1) bits = (byte) (bits | 64);
-        if (b7 == 1) bits = (byte) (bits | 128);
-        return bits;
     }
 
     public static byte byteFromInt(int value) {
@@ -100,6 +73,31 @@ public abstract class AbstractImageEncoder implements Encoder {
                 bits = (byte) (bits | ((byte) Math.pow(2, i)));
             }
         }
+        return bits;
+    }
+
+    public void encode(Image image, OutputStream os) throws IOException, EncoderException {
+        img = image;
+        ofile = os;
+        saveImage();
+    }
+
+    public void encode(Component component, OutputStream os) throws IOException, EncoderException {
+        encode(snapshot(component), os);
+    }
+
+    public abstract void saveImage() throws IOException, EncoderException;
+
+    public byte createByte(int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
+        byte bits = 0;
+        if (b0 == 1) bits = (byte) (bits | 1);
+        if (b1 == 1) bits = (byte) (bits | 2);
+        if (b2 == 1) bits = (byte) (bits | 4);
+        if (b3 == 1) bits = (byte) (bits | 8);
+        if (b4 == 1) bits = (byte) (bits | 16);
+        if (b5 == 1) bits = (byte) (bits | 32);
+        if (b6 == 1) bits = (byte) (bits | 64);
+        if (b7 == 1) bits = (byte) (bits | 128);
         return bits;
     }
 

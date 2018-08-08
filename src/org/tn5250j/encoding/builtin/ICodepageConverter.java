@@ -31,3 +31,4 @@ public interface ICodepageConverter extends ICodePage {
     public abstract ICodepageConverter init();
 
 }
+

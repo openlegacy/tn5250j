@@ -2,26 +2,26 @@
  * Title: GlobalConfigure.java
  * Copyright:   Copyright (c) 2001, 2002, 2003
  * Company:
- * @author  Kenneth J. Pouncey
+ *
+ * @author Kenneth J. Pouncey
  * @version 0.1
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
- *
  */
 package org.tn5250j;
 
@@ -43,27 +43,22 @@ import java.util.Properties;
 public class GlobalConfigure extends ConfigureFactory {
 
     public static final String TN5250J_FOLDER = ".tn5250j";
-
+    // Moved to ConfigureFactory
+    //   static final public String SESSIONS = "sessions";
+    static final public File ses = new File(SESSIONS);
+    static final private String settingsFile = "tn5250jstartup.cfg";
     /**
      * A handle to the unique GlobalConfigure class
      */
     static private GlobalConfigure _instance;
-
     /**
      * A handle to the the Global Properties
      */
     static private Properties settings;
-
     static private Hashtable registry = new Hashtable();
-    static private Hashtable headers = new Hashtable();  //LUC GORRENS
-
-    // Moved to ConfigureFactory
-    //   static final public String SESSIONS = "sessions";
-    static final public File ses = new File(SESSIONS);
     //   static final public String MACROS = "macros";
     //   static final public String KEYMAP = "keymap";
-
-    static final private String settingsFile = "tn5250jstartup.cfg";
+    static private Hashtable headers = new Hashtable();  //LUC GORRENS
     private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     /**

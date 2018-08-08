@@ -25,23 +25,18 @@
  */
 package org.tn5250j.tools;
 
-import java.awt.BorderLayout;
+import org.tn5250j.SessionPanel;
+import org.tn5250j.interfaces.ConfigureFactory;
+import org.tn5250j.scripting.InterpreterDriverManager;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
-import org.tn5250j.SessionPanel;
-import org.tn5250j.interfaces.ConfigureFactory;
-import org.tn5250j.scripting.InterpreterDriverManager;
 
 public class Macronizer {
 

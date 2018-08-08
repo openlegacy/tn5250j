@@ -52,3 +52,4 @@ public class NewSessionAction extends EmulatorAction {
         session.startNewSession();
     }
 }
+

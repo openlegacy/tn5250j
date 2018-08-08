@@ -1,4 +1,3 @@
-
 /**
  * JPythonInterpreterDriver.java
  * <p>
@@ -11,20 +10,17 @@
 
 package org.tn5250j.scripting;
 
-import java.io.File;
-
-import javax.swing.JOptionPane;
-
 import org.python.core.PyException;
 import org.python.util.PythonInterpreter;
 import org.tn5250j.GlobalConfigure;
 import org.tn5250j.SessionPanel;
 
+import javax.swing.*;
+import java.io.File;
+
 public class JPythonInterpreterDriver implements InterpreterDriver {
 
     private static JPythonInterpreterDriver _instance;
-
-    private PythonInterpreter _interpreter;
 
     static {
 
@@ -46,6 +42,8 @@ public class JPythonInterpreterDriver implements InterpreterDriver {
         InterpreterDriverManager.registerDriver(_instance);
     }
 
+    private PythonInterpreter _interpreter;
+
     JPythonInterpreterDriver() {
 
         try {
@@ -54,6 +52,15 @@ public class JPythonInterpreterDriver implements InterpreterDriver {
 
         }
 
+    }
+
+    public static void main(String[] args) {
+        try {
+            _instance.executeScript("print \"Hello\"");
+            _instance.executeScriptFile("test.py");
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
     }
 
     public void executeScript(SessionPanel session, String script)
@@ -133,14 +140,5 @@ public class JPythonInterpreterDriver implements InterpreterDriver {
 
     public String[] getSupportedLanguages() {
         return new String[]{"Python", "JPython"};
-    }
-
-    public static void main(String[] args) {
-        try {
-            _instance.executeScript("print \"Hello\"");
-            _instance.executeScriptFile("test.py");
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
     }
 }

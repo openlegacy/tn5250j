@@ -25,76 +25,29 @@ package org.tn5250j;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.Graphics;
-import java.awt.Point;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
-import javax.swing.SwingUtilities;
-
 public abstract class RubberBand {
-    private volatile RubberBandCanvasIF canvas;
     protected volatile Point startPoint;
     protected volatile Point endPoint;
+    private volatile RubberBandCanvasIF canvas;
     private volatile boolean eraseSomething = false;
     private volatile boolean isSomethingBounded = false;
     private volatile boolean isDragging = false;
-
-    private class MouseHandler extends MouseAdapter {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if (!SwingUtilities.isRightMouseButton(e)) {
-                if (!isSomethingBounded)
-                    start(canvas.translateStart(e.getPoint()));
-                else {
-                    //               if (isSomethingBounded) {
-                    //                  erase();
-                    //                  notifyRubberBandCanvas();
-                    //                  reset();
-                    //                  start(canvas.translateStart(e.getPoint()));
-                    //               }
-                }
-            }
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            isDragging = false;
-        }
-
-    }
-
-    private class MouseMotionHandler extends MouseMotionAdapter {
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
-
-            if (!SwingUtilities.isRightMouseButton(e) && getCanvas().canDrawRubberBand(RubberBand.this)) {
-                erase();
-                if (!isDragging) {
-                    reset();
-                    start(canvas.translateStart(e.getPoint()));
-                }
-                isDragging = true;
-                stop(canvas.translateEnd(e.getPoint()));
-                notifyRubberBandCanvas();
-                draw();
-                notifyRubberBandCanvas();
-            }
-        }
-
-    }
-
-    public boolean isDragging() {
-        return isDragging;
-    }
 
     public RubberBand(RubberBandCanvasIF c) {
         super();
         setCanvas(c);
         getCanvas().addMouseListener(new MouseHandler());
         getCanvas().addMouseMotionListener(new MouseMotionHandler());
+    }
+
+    public boolean isDragging() {
+        return isDragging;
     }
 
     protected void draw() {
@@ -144,11 +97,19 @@ public abstract class RubberBand {
         return this.canvas;
     }
 
+    public final void setCanvas(RubberBandCanvasIF c) {
+        this.canvas = c;
+    }
+
     protected Point getEndPoint() {
         if (this.endPoint == null) {
             setEndPoint(new Point(0, 0));
         }
         return this.endPoint;
+    }
+
+    protected final void setEndPoint(Point newValue) {
+        this.endPoint = newValue;
     }
 
     protected Point getStartPoint() {
@@ -160,8 +121,19 @@ public abstract class RubberBand {
 
     }
 
+    protected final void setStartPoint(Point newValue) {
+        this.startPoint = newValue;
+        if (startPoint == null)
+            endPoint = null;
+
+    }
+
     protected final boolean getEraseSomething() {
         return this.eraseSomething;
+    }
+
+    protected final void setEraseSomething(boolean newValue) {
+        this.eraseSomething = newValue;
     }
 
     protected void notifyRubberBandCanvas() {
@@ -184,25 +156,6 @@ public abstract class RubberBand {
         }
 
         getCanvas().areaBounded(this, startX, startY, endX, endY);
-
-    }
-
-    public final void setCanvas(RubberBandCanvasIF c) {
-        this.canvas = c;
-    }
-
-    protected final void setEndPoint(Point newValue) {
-        this.endPoint = newValue;
-    }
-
-    protected final void setEraseSomething(boolean newValue) {
-        this.eraseSomething = newValue;
-    }
-
-    protected final void setStartPoint(Point newValue) {
-        this.startPoint = newValue;
-        if (startPoint == null)
-            endPoint = null;
 
     }
 
@@ -233,6 +186,51 @@ public abstract class RubberBand {
 
     protected final boolean isAreaSelected() {
         return isSomethingBounded;
+    }
+
+    private class MouseHandler extends MouseAdapter {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (!SwingUtilities.isRightMouseButton(e)) {
+                if (!isSomethingBounded)
+                    start(canvas.translateStart(e.getPoint()));
+                else {
+                    //               if (isSomethingBounded) {
+                    //                  erase();
+                    //                  notifyRubberBandCanvas();
+                    //                  reset();
+                    //                  start(canvas.translateStart(e.getPoint()));
+                    //               }
+                }
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            isDragging = false;
+        }
+
+    }
+
+    private class MouseMotionHandler extends MouseMotionAdapter {
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+
+            if (!SwingUtilities.isRightMouseButton(e) && getCanvas().canDrawRubberBand(RubberBand.this)) {
+                erase();
+                if (!isDragging) {
+                    reset();
+                    start(canvas.translateStart(e.getPoint()));
+                }
+                isDragging = true;
+                stop(canvas.translateEnd(e.getPoint()));
+                notifyRubberBandCanvas();
+                draw();
+                notifyRubberBandCanvas();
+            }
+        }
+
     }
 
 }

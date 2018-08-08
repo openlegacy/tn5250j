@@ -19,47 +19,37 @@
  */
 package org.tn5250j.framework;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import javax.swing.JFrame;
-
 import org.tn5250j.GlobalConfigure;
-import org.tn5250j.framework.tn5250.Screen5250;
-import org.tn5250j.SessionPanel;
 import org.tn5250j.Session5250;
-import org.tn5250j.framework.common.SessionManager;
+import org.tn5250j.SessionPanel;
 import org.tn5250j.TN5250jConstants;
+import org.tn5250j.framework.common.SessionManager;
+import org.tn5250j.framework.common.Sessions;
+import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.tnvt;
 import org.tn5250j.interfaces.ConfigureFactory;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
-import org.tn5250j.framework.common.Sessions;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.*;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 
 public class Tn5250jController extends Thread {
+    private static Tn5250jController current;
+    Properties sesprops;
     private File extensionDir;
     private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
     //private URLClassLoader loader = new URLClassLoader(null, this.getClass().getClassLoader());
     private List<Tn5250jEvent> eventList;
     private List<Tn5250jListener> listeners;
     private SessionManager manager;
-    Properties sesprops;
-    private static Tn5250jController current;
 
     private Tn5250jController() {
         String maindir = System.getProperty("user.dir");
@@ -81,6 +71,13 @@ public class Tn5250jController extends Thread {
                         GlobalConfigure.SESSIONS);
         log.debug("Session configuration: " + sesprops.toString());
         this.start();
+    }
+
+    public static Tn5250jController getCurrent() {
+        if (current == null) {
+            current = new Tn5250jController();
+        }
+        return current;
     }
 
     private void loadExt() {
@@ -201,13 +198,6 @@ public class Tn5250jController extends Thread {
         }
     }
 
-    public static Tn5250jController getCurrent() {
-        if (current == null) {
-            current = new Tn5250jController();
-        }
-        return current;
-    }
-
     public void createSession(Screen5250 screen, tnvt vt, SessionPanel ses) {
         final Tn5250jSession session = new Tn5250jSession(screen, vt, ses);
         Iterator<Tn5250jListener> listenerIt = listeners.iterator();
@@ -216,34 +206,6 @@ public class Tn5250jController extends Thread {
             Tn5250jListener listener = listenerIt.next();
             listener.sessionCreated(session);
         }
-    }
-
-    private class ModuleThread extends Thread {
-        File dir;
-        Tn5250jListener mod;
-        Properties config;
-
-        public ModuleThread(
-                File directory,
-                Tn5250jListener module,
-                Properties config) {
-            dir = directory;
-            mod = module;
-            this.config = config;
-            this.setDaemon(true);
-            this.setName(module.getName());
-        }
-
-        public void run() {
-            mod.init(dir, config);
-            mod.setController(Tn5250jController.getCurrent());
-            log.info("module initialized");
-            mod.run();
-            log.info("module stopped");
-            mod.destroy();
-            log.info("module destroyed");
-        }
-
     }
 
     protected Properties getPropertiesForSession(String session) {
@@ -386,6 +348,34 @@ public class Tn5250jController extends Thread {
 
         }
         return null;
+    }
+
+    private class ModuleThread extends Thread {
+        File dir;
+        Tn5250jListener mod;
+        Properties config;
+
+        public ModuleThread(
+                File directory,
+                Tn5250jListener module,
+                Properties config) {
+            dir = directory;
+            mod = module;
+            this.config = config;
+            this.setDaemon(true);
+            this.setName(module.getName());
+        }
+
+        public void run() {
+            mod.init(dir, config);
+            mod.setController(Tn5250jController.getCurrent());
+            log.info("module initialized");
+            mod.run();
+            log.info("module stopped");
+            mod.destroy();
+            log.info("module destroyed");
+        }
+
     }
 
 }

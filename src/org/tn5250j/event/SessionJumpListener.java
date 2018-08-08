@@ -25,3 +25,4 @@ public interface SessionJumpListener {
 
     public void onSessionJump(SessionJumpEvent changeEvent);
 }
+

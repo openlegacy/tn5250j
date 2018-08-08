@@ -5,6 +5,8 @@ import java.util.EventObject;
 public class BootEvent extends EventObject {
 
     private static final long serialVersionUID = 1L;
+    private String message;
+    private String bootOptions;
 
     public BootEvent(Object obj) {
         super(obj);
@@ -33,7 +35,4 @@ public class BootEvent extends EventObject {
 
         bootOptions = s;
     }
-
-    private String message;
-    private String bootOptions;
 }

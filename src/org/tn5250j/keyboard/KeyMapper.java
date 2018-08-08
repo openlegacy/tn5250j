@@ -25,23 +25,15 @@
  */
 package org.tn5250j.keyboard;
 
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
-import javax.swing.KeyStroke;
-
 import org.tn5250j.event.KeyChangeListener;
 import org.tn5250j.interfaces.ConfigureFactory;
 import org.tn5250j.interfaces.OptionAccessFactory;
 import org.tn5250j.tools.LangTool;
+
+import javax.swing.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.*;
 
 public class KeyMapper {
 
@@ -217,12 +209,6 @@ public class KeyMapper {
             mappedKeys.put(new KeyStroker(kc, is, ic, ia, iag, location), theKey);
 
         }
-
-    }
-
-    protected static void setKeyMap(Properties keystrokes) {
-
-        parseKeyStrokes(keystrokes);
 
     }
 
@@ -449,6 +435,12 @@ public class KeyMapper {
         return mappedKeys;
     }
 
+    protected static void setKeyMap(Properties keystrokes) {
+
+        parseKeyStrokes(keystrokes);
+
+    }
+
     /**
      * Add a KeyChangeListener to the listener list.
      *
@@ -460,19 +452,6 @@ public class KeyMapper {
             listeners = new java.util.Vector<KeyChangeListener>(3);
         }
         listeners.addElement(listener);
-
-    }
-
-    /**
-     * Remove a Key Change Listener from the listener list.
-     *
-     * @param listener  The KeyChangeListener to be removed
-     */
-    public synchronized void removeKeyChangeListener(KeyChangeListener listener) {
-        if (listeners == null) {
-            return;
-        }
-        listeners.removeElement(listener);
 
     }
 
@@ -490,6 +469,19 @@ public class KeyMapper {
                 target.onKeyChanged();
             }
         }
+    }
+
+    /**
+     * Remove a Key Change Listener from the listener list.
+     *
+     * @param listener  The KeyChangeListener to be removed
+     */
+    public synchronized void removeKeyChangeListener(KeyChangeListener listener) {
+        if (listeners == null) {
+            return;
+        }
+        listeners.removeElement(listener);
+
     }
 
 }

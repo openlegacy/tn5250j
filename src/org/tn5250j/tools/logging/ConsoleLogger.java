@@ -132,3 +132,4 @@ public final class ConsoleLogger implements TN5250jLogger {
     }
 
 }
+

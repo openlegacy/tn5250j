@@ -21,7 +21,9 @@ package org.tn5250j.tools.filters;
  *
  */
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class FixedWidthOutputFilter implements OutputFilterInterface {

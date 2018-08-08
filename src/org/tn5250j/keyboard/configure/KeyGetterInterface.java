@@ -25,12 +25,11 @@
  */
 package org.tn5250j.keyboard.configure;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyAdapter;
-import javax.swing.JLabel;
-import javax.swing.JDialog;
-
 import org.tn5250j.tools.system.OperatingSystem;
+
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * This class is not really an interface but an class that extends label so that

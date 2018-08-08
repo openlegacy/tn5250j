@@ -19,29 +19,56 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Vector;
 
 public class JSortTable extends JTable implements MouseListener {
-
     private static final long serialVersionUID = 1L;
-    private int sortedColumnIndex = -1;
-    private boolean sortedColumnAscending = true;
+    protected int sortedColumnIndex = -1;
+    protected boolean sortedColumnAscending = true;
+
+    public JSortTable() {
+        this(new DefaultSortTableModel());
+    }
+
+    public JSortTable(int rows, int cols) {
+        this(new DefaultSortTableModel(rows, cols));
+    }
+
+    public JSortTable(Object[][] data, Object[] names) {
+        this(new DefaultSortTableModel(data, names));
+    }
+
+    public JSortTable(Vector data, Vector names) {
+        this(new DefaultSortTableModel(data, names));
+    }
 
     public JSortTable(SortTableModel model) {
         super(model);
         initSortHeader();
     }
 
-    private void initSortHeader() {
+    public JSortTable(SortTableModel model, TableColumnModel colModel) {
+        super(model, colModel);
+        initSortHeader();
+    }
+
+    public JSortTable(SortTableModel model, TableColumnModel colModel,
+                      ListSelectionModel selModel) {
+        super(model, colModel, selModel);
+        initSortHeader();
+    }
+
+    protected void initSortHeader() {
         JTableHeader header = getTableHeader();
         header.setDefaultRenderer(new SortHeaderRenderer());
         header.addMouseListener(this);
     }
 
-    int getSortedColumnIndex() {
+    public int getSortedColumnIndex() {
         return sortedColumnIndex;
     }
 
-    boolean isSortedColumnAscending() {
+    public boolean isSortedColumnAscending() {
         return sortedColumnAscending;
     }
 
@@ -70,6 +97,10 @@ public class JSortTable extends JTable implements MouseListener {
 
     public void mouseEntered(MouseEvent event) {
     }
+
+    public void mouseExited(MouseEvent event) {
+    }
+}
 
     public void mouseExited(MouseEvent event) {
     }

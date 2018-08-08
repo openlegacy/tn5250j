@@ -119,6 +119,11 @@ public interface TN5250jLogger {
     abstract public boolean isFatalEnabled();
 
     /**
+     * @return The current log level.
+     */
+    abstract public int getLevel();
+
+    /**
      * Sets a new log level.
      *
      * @param newLevel
@@ -126,9 +131,5 @@ public interface TN5250jLogger {
      */
     abstract public void setLevel(int newLevel);
 
-    /**
-     * @return The current log level.
-     */
-    abstract public int getLevel();
-
 }
+

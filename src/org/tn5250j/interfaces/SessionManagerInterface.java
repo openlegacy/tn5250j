@@ -20,11 +20,11 @@
  */
 package org.tn5250j.interfaces;
 
-import java.util.Properties;
-
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.framework.common.Sessions;
+
+import java.util.Properties;
 
 public interface SessionManagerInterface {
 

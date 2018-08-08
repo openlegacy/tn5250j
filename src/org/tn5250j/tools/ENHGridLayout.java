@@ -25,11 +25,8 @@ package org.tn5250j.tools;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.GridLayout;
-import java.awt.Container;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Insets;
+
+import java.awt.*;
 
 /**
  * <code>ENHGridLayout</code> is an improved subclass of <code>GridLayout</code>.
@@ -41,37 +38,30 @@ import java.awt.Insets;
  */
 public class ENHGridLayout extends GridLayout {
 
+    public final static int VARIABLE = 0;
     private static final long serialVersionUID = 1L;
-
     /** The horiztonal gap between items. */
     protected int hgap;
-
     /** The vertical gap between items. */
     protected int vgap;
-
     /** The number of rows in the layout, as set by the user.
      * This number may not correspond exactly to the number of
      * rows in the layout.
      */
     protected int rows;
-
     /** The number of columns in the layout, as set by the user.
      * This number may not correspond exactly to the number of
      * columns in the layout.
      */
     protected int cols;
-
     /** Array of row heights.
      * It is accurate only after a call to getGridSizes()
      */
     protected int row_heights[] = new int[0];
-
     /** Array of column widths.
      * It is accurate only after a call to getGridSizes()
      */
     protected int col_widths[] = new int[0];
-
-    public final static int VARIABLE = 0;
 
     /**
      * Creates a grid layout with the specified number of rows and columns.

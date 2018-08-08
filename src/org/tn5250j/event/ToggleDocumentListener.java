@@ -27,3 +27,4 @@ public interface ToggleDocumentListener {
     public void toggleEmpty();
 
 }
+

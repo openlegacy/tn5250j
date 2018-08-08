@@ -36,30 +36,14 @@ package components;
  *   ButtonTabComponent.java
  */
 
-import java.awt.Color;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ContainerAdapter;
-import java.awt.event.ContainerEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 /*
  * Creating and using TabComponentsDemo example
@@ -73,6 +57,13 @@ public class TabComponentsDemo extends JFrame {
     private JMenuItem tabComponentsItem;
     private JMenuItem scrollLayoutItem;
 
+    public TabComponentsDemo(String title) {
+        super(title);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        initMenu();
+        add(tabbedPane);
+    }
+
     public static void main(String[] args) {
         // Schedule a job for the event dispatch thread:
         // creating and showing this application's GUI.
@@ -83,13 +74,6 @@ public class TabComponentsDemo extends JFrame {
                 new TabComponentsDemo("TabComponentsDemo").runTest();
             }
         });
-    }
-
-    public TabComponentsDemo(String title) {
-        super(title);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        initMenu();
-        add(tabbedPane);
     }
 
     public void runTest() {

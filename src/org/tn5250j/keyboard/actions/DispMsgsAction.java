@@ -52,3 +52,4 @@ public class DispMsgsAction extends EmulatorAction {
         session.getVT().systemRequest('4');
     }
 }
+

@@ -25,10 +25,10 @@
  */
 package org.tn5250j.keyboard.configure;
 
-import java.awt.event.KeyEvent;
-
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import java.awt.event.KeyEvent;
 
 /**
  * This class extends label so that we can display text as well as capture

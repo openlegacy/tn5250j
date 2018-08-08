@@ -36,6 +36,11 @@ public enum ColumnSeparator {
     Hide, Dot, Line, ShortLine;
 
     /**
+     * default Line
+     */
+    public static ColumnSeparator DEFAULT = Hide;
+
+    /**
      * searches the enumeration for the given name, case insensitive
      *
      * @param name
@@ -51,9 +56,4 @@ public enum ColumnSeparator {
         }
         return result;
     }
-
-    /**
-     * default Line
-     */
-    public static ColumnSeparator DEFAULT = Hide;
 }

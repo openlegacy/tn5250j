@@ -26,26 +26,19 @@ package org.tn5250j.sql;
  * Boston, MA 02111-1307 USA
  */
 
-import java.io.FileNotFoundException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Vector;
-
 import org.tn5250j.event.FTPStatusEvent;
 import org.tn5250j.event.FTPStatusListener;
 import org.tn5250j.framework.tn5250.tnvt;
 import org.tn5250j.tools.filters.FileFieldDef;
 import org.tn5250j.tools.filters.OutputFilterInterface;
+
+import java.io.FileNotFoundException;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Vector;
 
 public class AS400Xtfr {
 

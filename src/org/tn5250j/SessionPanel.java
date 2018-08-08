@@ -21,26 +21,7 @@
  */
 package org.tn5250j;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
-import java.util.Vector;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import org.tn5250j.event.EmulatorActionEvent;
-import org.tn5250j.event.EmulatorActionListener;
-import org.tn5250j.event.SessionChangeEvent;
-import org.tn5250j.event.SessionConfigEvent;
-import org.tn5250j.event.SessionConfigListener;
-import org.tn5250j.event.SessionJumpEvent;
-import org.tn5250j.event.SessionJumpListener;
-import org.tn5250j.event.SessionListener;
+import org.tn5250j.event.*;
 import org.tn5250j.framework.tn5250.Rect;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.tnvt;
@@ -54,36 +35,44 @@ import org.tn5250j.tools.Macronizer;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
-import static org.tn5250j.SessionConfig.*;
-import static org.tn5250j.keyboard.KeyMnemonic.ENTER;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.*;
+import java.util.Vector;
 
 /**
  * A host GUI session
  * (Hint: old name was SessionGUI)
  */
-public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionConfigListener, SessionListener {
+public class SessionPanel extends JPanel implements ComponentListener,
+        ActionListener,
+        RubberBandCanvasIF,
+        SessionConfigListener,
+        SessionListener {
 
     private static final long serialVersionUID = 1L;
-
+    protected final SessionScroller scroller = new SessionScroller();
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    protected Session5250 session;
+    protected TNRubberBand rubberband;
+    protected SessionConfig sesConfig;
+    protected KeyboardHandler keyHandler;
     private boolean firstScreen;
     private char[] signonSave;
-
+    private BorderLayout borderLayout1 = new BorderLayout();
     private Screen5250 screen;
-    protected Session5250 session;
     private GuiGraphicBuffer guiGraBuf;
-    protected TNRubberBand rubberband;
-    private KeypadPanel keypadPanel;
+    private JPanel s = new JPanel();
+    private KeyPad keyPad = new KeyPad();
     private String newMacName;
-    private Vector<SessionJumpListener> sessionJumpListeners = null;
+    private Vector<SessionJumpListener> listeners = null;
     private Vector<EmulatorActionListener> actionListeners = null;
+    private SessionJumpEvent jumpEvent;
     private boolean macroRunning;
     private boolean stopMacro;
     private boolean doubleClick;
-    protected SessionConfig sesConfig;
-    protected KeyboardHandler keyHandler;
-    private final SessionScroller scroller = new SessionScroller();
-
-    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     public SessionPanel(Session5250 session) {
         this.keypadPanel = new KeypadPanel(session.getConfiguration().getConfig());
@@ -140,6 +129,12 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
                 if (SwingUtilities.isRightMouseButton(e)) {
                     actionPopup(e);
                 }
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                //	            System.out.println("Mouse Released");
 
             }
 
@@ -420,6 +415,11 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
         fireEmulatorAction(EmulatorActionEvent.START_DUPLICATE);
     }
 
+    public void sendAidKey(int whichOne) {
+
+        session.getVT().sendAidKey(whichOne);
+    }
+
     /**
      * Toggles connection (connect or disconnect)
      */
@@ -500,16 +500,6 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
         return macroRunning;
     }
 
-    public boolean isStopMacroRequested() {
-
-        return stopMacro;
-    }
-
-    public boolean isSessionRecording() {
-
-        return keyHandler.isRecording();
-    }
-
     public void setMacroRunning(boolean mr) {
         macroRunning = mr;
         if (macroRunning)
@@ -518,6 +508,16 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
             screen.getOIA().setScriptActive(false);
 
         stopMacro = !macroRunning;
+    }
+
+    public boolean isStopMacroRequested() {
+
+        return stopMacro;
+    }
+
+    public boolean isSessionRecording() {
+
+        return keyHandler.isRecording();
     }
 
     public void setStopMacroRequested() {
@@ -986,7 +986,6 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
 
     }
 
-
     public void connect() {
 
         session.connect();
@@ -1041,4 +1040,66 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
 
     }
 
+    /**
+     * RubberBanding end code
+     */
+
+    public class TNRubberBand extends RubberBand {
+
+        public TNRubberBand(RubberBandCanvasIF c) {
+            super(c);
+        }
+
+        @Override
+        protected void drawBoundingShape(Graphics g, int startX, int startY, int width, int height) {
+            g.drawRect(startX, startY, width, height);
+        }
+
+        protected Rectangle getBoundingArea() {
+
+            Rectangle r = new Rectangle();
+            getBoundingArea(r);
+            return r;
+        }
+
+        protected void getBoundingArea(Rectangle r) {
+
+            if ((getEndPoint().x > getStartPoint().x) && (getEndPoint().y > getStartPoint().y)) {
+                r.setBounds(getStartPoint().x, getStartPoint().y, getEndPoint().x - getStartPoint().x, getEndPoint().y - getStartPoint().y);
+            } else if ((getEndPoint().x < getStartPoint().x) && (getEndPoint().y < getStartPoint().y)) {
+                r.setBounds(getEndPoint().x, getEndPoint().y, getStartPoint().x - getEndPoint().x, getStartPoint().y - getEndPoint().y);
+            } else if ((getEndPoint().x > getStartPoint().x) && (getEndPoint().y < getStartPoint().y)) {
+                r.setBounds(getStartPoint().x, getEndPoint().y, getEndPoint().x - getStartPoint().x, getStartPoint().y - getEndPoint().y);
+            } else if ((getEndPoint().x < getStartPoint().x) && (getEndPoint().y > getStartPoint().y)) {
+                r.setBounds(getEndPoint().x, getStartPoint().y, getStartPoint().x - getEndPoint().x, getEndPoint().y - getStartPoint().y);
+            }
+
+            //	         return r;
+        }
+
+        @Override
+        protected Point getEndPoint() {
+
+            if (this.endPoint == null) {
+                Point p = new Point(0, 0);
+                guiGraBuf.getPointFromRowCol(0, 0, p);
+                setEndPoint(p);
+            }
+            return this.endPoint;
+        }
+
+        @Override
+        protected Point getStartPoint() {
+
+            if (this.startPoint == null) {
+                Point p = new Point(0, 0);
+                guiGraBuf.getPointFromRowCol(0, 0, p);
+                setStartPoint(p);
+            }
+            return this.startPoint;
+
+        }
+    }
+
 }
+

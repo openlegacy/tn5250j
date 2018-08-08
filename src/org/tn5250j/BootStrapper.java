@@ -1,16 +1,22 @@
 package org.tn5250j;
 
-import java.net.*;
-import java.io.*;
+import org.tn5250j.event.BootEvent;
+import org.tn5250j.event.BootListener;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Vector;
 
 import org.tn5250j.event.*;
 
 public class BootStrapper extends Thread {
 
+    boolean listening = true;
     private Socket socket = null;
     private ServerSocket serverSocket = null;
-    boolean listening = true;
     private Vector<BootListener> listeners;
     private BootEvent bootEvent;
 

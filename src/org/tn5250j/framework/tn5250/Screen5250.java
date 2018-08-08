@@ -25,7 +25,10 @@
  */
 package org.tn5250j.framework.tn5250;
 
-import static org.tn5250j.TN5250jConstants.*;
+import org.tn5250j.TN5250jConstants;
+import org.tn5250j.event.ScreenListener;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -33,15 +36,16 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Vector;
 
-import org.tn5250j.TN5250jConstants;
-import org.tn5250j.event.ScreenListener;
-import org.tn5250j.keyboard.KeyMnemonic;
-import org.tn5250j.keyboard.KeyMnemonicResolver;
-import org.tn5250j.tools.logging.TN5250jLogFactory;
-import org.tn5250j.tools.logging.TN5250jLogger;
+import static org.tn5250j.TN5250jConstants.*;
 
 public class Screen5250 {
 
+    public final static byte STATUS_SYSTEM = 1;
+    public final static byte STATUS_ERROR_CODE = 2;
+    public final static byte STATUS_VALUE_ON = 1;
+    public final static byte STATUS_VALUE_OFF = 2;
+    protected static final int initAttr = 32;
+    protected static final char initChar = 0;
     // error codes to be sent to the host on an error
     private final static int ERR_CURSOR_PROTECTED = 0x05;
     private final static int ERR_INVALID_SIGN = 0x11;
@@ -53,18 +57,16 @@ public class Screen5250 {
     private final static int ERR_FIELD_EXIT_INVALID = 0x18;
     private final static int ERR_ENTER_NO_ALLOWED = 0x20;
     private final static int ERR_MANDITORY_ENTER = 0x21;
-
-    final static byte STATUS_SYSTEM = 1;
-    final static byte STATUS_ERROR_CODE = 2;
-    final static byte STATUS_VALUE_ON = 1;
-    final static byte STATUS_VALUE_OFF = 2;
-
-    final static int initAttr = 32;
-    final static char initChar = 0;
-
-    private final KeyMnemonicResolver keyMnemonicResolver = new KeyMnemonicResolver();
-    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
-
+    public boolean cursorActive = false;
+    public boolean cursorShown = false;
+    public int homePos = 0;
+    public int saveHomePos = 0;
+    public boolean pendingInsert = false;
+    protected boolean insertMode = false;
+    // screen planes
+    protected ScreenPlanes planes;
+    // vector of listeners for changes to the screen.
+    Vector<ScreenListener> listeners = null;
     private ScreenFields screenFields;
     private int lastAttr;
     private int lastPos;
@@ -73,36 +75,21 @@ public class Screen5250 {
     private tnvt sessionVT;
     private int numRows = 0;
     private int numCols = 0;
-
-    public boolean cursorActive = false;
-    public boolean cursorShown = false;
     private boolean keyProcessed = false;
     private Rect dirtyScreen = new Rect();
-
-    public int homePos = 0;
-    private int saveHomePos = 0;
     private String bufferedKeys;
-    private boolean pendingInsert = false;
-
     private StringBuffer hsMore = new StringBuffer("More...");
     private StringBuffer hsBottom = new StringBuffer("Bottom");
-
     private boolean guiInterface = false;
     private boolean resetRequired = true;
     private boolean backspaceError = true;
     private boolean feError;
-
-    // vector of listeners for changes to the screen.
-    private Vector<ScreenListener> screenListeners = null;
-
     // Operator Information Area
     private ScreenOIA oia;
-
-    // screen planes
-    protected ScreenPlanes planes;
-
     //Added by Barry
     private StringBuffer keybuf;
+
+    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     public Screen5250() {
 
@@ -169,6 +156,23 @@ public class Screen5250 {
     public boolean isCursorActive() {
         return cursorActive;
 
+    }
+
+    /**
+     * Activate the cursor on screen
+     *
+     * @param activate
+     */
+    public void setCursorActive(boolean activate) {
+        if (cursorActive && !activate) {
+            setCursorOff();
+            cursorActive = activate;
+        } else {
+            if (!cursorActive && activate) {
+                cursorActive = activate;
+                setCursorOn();
+            }
+        }
     }
 
     public boolean isCursorShown() {
@@ -317,10 +321,17 @@ public class Screen5250 {
     }
 
     /**
+     *
+     * Copy & Paste end code
+     *
+     */
+
+    /**
      * Copy & Paste support
      *
      * @param position
      * @return
+     * @see {@link #copyText(int)}
      */
     public final String copyTextField(int position) {
         screenFields.saveCurrentField();
@@ -539,6 +550,26 @@ public class Screen5250 {
         sessionVT = v;
     }
 
+    /**
+     * Searches the mnemonicData array looking for the specified string. If it
+     * is found it will return the value associated from the mnemonicValue
+     *
+     * @see #sendKeys
+     * @param mnem
+     *            string mnemonic value
+     * @return key value of Mnemonic
+     */
+    private int getMnemonicValue(String mnem) {
+
+        for (int x = 0; x < mnemonicData.length; x++) {
+
+            if (mnemonicData[x].equals(mnem))
+                return mnemonicValue[x];
+        }
+        return 0;
+
+    }
+
     protected void setPrehelpState(boolean setErrorCode, boolean lockKeyboard,
                                    boolean unlockIfLocked) {
         if (oia.isKeyBoardLocked() && unlockIfLocked)
@@ -551,27 +582,7 @@ public class Screen5250 {
 
     }
 
-    /**
-     * Activate the cursor on screen
-     *
-     * @param activate
-     */
-    public void setCursorActive(boolean activate) {
-        if (cursorActive && !activate) {
-            setCursorOff();
-            cursorActive = activate;
-        } else {
-            if (!cursorActive && activate) {
-                cursorActive = activate;
-                setCursorOn();
-            }
-        }
-    }
 
-    public void setCursorOn() {
-        cursorShown = true;
-        updateCursorLoc();
-    }
 
     public void setCursorOff() {
         cursorShown = false;
@@ -614,6 +625,9 @@ public class Screen5250 {
      */
     public synchronized void sendKeys(String text) {
 
+        //      if (text == null) {
+        //         return;
+        //      }
         this.keybuf.append(text);
 
         if (isStatusErrorCode() && !resetRequired) {
@@ -2419,6 +2433,8 @@ public class Screen5250 {
 
     /**
      * Convinience class to position to the next field on the screen.
+     *
+     * @see org.tn5250j.ScreenFields
      */
     private void gotoFieldNext() {
 
@@ -2433,6 +2449,8 @@ public class Screen5250 {
 
     /**
      * Convinience class to position to the previous field on the screen.
+     *
+     * @see org.tn5250j.ScreenFields
      */
     private void gotoFieldPrev() {
 
@@ -2445,6 +2463,24 @@ public class Screen5250 {
             setFieldHighlighted(screenFields.getCurrentField());
 
     }
+
+    /* *** NEVER USED LOCALLY ************************************************** */
+    //	/**
+    //	 * Used to restrict the cursor to a particular position on the screen. Used
+    //	 * in combination with windows to restrict the cursor to the active window
+    //	 * show on the screen.
+    //	 *
+    //	 * Not supported yet. Please implement me :-(
+    //	 *
+    //	 * @param depth
+    //	 * @param width
+    //	 */
+    //	protected void setRestrictCursor(int depth, int width) {
+    //
+    //		restrictCursor = true;
+    //		//      restriction
+    //
+    //	}
 
     /**
      * Creates a window on the screen
@@ -2860,7 +2896,94 @@ public class Screen5250 {
 
             lastPos = sf.startPos();
         }
+
+        //      if (fcw1 != 0 || fcw2 != 0) {
+
+        //         System.out.println("lr = " + lastRow + " lc = " + lastCol + " " +
+        // sf.toString());
+        //      }
+        sf = null;
+
     }
+
+
+    //      public void addChoiceField(int attr, int len, int ffw1, int ffw2, int
+    // fcw1, int fcw2) {
+    //
+    //         lastAttr = attr;
+    //
+    //         screen[lastPos].setCharAndAttr(initChar,lastAttr,true);
+    //         setDirty(lastPos);
+    //
+    //         advancePos();
+    //
+    //         boolean found = false;
+    //         ScreenField sf = null;
+    //
+    //         // from 14.6.12 for Start of Field Order 5940 function manual
+    //         // examine the format table for an entry that begins at the current
+    //         // starting address plus 1.
+    //         for (int x = 0;x < sizeFields; x++) {
+    //            sf = screenFields[x];
+    //
+    //            if (lastPos == sf.startPos()) {
+    //               screenFields.getCurrentField() = sf;
+    //               screenFields.getCurrentField().setFFWs(ffw1,ffw2);
+    //               found = true;
+    //            }
+    //
+    //         }
+    //
+    //         if (!found) {
+    //            sf =
+    // setField(attr,getRow(lastPos),getCol(lastPos),len,ffw1,ffw2,fcw1,fcw2);
+    //
+    //            lastPos = sf.startPos();
+    //            int x = len;
+    //
+    //            boolean gui = guiInterface;
+    //            if (sf.isBypassField())
+    //               gui = false;
+    //
+    //            while (x-- > 0) {
+    //
+    //               if (screen[lastPos].getChar() == 0)
+    //                  screen[lastPos].setCharAndAttr(' ',lastAttr,false);
+    //               else
+    //                  screen[lastPos].setAttribute(lastAttr);
+    //
+    //               if (gui)
+    //                  screen[lastPos].setUseGUI(FIELD_MIDDLE);
+    //
+    //               advancePos();
+    //
+    //            }
+    //
+    //            if (gui)
+    //               if (len > 1) {
+    //                  screen[sf.startPos()].setUseGUI(FIELD_LEFT);
+    //                  if (lastPos > 0)
+    //                     screen[lastPos-1].setUseGUI(FIELD_RIGHT);
+    //                  else
+    //                     screen[lastPos].setUseGUI(FIELD_RIGHT);
+    //
+    //               }
+    //               else
+    //                  screen[lastPos-1].setUseGUI(FIELD_ONE);
+    //
+    //            setEndingAttr(initAttr);
+    //
+    //            lastPos = sf.startPos();
+    //         }
+    //
+    //   // if (fcw1 != 0 || fcw2 != 0) {
+    //   //
+    //   // System.out.println("lr = " + lastRow + " lc = " + lastCol + " " +
+    // sf.toString());
+    //   // }
+    //         sf = null;
+    //
+    //      }
 
     /**
      * Return the fields that are contained in the Field Format Table
@@ -3020,6 +3143,15 @@ public class Screen5250 {
 
         advancePos();
         int pos = lastPos;
+
+        int times = 0;
+        //      sattr = screen[lastPos].getCharAttr();
+        //         System.out.println(" next position after change " + sattr + " last
+        // attr " + lastAttr +
+        //                     " at " + (this.getRow(lastPos) + 1) + "," + (this.getCol(lastPos) +
+        // 1) +
+        //                     " attr place " + screen[lastPos].isAttributePlace());
+
         while (planes.getCharAttr(lastPos) != lastAttr
                 && !planes.isAttributePlace(lastPos)) {
 
@@ -3030,6 +3162,8 @@ public class Screen5250 {
                     planes.setUseGUI(lastPos, NO_GUI);
             }
             setDirty(lastPos);
+
+            times++;
             advancePos();
         }
 
@@ -3120,6 +3254,12 @@ public class Screen5250 {
             lastPos = lenScreen + lastPos;
         if (lastPos > lenScreen - 1)
             lastPos = lastPos - lenScreen;
+
+        //      System.out.println(lastRow + "," + ((lastPos) / numCols) + "," +
+        //                         lastCol + "," + ((lastPos) % numCols) + "," +
+        //                         ((lastRow * numCols) + lastCol) + "," +
+        //                         (lastPos));
+
     }
 
     protected void goHome() {
@@ -3165,6 +3305,15 @@ public class Screen5250 {
     }
 
     /**
+     * Returns the current error line number
+     *
+     * @return current error line number
+     */
+    protected int getErrorLine() {
+        return planes.getErrorLine();
+    }
+
+    /**
      * Set the error line number to that of number passed.
      *
      * @param line
@@ -3172,15 +3321,6 @@ public class Screen5250 {
     protected void setErrorLine(int line) {
 
         planes.setErrorLine(line);
-    }
-
-    /**
-     * Returns the current error line number
-     *
-     * @return current error line number
-     */
-    protected int getErrorLine() {
-        return planes.getErrorLine();
     }
 
     /**

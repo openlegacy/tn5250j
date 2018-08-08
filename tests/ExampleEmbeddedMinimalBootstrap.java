@@ -25,20 +25,18 @@
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.BorderLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.util.Properties;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionBean;
 import org.tn5250j.SessionConfig;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.interfaces.ConfigureFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.util.Properties;
 
 
 public class ExampleEmbeddedMinimalBootstrap {

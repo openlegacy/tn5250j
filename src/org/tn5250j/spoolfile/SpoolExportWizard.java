@@ -26,30 +26,13 @@ package org.tn5250j.spoolfile;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-
+import com.ibm.as400.access.*;
+import com.ibm.as400.vaccess.IFSFileDialog;
+import com.lowagie.text.Document;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfWriter;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.event.WizardEvent;
 import org.tn5250j.event.WizardListener;
@@ -61,18 +44,14 @@ import org.tn5250j.mailtools.SendEMailDialog;
 import org.tn5250j.tools.AlignLayout;
 import org.tn5250j.tools.LangTool;
 
-import com.ibm.as400.access.AS400;
-import com.ibm.as400.access.IFSFileOutputStream;
-import com.ibm.as400.access.PrintObject;
-import com.ibm.as400.access.PrintObjectTransformedInputStream;
-import com.ibm.as400.access.PrintParameterList;
-import com.ibm.as400.access.SpooledFile;
-import com.ibm.as400.vaccess.IFSFileDialog;
-import com.lowagie.text.Document;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.pdf.PdfWriter;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -172,6 +151,25 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Converts a byte to a char
+     *
+     * @param b the byte to be converted
+     * @param charsetName the name of a charset in the which the byte is encoded
+     * @return the converted char
+     */
+    public static char byte2char(byte b, String charsetName) {
+        char c = ' ';
+        try {
+            byte[] bytes = {b};
+            c = (new String(bytes, charsetName)).charAt(0);
+        } catch (java.io.UnsupportedEncodingException uee) {
+            System.err.println(uee);
+            System.err.println("Error while converting byte to char, returning blank...");
+        }
+        return c;
     }
 
     //Component initialization
@@ -1120,24 +1118,6 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
         System.out.println(e.getCurrentPage().getName());
     }
 
-    /**
-     * Converts a byte to a char
-     *
-     * @param b the byte to be converted
-     * @param charsetName the name of a charset in the which the byte is encoded
-     * @return the converted char
-     */
-    public static char byte2char(byte b, String charsetName) {
-        char c = ' ';
-        try {
-            byte[] bytes = {b};
-            c = (new String(bytes, charsetName)).charAt(0);
-        } catch (java.io.UnsupportedEncodingException uee) {
-            System.err.println(uee);
-            System.err.println("Error while converting byte to char, returning blank...");
-        }
-        return c;
-    }
-
 
 }
+

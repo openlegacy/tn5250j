@@ -26,10 +26,10 @@ package org.tn5250j.tools.filters;
  * Boston, MA 02111-1307 USA
  */
 
+import javax.swing.filechooser.FileFilter;
 import java.io.File;
-import java.util.Hashtable;
 import java.util.Enumeration;
-import javax.swing.filechooser.*;
+import java.util.Hashtable;
 
 /**
  *
@@ -243,6 +243,21 @@ public class XTFRFileFilter extends FileFilter {
     }
 
     /**
+     * Returns whether the extension list (.jpg, .gif, etc) should
+     * show up in the human readable description.
+     *
+     * Only relevent if a description was provided in the constructor
+     * or using setDescription();
+     *
+     * @see getDescription
+     * @see setDescription
+     * @see setExtensionListInDescription
+     */
+    public boolean isExtensionListInDescription() {
+        return useExtensionsInDescription;
+    }
+
+    /**
      * Determines whether the extension list (.jpg, .gif, etc) should
      * show up in the human readable description.
      *
@@ -256,21 +271,6 @@ public class XTFRFileFilter extends FileFilter {
     public void setExtensionListInDescription(boolean b) {
         useExtensionsInDescription = b;
         fullDescription = null;
-    }
-
-    /**
-     * Returns whether the extension list (.jpg, .gif, etc) should
-     * show up in the human readable description.
-     *
-     * Only relevent if a description was provided in the constructor
-     * or using setDescription();
-     *
-     * @see getDescription
-     * @see setDescription
-     * @see setExtensionListInDescription
-     */
-    public boolean isExtensionListInDescription() {
-        return useExtensionsInDescription;
     }
 
     /**

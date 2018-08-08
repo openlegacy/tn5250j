@@ -26,11 +26,11 @@
  */
 package org.tn5250j.encoding;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 /* package */ class ToolboxCodePageFactory {
 
@@ -68,6 +68,14 @@ import org.tn5250j.tools.logging.TN5250jLogger;
         return singleton;
     }
 
+    private static final ClassLoader getClassLoader() {
+        ClassLoader loader = ToolboxCodePageFactory.class.getClassLoader();
+        if (loader == null) {
+            loader = ClassLoader.getSystemClassLoader();
+        }
+        return loader;
+    }
+
     /**
      * @return
      */
@@ -99,14 +107,6 @@ import org.tn5250j.tools.logging.TN5250jLogger;
             log.warn("Can't load charset converter from JT400 Toolbox for code page " + encoding, e);
             return null;
         }
-    }
-
-    private static final ClassLoader getClassLoader() {
-        ClassLoader loader = ToolboxCodePageFactory.class.getClassLoader();
-        if (loader == null) {
-            loader = ClassLoader.getSystemClassLoader();
-        }
-        return loader;
     }
 
     private static class ToolboxConverterProxy implements ICodePage {
@@ -151,11 +151,7 @@ import org.tn5250j.tools.logging.TN5250jLogger;
 
             return ((byte[]) result)[0];
         }
-
-        @Override
-        public boolean isDoubleByteActive() {
-            return false;
-        }
+    }
 
         @Override
         public boolean secondByteNeeded() {
@@ -164,3 +160,4 @@ import org.tn5250j.tools.logging.TN5250jLogger;
     }
 
 }
+

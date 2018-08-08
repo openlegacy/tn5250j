@@ -190,6 +190,16 @@ public class FileFieldDef {
         return type;
     }
 
+    public void setFieldType(String fType) {
+
+        type = fType.charAt(0);
+
+        if (type == 'P')
+            bufferLength = (length * 2) - 1;
+        else
+            bufferLength = length;
+    }
+
     public int getPrecision() {
         return decPos;
     }
@@ -236,16 +246,6 @@ public class FileFieldDef {
 
     }
 
-    public void setFieldType(String fType) {
-
-        type = fType.charAt(0);
-
-        if (type == 'P')
-            bufferLength = (length * 2) - 1;
-        else
-            bufferLength = length;
-    }
-
     public void setFieldText(String text) {
 
         txtDesc = text;
@@ -267,3 +267,4 @@ public class FileFieldDef {
     }
 
 }
+

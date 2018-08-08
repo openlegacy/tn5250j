@@ -25,31 +25,29 @@
  */
 package org.tn5250j.framework.tn5250;
 
-import static org.tn5250j.TN5250jConstants.*;
+import org.tn5250j.ExternalProgramConfig;
 
 import java.util.Properties;
 
-import org.tn5250j.ExternalProgramConfig;
+import static org.tn5250j.TN5250jConstants.*;
 
 public class ScreenPlanes {
 
+    private static final int initAttr = 32;
+    private static final char initChar = 0;
     private final Screen5250 scr;
+    protected char[] screen;   // text plane
+    protected char[] screenExtended;   // extended plane
     private int screenSize;
     private int numRows;
     private int numCols;
     private int errorLineNum;
-
-    private static final int initAttr = 32;
-    private static final char initChar = 0;
-
-    protected char[] screen;   // text plane
     private char[] screenAttr;   // attribute plane
     private char[] screenGUI;   // gui plane
     private char[] screenIsAttr;
     private char[] fieldExtended;
     private char[] screenField;
     private char[] screenColor;   // color plane
-    protected char[] screenExtended;   // extended plane
     private char[] screenIsChanged;
 
     private char[] initArray;
@@ -100,6 +98,15 @@ public class ScreenPlanes {
         initalizePlanes();
     }
 
+    /**
+     * Returns the current error line number
+     *
+     * @return current error line number
+     */
+    protected int getErrorLine() {
+        return errorLineNum;
+    }
+
     protected void setErrorLine(int line) {
 
         // * NOTE * for developers I have changed the send qry to pass different
@@ -109,15 +116,6 @@ public class ScreenPlanes {
             errorLineNum = numRows;
         else
             errorLineNum = line;
-    }
-
-    /**
-     * Returns the current error line number
-     *
-     * @return current error line number
-     */
-    protected int getErrorLine() {
-        return errorLineNum;
     }
 
     protected void saveErrorLine() {
@@ -477,9 +475,12 @@ public class ScreenPlanes {
      *
      * @param pos The position to be converted
      * @return The row which corresponds to the position given
+     * @throws OhioException
      */
     private int convertPosToRow(int pos) {
+
         return (pos / numCols) + 1;
+
     }
 
     /**
@@ -487,9 +488,12 @@ public class ScreenPlanes {
      *
      * @param pos The position to be converted
      * @return The column which corresponds to the position given
+     * @throws OhioException
      */
     private int convertPosToColumn(int pos) {
+
         return (pos % numCols) + 1;
+
     }
 
     /**
@@ -525,9 +529,12 @@ public class ScreenPlanes {
      * @param bufferLength
      * @param plane
      * @return The number of characters copied to the buffer
+     * @throws OhioException
      */
     public synchronized int GetScreen(char buffer[], int bufferLength, int plane) {
+
         return GetScreen(buffer, bufferLength, 0, screenSize, plane);
+
     }
 
     /**
@@ -1152,3 +1159,4 @@ public class ScreenPlanes {
     }
 
 }
+

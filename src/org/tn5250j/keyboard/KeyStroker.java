@@ -2,26 +2,26 @@
  * Title: KeyStroker
  * Copyright:   Copyright (c) 2001, 2002, 2003
  * Company:
- * @author  Kenneth J. Pouncey
+ *
+ * @author Kenneth J. Pouncey
  * @version 0.1
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
- *
  */
 package org.tn5250j.keyboard;
 
@@ -33,19 +33,7 @@ import java.awt.event.KeyEvent;
  */
 public class KeyStroker {
 
-    protected int location;
-    private int keyCode;
-    private boolean isShiftDown;
-    private boolean isControlDown;
-    private boolean isAltDown;
-    private boolean isAltGrDown;
-    private int hashCode;
-
     public static final String altSuffix = ".alt2";
-
-
-    // literals copied from KeyEvent of JDK Version 1.4.0
-
     /**
      * A constant indicating that the keyLocation is indeterminate
      * or not relevant.
@@ -55,7 +43,6 @@ public class KeyStroker {
      * @since 1.4
      */
     public static final int KEY_LOCATION_UNKNOWN = 0;
-
     /**
      * A constant indicating that the key pressed or released
      * is not distinguished as the left or right version of a key,
@@ -66,7 +53,6 @@ public class KeyStroker {
      * @since 1.4
      */
     public static final int KEY_LOCATION_STANDARD = 1;
-
     /**
      * A constant indicating that the key pressed or released is in
      * the left key location (there is more than one possible location
@@ -75,7 +61,6 @@ public class KeyStroker {
      * @since 1.4
      */
     public static final int KEY_LOCATION_LEFT = 2;
-
     /**
      * A constant indicating that the key pressed or released is in
      * the right key location (there is more than one possible location
@@ -84,7 +69,6 @@ public class KeyStroker {
      * @since 1.4
      */
     public static final int KEY_LOCATION_RIGHT = 3;
-
     /**
      * A constant indicating that the key event originated on the
      * numeric keypad or with a virtual key corresponding to the
@@ -93,6 +77,16 @@ public class KeyStroker {
      * @since 1.4
      */
     public static final int KEY_LOCATION_NUMPAD = 4;
+    protected int keyCode;
+    protected boolean isShiftDown;
+
+
+    // literals copied from KeyEvent of JDK Version 1.4.0
+    protected boolean isControlDown;
+    protected boolean isAltDown;
+    protected boolean isAltGrDown;
+    protected int location;
+    protected int hashCode;
 
     public KeyStroker(KeyEvent ke) {
 
@@ -210,17 +204,15 @@ public class KeyStroker {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof KeyStroker) {
-            KeyStroker ks = (KeyStroker) obj;
 
-            return ks.keyCode == keyCode &&
-                    ks.isShiftDown == isShiftDown &&
-                    ks.isControlDown == isControlDown &&
-                    ks.isAltDown == isAltDown &&
-                    ks.isAltGrDown == isAltGrDown &&
-                    ks.location == location;
-        }
-        return false;
+        KeyStroker ks = (KeyStroker) obj;
+
+        return ks.keyCode == keyCode &&
+                ks.isShiftDown == isShiftDown &&
+                ks.isControlDown == isControlDown &&
+                ks.isAltDown == isAltDown &&
+                ks.isAltGrDown == isAltGrDown &&
+                ks.location == location;
     }
 
     public boolean equals(KeyEvent ke, boolean altGrDown) {

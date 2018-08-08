@@ -21,10 +21,9 @@
 
 package org.tn5250j.gui;
 
-import javax.swing.JOptionPane;
-
 import org.tn5250j.tools.LangTool;
-import org.tn5250j.gui.GenericTn5250JFrame;
+
+import javax.swing.*;
 
 public class TN5250jSecurityAccessDialog {
 
@@ -44,3 +43,4 @@ public class TN5250jSecurityAccessDialog {
 
     }
 }
+

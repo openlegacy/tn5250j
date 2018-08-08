@@ -25,18 +25,17 @@ package org.tn5250j.tools;
  * Boston, MA 02111-1307 USA
  */
 
-import java.awt.Container;
-import java.awt.Component;
+import java.awt.*;
 import java.util.Hashtable;
 
 public class AlignLayout extends ENHGridLayout {
 
-    private static final long serialVersionUID = 1L;
-    protected Hashtable alignment;
-    protected Hashtable resize_width, resize_height;
     public static final int TOP = 1;
     public static final int MIDDLE = 4;
     public static final int BOTTOM = 5;
+    private static final long serialVersionUID = 1L;
+    protected Hashtable alignment;
+    protected Hashtable resize_width, resize_height;
 
     /**
      * Creates an aligner layout with 2 columns, a variable number of rows,

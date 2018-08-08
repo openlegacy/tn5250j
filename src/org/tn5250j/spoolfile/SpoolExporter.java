@@ -25,21 +25,27 @@
  */
 package org.tn5250j.spoolfile;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
-
 import com.ibm.as400.access.*;
-import com.ibm.as400.vaccess.*;
-
-import org.tn5250j.gui.*;
+import com.ibm.as400.vaccess.SpooledFileViewer;
+import org.tn5250j.SessionPanel;
 import org.tn5250j.framework.tn5250.tnvt;
+import org.tn5250j.gui.DefaultSortTableModel;
+import org.tn5250j.gui.GenericTn5250JFrame;
+import org.tn5250j.gui.JSortTable;
 import org.tn5250j.tools.GUIGraphicsUtils;
 import org.tn5250j.tools.LangTool;
-import org.tn5250j.SessionPanel;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 public class SpoolExporter extends GenericTn5250JFrame {
 
@@ -83,6 +89,70 @@ public class SpoolExporter extends GenericTn5250JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Format the date string from the string passed
+     *    format is cyymmdd
+     *    c  - century -  0 1900
+     *                   1 2000
+     *    yy -  year
+     *    mm -  month
+     *    dd -  day
+     *
+     * @param dateString String in the format as above
+     * @return formatted date string
+     */
+    static String formatDate(String dateString) {
+
+        if (dateString != null) {
+
+            char[] dateArray = dateString.toCharArray();
+            // check if the length is correct length for formatting the string should
+            //  be in the format cyymmdd where
+            //    c = 0 -> 19
+            //    c = 1 -> 20
+            if (dateArray.length != 7)
+                return dateString;
+
+            StringBuffer db = new StringBuffer(10);
+
+            // this will strip out the starting century char as described above
+            db.append(dateArray, 1, 6);
+
+            // now we find out what the century byte was and insert the correct
+            //  2 char number century in the buffer.
+            if (dateArray[0] == '0')
+                db.insert(0, "19");
+            else
+                db.insert(0, "20");
+
+            db.insert(4, '/'); // add the first date seperator
+            db.insert(7, '/'); // add the second date seperator
+            return db.toString();
+        } else
+            return "";
+
+    }
+
+    /**
+     * Format the time string with separator of ':'
+     *
+     * @param timeString
+     * @return
+     */
+    static String formatTime(String timeString) {
+
+        if (timeString != null) {
+
+            StringBuffer tb = new StringBuffer(timeString);
+
+            tb.insert(tb.length() - 2, ':');
+            tb.insert(tb.length() - 5, ':');
+            return tb.toString();
+        } else
+            return "";
+
     }
 
     private void jbInit() throws Exception {
@@ -250,6 +320,72 @@ public class SpoolExporter extends GenericTn5250JFrame {
 
     }
 
+    /**
+     * Load the data model vectors with the information from the Spooled File List
+     *
+     * @param splfList Spooled File List to load from
+     */
+//      private int loadDataModel(SpooledFileList splfList) {
+//
+//         // clear our data
+//         data.clear();
+//
+//         // if there is nothing then do nothing
+//         if (splfList == null)
+//            return 0;
+//
+//         int splfListSize = splfList.size();
+//
+//         // if we have no spooled files then display nothing
+//         if (splfListSize <= 0)
+//            return 0;
+//
+//         String text = status.getText();
+//
+//         boolean spoolFilter = filter.getSpoolName().length() > 0;
+//         String spoolName = filter.getSpoolName();
+//         int numSpooled = splfList.size();
+//         int numProcessed = 0;
+//
+//         // iterate throw the spooled file list and load the values into our
+//         //  data vector
+//         int count = 0;
+//         Enumeration enumm = (splfList.getObjects());
+//         while(enumm.hasMoreElements()) {
+//            SpooledFile p = (SpooledFile)enumm.nextElement();
+//            Vector row = new Vector();
+//
+//            updateStatus(text + " " + ++count + " of " + numSpooled);
+//
+//            if (spoolFilter && !spoolName.equals(p.getName()))
+//               continue;
+//
+//            numProcessed++;
+//
+//            row.add(p.getName());
+//
+//            loadIntegerAttribute(p, row, PrintObject.ATTR_SPLFNUM);
+//            loadStringAttribute(p, row, PrintObject.ATTR_JOBNAME);
+//            loadStringAttribute(p, row, PrintObject.ATTR_JOBUSER);
+//            loadStringAttribute(p, row, PrintObject.ATTR_JOBNUMBER);
+//            loadStringAttribute(p, row, PrintObject.ATTR_OUTPUT_QUEUE);
+//            loadStringAttribute(p, row, PrintObject.ATTR_USERDATA);
+//            loadStringAttribute(p, row, PrintObject.ATTR_SPLFSTATUS);
+//            loadIntegerAttribute(p, row, PrintObject.ATTR_PAGES);
+//            loadIntegerAttribute(p, row, PrintObject.ATTR_CURPAGE);
+//            loadIntegerAttribute(p, row, PrintObject.ATTR_COPIES);
+//            loadStringAttribute(p, row, PrintObject.ATTR_FORMTYPE);
+//            loadStringAttribute(p, row, PrintObject.ATTR_OUTPTY);
+//            loadCreateDateTime(p, row);
+//            loadIntegerAttribute(p, row, PrintObject.ATTR_NUMBYTES);
+//
+//            // now add our row of columns into our data
+//            data.add(row);
+//         }
+//
+//         return numProcessed;
+//      }
+
     private void runLoader() {
         Runnable loader = new Runnable() {
             public void run() {
@@ -335,72 +471,6 @@ public class SpoolExporter extends GenericTn5250JFrame {
     }
 
     /**
-     * Load the data model vectors with the information from the Spooled File List
-     *
-     * @param splfList Spooled File List to load from
-     */
-//      private int loadDataModel(SpooledFileList splfList) {
-//
-//         // clear our data
-//         data.clear();
-//
-//         // if there is nothing then do nothing
-//         if (splfList == null)
-//            return 0;
-//
-//         int splfListSize = splfList.size();
-//
-//         // if we have no spooled files then display nothing
-//         if (splfListSize <= 0)
-//            return 0;
-//
-//         String text = status.getText();
-//
-//         boolean spoolFilter = filter.getSpoolName().length() > 0;
-//         String spoolName = filter.getSpoolName();
-//         int numSpooled = splfList.size();
-//         int numProcessed = 0;
-//
-//         // iterate throw the spooled file list and load the values into our
-//         //  data vector
-//         int count = 0;
-//         Enumeration enumm = (splfList.getObjects());
-//         while(enumm.hasMoreElements()) {
-//            SpooledFile p = (SpooledFile)enumm.nextElement();
-//            Vector row = new Vector();
-//
-//            updateStatus(text + " " + ++count + " of " + numSpooled);
-//
-//            if (spoolFilter && !spoolName.equals(p.getName()))
-//               continue;
-//
-//            numProcessed++;
-//
-//            row.add(p.getName());
-//
-//            loadIntegerAttribute(p, row, PrintObject.ATTR_SPLFNUM);
-//            loadStringAttribute(p, row, PrintObject.ATTR_JOBNAME);
-//            loadStringAttribute(p, row, PrintObject.ATTR_JOBUSER);
-//            loadStringAttribute(p, row, PrintObject.ATTR_JOBNUMBER);
-//            loadStringAttribute(p, row, PrintObject.ATTR_OUTPUT_QUEUE);
-//            loadStringAttribute(p, row, PrintObject.ATTR_USERDATA);
-//            loadStringAttribute(p, row, PrintObject.ATTR_SPLFSTATUS);
-//            loadIntegerAttribute(p, row, PrintObject.ATTR_PAGES);
-//            loadIntegerAttribute(p, row, PrintObject.ATTR_CURPAGE);
-//            loadIntegerAttribute(p, row, PrintObject.ATTR_COPIES);
-//            loadStringAttribute(p, row, PrintObject.ATTR_FORMTYPE);
-//            loadStringAttribute(p, row, PrintObject.ATTR_OUTPTY);
-//            loadCreateDateTime(p, row);
-//            loadIntegerAttribute(p, row, PrintObject.ATTR_NUMBYTES);
-//
-//            // now add our row of columns into our data
-//            data.add(row);
-//         }
-//
-//         return numProcessed;
-//      }
-
-    /**
      * Load a Printer Object string attribute into our row vector
      *
      * @param p
@@ -448,70 +518,6 @@ public class SpoolExporter extends GenericTn5250JFrame {
 //         System.out.println(ex.getMessage());
             row.add("Attribute Not supported");
         }
-    }
-
-    /**
-     * Format the date string from the string passed
-     *    format is cyymmdd
-     *    c  - century -  0 1900
-     *                   1 2000
-     *    yy -  year
-     *    mm -  month
-     *    dd -  day
-     *
-     * @param dateString String in the format as above
-     * @return formatted date string
-     */
-    static String formatDate(String dateString) {
-
-        if (dateString != null) {
-
-            char[] dateArray = dateString.toCharArray();
-            // check if the length is correct length for formatting the string should
-            //  be in the format cyymmdd where
-            //    c = 0 -> 19
-            //    c = 1 -> 20
-            if (dateArray.length != 7)
-                return dateString;
-
-            StringBuffer db = new StringBuffer(10);
-
-            // this will strip out the starting century char as described above
-            db.append(dateArray, 1, 6);
-
-            // now we find out what the century byte was and insert the correct
-            //  2 char number century in the buffer.
-            if (dateArray[0] == '0')
-                db.insert(0, "19");
-            else
-                db.insert(0, "20");
-
-            db.insert(4, '/'); // add the first date seperator
-            db.insert(7, '/'); // add the second date seperator
-            return db.toString();
-        } else
-            return "";
-
-    }
-
-    /**
-     * Format the time string with separator of ':'
-     *
-     * @param timeString
-     * @return
-     */
-    static String formatTime(String timeString) {
-
-        if (timeString != null) {
-
-            StringBuffer tb = new StringBuffer(timeString);
-
-            tb.insert(tb.length() - 2, ':');
-            tb.insert(tb.length() - 5, ':');
-            return tb.toString();
-        } else
-            return "";
-
     }
 
     /**
@@ -779,10 +785,9 @@ public class SpoolExporter extends GenericTn5250JFrame {
     class SpoolTableModel extends DefaultSortTableModel implements PrintObjectListListener {
 
         private static final long serialVersionUID = 1L;
+        final String colLayout = "Spool Name|100|Spool Number|90|Job Name|100|Job User|100|Job Number|90|Queue|200|User Data|100|Status|100|Total Pages|90|Current Page|90|Copies|90|Form Type|100|Priority|40|Creation Date/Time|175|Size|120";
         String[] cols;
         int[] colsSizes;
-
-        final String colLayout = "Spool Name|100|Spool Number|90|Job Name|100|Job User|100|Job Number|90|Queue|200|User Data|100|Status|100|Total Pages|90|Current Page|90|Copies|90|Form Type|100|Priority|40|Creation Date/Time|175|Size|120";
 
         /**
          * Constructor
@@ -914,3 +919,4 @@ public class SpoolExporter extends GenericTn5250JFrame {
     }
 
 }
+

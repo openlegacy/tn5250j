@@ -4,22 +4,21 @@
  *
  * @author Kenneth J. Pouncey
  * @version 0.5
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * this software; see the file COPYING. If not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
  */
 package org.tn5250j.framework.tn5250;
 
@@ -74,26 +73,19 @@ public final class tnvt implements Runnable {
 
     // miscellaneous
     private static final byte ESC = 0x04; // 04
-
-    /**
-     * Until OS V7R1, the length limit for the PCCMD parameter of STRPCCMD is 123 chars.
-     * (Remark: since V7R2 the new limit is 1023, for now we stick to 123)
-     * <a href="http://www-01.ibm.com/support/docview.wss?uid=nas8N1014202">
-     * CL Example Using the STRPCCMD Command
-     * </a>
-     */
-    private static final int PCCMD_MAX_LENGTH = 123;
-
+    private static int STRSCAN = 1;
+    private final BlockingQueue<Object> dsq = new ArrayBlockingQueue<Object>(25);
     private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
-
+    protected Screen5250 screen52;
+    protected ICodePage codePage;
     private Socket sock;
     private BufferedInputStream bin;
     private BufferedOutputStream bout;
-    private final BlockingQueue<Object> dsq = new ArrayBlockingQueue<Object>(25);
     private Stream5250 bk;
     private DataStreamProducer producer;
-    protected Screen5250 screen52;
     private boolean waitingForInput;
+    private boolean invited;
+    private boolean negotiated = false;
     private Thread me;
     private Thread pthread;
     private int readType;
@@ -112,7 +104,6 @@ public final class tnvt implements Runnable {
     private KbdTypesCodePages kbdTypesCodePage;
     // WVL - LDC : TR.000300 : Callback scenario from 5250
     private boolean scan; // = false;
-    private static int STRSCAN = 1;
     // WVL - LDC : 05/08/2005 : TFX.006253 - support STRPCCMD
     private boolean strpccmd; // = false;
     private String user;
@@ -123,7 +114,6 @@ public final class tnvt implements Runnable {
     private boolean keepTrucking = true;
     private boolean pendingUnlock = false;
     private boolean[] dataIncluded;
-    protected ICodePage codePage;
     private boolean firstScreen;
     private String sslType;
     private WTDSFParser sfParser;
@@ -177,14 +167,14 @@ public final class tnvt implements Runnable {
         sslType = type;
     }
 
+    public String getDeviceName() {
+        return devName;
+    }
+
     public void setDeviceName(String name) {
 
         devName = name;
 
-    }
-
-    public String getDeviceName() {
-        return devName;
     }
 
     public String getAllocatedDeviceName() {
@@ -440,6 +430,7 @@ public final class tnvt implements Runnable {
 
         screen52.getOIA().setKeyBoardLocked(true);
         pendingUnlock = false;
+        invited = false;
 
         screen52.getScreenFields().readFormatTable(baosp, readType, codePage);
 
@@ -473,6 +464,7 @@ public final class tnvt implements Runnable {
 
         screen52.getOIA().setKeyBoardLocked(true);
         pendingUnlock = false;
+        invited = false;
         baosp.write(screen52.getCurrentRow());
         baosp.write(screen52.getCurrentCol());
         baosp.write(aid);
@@ -818,6 +810,7 @@ public final class tnvt implements Runnable {
             screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_NOTINHIBITED,
                     ScreenOIA.OIA_LEVEL_INPUT_INHIBITED);
 
+        invited = true;
     }
 
     private void strpccmd() {
@@ -976,6 +969,8 @@ public final class tnvt implements Runnable {
             //         me.yield();
 
             Thread.yield();
+
+            invited = false;
 
             screen52.setCursorActive(false);
 
@@ -2568,6 +2563,10 @@ public final class tnvt implements Runnable {
         }
     }
 
+    public final ICodePage getCodePage() {
+        return codePage;
+    }
+
     public final void setCodePage(String cp) {
         codePage = CharMappings.getCodePage(cp);
         cp = cp.toLowerCase();
@@ -2580,10 +2579,6 @@ public final class tnvt implements Runnable {
         if (log.isInfoEnabled()) {
             log.info("Choosed keyboard mapping " + kbdTypesCodePage.toString() + " for code page " + cp);
         }
-    }
-
-    public final ICodePage getCodePage() {
-        return codePage;
     }
 
     /**

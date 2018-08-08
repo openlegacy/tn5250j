@@ -2,26 +2,26 @@
  * Title: KeyConfigure
  * Copyright:   Copyright (c) 2001
  * Company:
- * @author  Kenneth J. Pouncey
+ *
+ * @author Kenneth J. Pouncey
  * @version 0.4
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILreITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
- *
  */
 package org.tn5250j.keyboard.configure;
 
@@ -78,30 +78,21 @@ import org.tn5250j.tools.AlignLayout;
 import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.system.OperatingSystem;
 
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.text.CollationKey;
+import java.text.Collator;
+import java.util.*;
+import java.util.Map.Entry;
+
 public class KeyConfigure extends JDialog implements ActionListener {
 
     private static final long serialVersionUID = -421661235666776519L;
-
-    private final KeyMnemonicResolver keyMnemonicResolver = new KeyMnemonicResolver();
-
-    private JPanel keyPanel = new JPanel();
-    private JPanel options = new JPanel();
-    private JTextArea strokeDesc = new JTextArea();
-    private JTextArea strokeDescAlt = new JTextArea();
-    private JLabel strokeLocation = new JLabel();
-    private JLabel strokeLocationAlt = new JLabel();
-    private JList functions;
-    private JDialog dialog;
-    private boolean mods;
-    private String[] macrosList;
-    private DefaultListModel lm = new DefaultListModel();
-    private boolean macros;
-    private boolean special;
-    private ICodePage codePage;
-    private boolean isLinux;
-    private boolean isAltGr;
-    private boolean altKey;
-
     private static final SortedMap<Integer, String> colorMap = new TreeMap<Integer, String>();
 
     static {
@@ -136,6 +127,24 @@ public class KeyConfigure extends JDialog implements ActionListener {
         colorMap.put(0x3E, "Blue UL");
     }
 
+    private JPanel keyPanel = new JPanel();
+    private JPanel options = new JPanel();
+    private JTextArea strokeDesc = new JTextArea();
+    private JTextArea strokeDescAlt = new JTextArea();
+    private JLabel strokeLocation = new JLabel();
+    private JLabel strokeLocationAlt = new JLabel();
+    private JList functions;
+    private JDialog dialog;
+    private boolean mods;
+    private String[] macrosList;
+    private DefaultListModel lm = new DefaultListModel();
+    private boolean macros;
+    private boolean special;
+    private ICodePage codePage;
+    private boolean isLinux;
+    private boolean isAltGr;
+    private boolean altKey;
+
     public KeyConfigure(Frame parent, String[] macros, ICodePage cp) {
 
         super(parent);
@@ -153,6 +162,108 @@ public class KeyConfigure extends JDialog implements ActionListener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static void scriptDir(String pathName, Vector scripts) {
+
+        File root = new File(pathName);
+
+        try {
+
+            loadScripts(scripts, root.getCanonicalPath(), root);
+
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+
+        }
+
+
+    }
+
+    /**
+     * Recursively read the scripts directory and add them to our macros vector
+     *    holding area
+     *
+     * @param vector
+     * @param path
+     * @param directory
+     */
+    private static void loadScripts(Vector vector,
+                                    String path,
+                                    File directory) {
+
+        Macro macro;
+
+        File[] macroFiles = directory.listFiles();
+        if (macroFiles == null || macroFiles.length == 0)
+            return;
+
+        Arrays.sort(macroFiles, new MacroCompare());
+
+        for (int i = 0; i < macroFiles.length; i++) {
+            File file = macroFiles[i];
+            String fileName = file.getName();
+            if (file.isHidden()) {
+                /* do nothing! */
+                continue;
+            } else if (file.isDirectory()) {
+                Vector<String> subvector = new Vector<String>();
+                subvector.addElement(fileName.replace('_', ' '));
+                loadScripts(subvector, path + fileName + '/', file);
+                // if we do not want empty directories to show up uncomment this
+                //    line.  It is uncommented here.
+                if (subvector.size() != 1)
+                    vector.addElement(subvector);
+            } else {
+                if (InterpreterDriverManager.isScriptSupported(fileName)) {
+                    String fn = fileName.replace('_', ' ');
+                    int index = fn.lastIndexOf('.');
+                    if (index > 0) {
+                        fn = fn.substring(0, index);
+                    }
+
+                    macro = new Macro(fn, file.getAbsolutePath(), fileName);
+                    vector.addElement(macro);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Load the ListModel with the scripts from the vector of macros provided
+     *
+     * @param menu
+     * @param vector
+     * @param start
+     */
+    private static void loadListModel(DefaultListModel lm,
+                                      Vector vector,
+                                      String prefix,
+                                      int start) {
+
+        for (int i = start; i < vector.size(); i++) {
+            Object obj = vector.elementAt(i);
+            if (obj instanceof Macro) {
+                Macro m = (Macro) obj;
+                m.setPrefix(prefix);
+                lm.addElement(m);
+            } else if (obj instanceof Vector) {
+                Vector subvector = (Vector) obj;
+                String name = (String) subvector.elementAt(0);
+                if (prefix != null)
+                    loadListModel(lm, subvector, prefix + '/' + name + '/', 1);
+                else
+                    loadListModel(lm, subvector, name + '/', 1);
+            } else {
+                if (obj instanceof String) {
+
+                    lm.addElement(obj);
+
+                }
+            }
+        }
+
     }
 
     void jbInit() throws Exception {
@@ -329,7 +440,7 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
                 KeyDescription kd = (KeyDescription) lm.getElementAt(index);
 
-                setKeyInformation(keyMnemonicResolver.getMnemonics()[kd.getIndex()]);
+                setKeyInformation(TN5250jConstants.mnemonicData[kd.getIndex()]);
             } else {
                 if (macros) {
                     Object o = lm.getElementAt(index);
@@ -798,131 +909,6 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
     }
 
-    private class KeyDescription {
-
-        private int index;
-        private String text;
-
-        public KeyDescription(String text, int index) {
-
-            this.text = text;
-            this.index = index;
-
-        }
-
-        public String toString() {
-
-            return text;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-    }
-
-
-    public static void scriptDir(String pathName, Vector scripts) {
-
-        File root = new File(pathName);
-
-        try {
-
-            loadScripts(scripts, root.getCanonicalPath(), root);
-
-        } catch (IOException ioe) {
-            System.out.println(ioe.getMessage());
-
-        }
-
-
-    }
-
-    /**
-     * Recursively read the scripts directory and add them to our macros vector
-     * holding area
-     *
-     * @param vector
-     * @param path
-     * @param directory
-     */
-    private static void loadScripts(Vector vector,
-                                    String path,
-                                    File directory) {
-
-        Macro macro;
-
-        File[] macroFiles = directory.listFiles();
-        if (macroFiles == null || macroFiles.length == 0)
-            return;
-
-        Arrays.sort(macroFiles, new MacroCompare());
-
-        for (int i = 0; i < macroFiles.length; i++) {
-            File file = macroFiles[i];
-            String fileName = file.getName();
-            if (file.isHidden()) {
-                /* do nothing! */
-                continue;
-            } else if (file.isDirectory()) {
-                Vector<String> subvector = new Vector<String>();
-                subvector.addElement(fileName.replace('_', ' '));
-                loadScripts(subvector, path + fileName + '/', file);
-                // if we do not want empty directories to show up uncomment this
-                //    line.  It is uncommented here.
-                if (subvector.size() != 1)
-                    vector.addElement(subvector);
-            } else {
-                if (InterpreterDriverManager.isScriptSupported(fileName)) {
-                    String fn = fileName.replace('_', ' ');
-                    int index = fn.lastIndexOf('.');
-                    if (index > 0) {
-                        fn = fn.substring(0, index);
-                    }
-
-                    macro = new Macro(fn, file.getAbsolutePath(), fileName);
-                    vector.addElement(macro);
-                }
-            }
-        }
-
-    }
-
-    /**
-     * Load the ListModel with the scripts from the vector of macros provided
-     *
-     * @param menu
-     * @param vector
-     * @param start
-     */
-    private static void loadListModel(DefaultListModel lm,
-                                      Vector vector,
-                                      String prefix,
-                                      int start) {
-
-        for (int i = start; i < vector.size(); i++) {
-            Object obj = vector.elementAt(i);
-            if (obj instanceof Macro) {
-                Macro m = (Macro) obj;
-                m.setPrefix(prefix);
-                lm.addElement(m);
-            } else if (obj instanceof Vector) {
-                Vector subvector = (Vector) obj;
-                String name = (String) subvector.elementAt(0);
-                if (prefix != null)
-                    loadListModel(lm, subvector, prefix + '/' + name + '/', 1);
-                else
-                    loadListModel(lm, subvector, name + '/', 1);
-            } else {
-                if (obj instanceof String) {
-
-                    lm.addElement(obj);
-
-                }
-            }
-        }
-
-    }
-
     private static class Macro {
 
         String name;
@@ -979,6 +965,28 @@ public class KeyConfigure extends JDialog implements ActionListener {
             return s1.compareToIgnoreCase(s2);
         }
 
+    }
+
+    private class KeyDescription {
+
+        private int index;
+        private String text;
+
+        public KeyDescription(String text, int index) {
+
+            this.text = text;
+            this.index = index;
+
+        }
+
+        public String toString() {
+
+            return text;
+        }
+
+        public int getIndex() {
+            return index;
+        }
     }
 
 }

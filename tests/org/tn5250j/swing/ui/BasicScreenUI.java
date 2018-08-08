@@ -1,110 +1,54 @@
 package org.tn5250j.swing.ui;
 
-import static org.tn5250j.TN5250jConstants.*;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
-
 import org.tn5250j.event.ScreenListener;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.tools.GUIGraphicsUtils;
+
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
+
+import static org.tn5250j.TN5250jConstants.*;
 
 /**
  * For testing purpose
  */
 class BasicScreen extends BasicSubUI implements ScreenListener {
 
-    private Data updateRect;
+    // Dup Character array for display output
+    public static final transient char[] dupChar = {'*'};
     LineMetrics lm;
     int lenScreen;
     int lastScreenUpdate;
+    Rectangle csArea = new Rectangle();
+    char sChar[] = new char[1];
+    boolean showHex = false;
+    Color colorBlue = new Color(140, 120, 255);
+    Color colorTurq = new Color(0, 240, 255);
+    Color colorRed = Color.red;
+    Color colorWhite = Color.white;
+    Color colorYellow = Color.yellow;
+    Color colorGreen = Color.green;
+    Color colorPink = Color.magenta;
+    Color colorGUIField = Color.white;
+    Color colorSep = Color.white;
+    Color colorHexAttr = Color.white;
+    Color colorBg = Color.black;
+    boolean colSep = false;
+    boolean underLine = false;
+    boolean nonDisplay = false;
+    Color fg;
+    Color bg;
+    transient Screen5250 screen;
+    transient int columns;
+    transient int rows;
+    transient boolean cursorEnabled;
+    transient Rectangle cursorRectangle = new Rectangle();
+    private Data updateRect;
 
     public BasicScreen(Screen5250 screen) {
         this.screen = screen;
         lenScreen = screen.getScreenLength();
-    }
-
-    /**
-     * Holds row and column coordinates. An iOhioPosition can be constructed using
-     * initial row and column coordinates or constructed with no values and have
-     * the row and column set later.
-     */
-
-    public final class iOhioPosition {
-
-        /**
-         * Null constructor for iOhioPosition.
-         */
-        public iOhioPosition() {
-            this(0, 0);
-        }
-
-        /**
-         * Constructor for iOhioPosition.
-         *
-         * @param initRow The initial value for the row coordinate
-         * @param initCol The initial value for the column coordinate
-         */
-        public iOhioPosition(int initRow,
-                             int initCol) {
-
-            setRow(initRow);
-            setColumn(initCol);
-
-        }
-
-        /**
-         * Returns the row coordinate.
-         *
-         * @return The row coordinate
-         */
-        public int getRow() {
-
-            return row;
-        }
-
-        /**
-         * Returns the column coordinate.
-         *
-         * @return The column coordinate
-         */
-        public int getColumn() {
-
-            return col;
-        }
-
-        /**
-         * Sets the row coordinate.
-         *
-         * @param newRow The new row coordinate
-         */
-        public void setRow(int newRow) {
-            row = newRow;
-        }
-
-        /**
-         * Sets the column coordinate.
-         *
-         * @param newCol The new column coordinate
-         */
-        public void setColumn(int newCol) {
-            col = newCol;
-        }
-
-        /**
-         * holds the row
-         */
-        int row;
-        /**
-         * holds the column
-         */
-        int col;
-
     }
 
     public void onScreenSizeChanged(int rows, int cols) {
@@ -161,6 +105,10 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
         return new Dimension(this.columnWidth * columns, this.rowHeight * rows);
     }
 
+    public boolean isCursorEnabled() {
+        return cursorEnabled;
+    }
+
     public void setCursorEnabled(boolean flag) {
 //    System.out.println("Set curser enable " + flag);
 //    if (flag != this.cursorEnabled)
@@ -168,10 +116,6 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
 //      this.cursorEnabled = flag;
 //      this.addDirtyRectangle(modelToView(this.screen.getCursor()));
 //    }
-    }
-
-    public boolean isCursorEnabled() {
-        return cursorEnabled;
     }
 
     public void setCursor(int x, int y) {
@@ -192,7 +136,6 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
 //    r = modelToView(pos);
 //    this.addDirtyRectangle(r.x,r.y,r.width, r.height);
     }
-
 
     /**
      * PRE:
@@ -250,63 +193,6 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
         g.setPaintMode();
 //       }
 //     }
-    }
-
-    Rectangle csArea = new Rectangle();
-    char sChar[] = new char[1];
-
-    protected class Data {
-
-
-        public Data(char[] text, char[] attr, char[] color, char[] extended, char[] graphic) {
-            this.text = text;
-            this.color = color;
-            this.extended = extended;
-            this.graphic = graphic;
-            this.attr = attr;
-            this.field = null;
-        }
-
-        public Data(int startRow, int startCol, int endRow, int endCol) {
-//         startRow++;
-//         startCol++;
-//         endRow++;
-//         endCol++;
-            int size = ((endCol - startCol) + 1) * ((endRow - startRow) + 1);
-
-            text = new char[size];
-            attr = new char[size];
-            isAttr = new char[size];
-            color = new char[size];
-            extended = new char[size];
-            graphic = new char[size];
-            field = null;
-
-            if (size == lenScreen) {
-//            log.info("full screen" + size);
-                screen.GetScreen(text, size, PLANE_TEXT);
-                screen.GetScreen(attr, size, PLANE_ATTR);
-                screen.GetScreen(isAttr, size, PLANE_IS_ATTR_PLACE);
-                screen.GetScreen(color, size, PLANE_COLOR);
-                screen.GetScreen(extended, size, PLANE_EXTENDED);
-                screen.GetScreen(graphic, size, PLANE_EXTENDED_GRAPHIC);
-            } else {
-                screen.GetScreenRect(text, size, startRow, startCol, endRow, endCol, PLANE_TEXT);
-                screen.GetScreenRect(attr, size, startRow, startCol, endRow, endCol, PLANE_ATTR);
-                screen.GetScreenRect(isAttr, size, startRow, startCol, endRow, endCol, PLANE_IS_ATTR_PLACE);
-                screen.GetScreenRect(color, size, startRow, startCol, endRow, endCol, PLANE_COLOR);
-                screen.GetScreenRect(extended, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED);
-                screen.GetScreenRect(graphic, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED_GRAPHIC);
-            }
-        }
-
-        public char[] text;
-        public char[] attr;
-        public char[] isAttr;
-        public char[] color;
-        public char[] extended;
-        public final char[] graphic;
-        public final char[] field;
     }
 
     protected void paintScreen(Graphics g) {
@@ -438,9 +324,103 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
 //    }
     }
 
-    // Dup Character array for display output
-    public static final transient char[] dupChar = {'*'};
-    boolean showHex = false;
+//  protected int paintRow(Graphics g, int x, int y, Data data, int offset, int length)
+//  {
+//    for (int i = offset, l = offset + length; i <= l; i++)
+//      x += paintPosition(g, x, y, data, i);
+//
+//    return rowHeight;
+//  }
+
+//  protected int paintPosition(Graphics g, int x, int y, Data data, int offset)
+//  {
+//    Color c = getColor(data.color[offset], true);
+//    if (c != Color.black)
+//    {
+//      g.setColor(c);
+//      g.fillRect(x, y, columnWidth, rowHeight);
+//    }
+//
+//    c = getColor(data.color[offset], false);
+//    g.setColor(c);
+//    if ((data.extended[offset] & iOhio.OHIO_EXTENDED_5250_UNDERLINE) != 0)
+//    {
+//      //int uline = y - metrics.getAscent() + metrics.getHeight() - metrics.getDescent();
+//      int uline = y + metrics.getHeight() - metrics.getDescent();
+//      g.drawLine(x, uline, x + columnWidth, uline);
+//    }
+//
+//    if (font.canDisplay(data.text[offset]))
+//    {
+//      g.drawChars(data.text, offset, 1, x, y+metrics.getAscent());
+//    }
+//
+//    return columnWidth;
+//  }
+
+//  protected Color getColor(char color, boolean background)
+//  {
+//    int c = 0;
+//    if (background)
+//       // background
+//       c = (color & 0xff00) >> 8;
+//    else
+//       // foreground
+//       c = color & 0x00ff;
+//
+//    switch (c)
+//    {
+//      case iOhio.OHIO_COLOR_BLACK:
+//        return Color.black;
+//      case iOhio.OHIO_COLOR_GREEN:
+//        return Color.green;
+//      case iOhio.OHIO_COLOR_BLUE:
+//        return Color.blue;
+//      case iOhio.OHIO_COLOR_RED:
+//        return Color.red;
+//      case iOhio.OHIO_COLOR_YELLOW:
+//        return Color.yellow;
+//      case iOhio.OHIO_COLOR_CYAN:
+//        return Color.cyan;
+//      case iOhio.OHIO_COLOR_WHITE:
+//        return Color.white;
+//      case iOhio.OHIO_COLOR_MAGENTA:
+//        return Color.magenta;
+//      default:
+//        return Color.orange;
+//    }
+//  }
+
+//     protected Data fillData(iOhioPosition start, iOhioPosition end)
+//     {
+//   //    return new Data( screen.getData(start, end, iOhioScreen.OHIO_PLAIN_TEXT)
+//   //                   , screen.getData(start, end, iOhioScreen.OHIO_PLAIN_COLOR)
+//   //                   , screen.getData(start, end, iOhioScreen.OHIO_PLAIN_EXTENDED)
+//   //                   );
+//       return new Data( screen.getData(start, end, OS_OHIO_PLAIN_TEXT)
+//                      , screen.getData(start, end, OS_OHIO_PLAIN_COLOR)
+//                      , screen.getData(start, end, OS_OHIO_PLAIN_EXTENDED)
+//                      );
+//
+//     }
+//
+//     protected class Data
+//     {
+//       public Data(char[] text, char[] color, char[] extended)
+//       {
+//         this.text = text;
+//         this.color = color;
+//         this.extended = extended;
+//         this.graphic = null;
+//         this.field = null;
+//       }
+//
+//       public final char[] text;
+//       public final char[] color;
+//       public final char[] extended;
+//       public final char[] graphic;
+//       public final char[] field;
+//     }
 
     //   public final void drawChar(Graphics2D g, int pos, int row, int col) {
     public final void drawChar(Graphics g, int pos, int row, int col) {
@@ -812,18 +792,6 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
 
     }
 
-    Color colorBlue = new Color(140, 120, 255);
-    Color colorTurq = new Color(0, 240, 255);
-    Color colorRed = Color.red;
-    Color colorWhite = Color.white;
-    Color colorYellow = Color.yellow;
-    Color colorGreen = Color.green;
-    Color colorPink = Color.magenta;
-    Color colorGUIField = Color.white;
-    Color colorSep = Color.white;
-    Color colorHexAttr = Color.white;
-    Color colorBg = Color.black;
-
     protected Color getColor(char color, boolean background) {
         int c = 0;
         if (background)
@@ -855,12 +823,6 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
         }
     }
 
-    boolean colSep = false;
-    boolean underLine = false;
-    boolean nonDisplay = false;
-    Color fg;
-    Color bg;
-
     private void setDrawAttr(int pos) {
 
         colSep = false;
@@ -874,105 +836,6 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
         nonDisplay = (updateRect.extended[pos] & EXTENDED_5250_NON_DSP) != 0;
 
     }
-
-//  protected int paintRow(Graphics g, int x, int y, Data data, int offset, int length)
-//  {
-//    for (int i = offset, l = offset + length; i <= l; i++)
-//      x += paintPosition(g, x, y, data, i);
-//
-//    return rowHeight;
-//  }
-
-//  protected int paintPosition(Graphics g, int x, int y, Data data, int offset)
-//  {
-//    Color c = getColor(data.color[offset], true);
-//    if (c != Color.black)
-//    {
-//      g.setColor(c);
-//      g.fillRect(x, y, columnWidth, rowHeight);
-//    }
-//
-//    c = getColor(data.color[offset], false);
-//    g.setColor(c);
-//    if ((data.extended[offset] & iOhio.OHIO_EXTENDED_5250_UNDERLINE) != 0)
-//    {
-//      //int uline = y - metrics.getAscent() + metrics.getHeight() - metrics.getDescent();
-//      int uline = y + metrics.getHeight() - metrics.getDescent();
-//      g.drawLine(x, uline, x + columnWidth, uline);
-//    }
-//
-//    if (font.canDisplay(data.text[offset]))
-//    {
-//      g.drawChars(data.text, offset, 1, x, y+metrics.getAscent());
-//    }
-//
-//    return columnWidth;
-//  }
-
-//  protected Color getColor(char color, boolean background)
-//  {
-//    int c = 0;
-//    if (background)
-//       // background
-//       c = (color & 0xff00) >> 8;
-//    else
-//       // foreground
-//       c = color & 0x00ff;
-//
-//    switch (c)
-//    {
-//      case iOhio.OHIO_COLOR_BLACK:
-//        return Color.black;
-//      case iOhio.OHIO_COLOR_GREEN:
-//        return Color.green;
-//      case iOhio.OHIO_COLOR_BLUE:
-//        return Color.blue;
-//      case iOhio.OHIO_COLOR_RED:
-//        return Color.red;
-//      case iOhio.OHIO_COLOR_YELLOW:
-//        return Color.yellow;
-//      case iOhio.OHIO_COLOR_CYAN:
-//        return Color.cyan;
-//      case iOhio.OHIO_COLOR_WHITE:
-//        return Color.white;
-//      case iOhio.OHIO_COLOR_MAGENTA:
-//        return Color.magenta;
-//      default:
-//        return Color.orange;
-//    }
-//  }
-
-//     protected Data fillData(iOhioPosition start, iOhioPosition end)
-//     {
-//   //    return new Data( screen.getData(start, end, iOhioScreen.OHIO_PLAIN_TEXT)
-//   //                   , screen.getData(start, end, iOhioScreen.OHIO_PLAIN_COLOR)
-//   //                   , screen.getData(start, end, iOhioScreen.OHIO_PLAIN_EXTENDED)
-//   //                   );
-//       return new Data( screen.getData(start, end, OS_OHIO_PLAIN_TEXT)
-//                      , screen.getData(start, end, OS_OHIO_PLAIN_COLOR)
-//                      , screen.getData(start, end, OS_OHIO_PLAIN_EXTENDED)
-//                      );
-//
-//     }
-//
-//     protected class Data
-//     {
-//       public Data(char[] text, char[] color, char[] extended)
-//       {
-//         this.text = text;
-//         this.color = color;
-//         this.extended = extended;
-//         this.graphic = null;
-//         this.field = null;
-//       }
-//
-//       public final char[] text;
-//       public final char[] color;
-//       public final char[] extended;
-//       public final char[] graphic;
-//       public final char[] field;
-//     }
-
 
     private Rectangle adjustRectangle(Rectangle region) {
         if (region == null)
@@ -1006,9 +869,133 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
         return (y - this.y) % rowHeight;
     }
 
-    transient Screen5250 screen;
-    transient int columns;
-    transient int rows;
-    transient boolean cursorEnabled;
-    transient Rectangle cursorRectangle = new Rectangle();
+    /**
+     * Holds row and column coordinates. An iOhioPosition can be constructed using
+     * initial row and column coordinates or constructed with no values and have
+     * the row and column set later.
+     */
+
+    public final class iOhioPosition {
+
+        /**
+         * holds the row
+         */
+        int row;
+        /**
+         * holds the column
+         */
+        int col;
+
+        /**
+         * Null constructor for iOhioPosition.
+         */
+        public iOhioPosition() {
+            this(0, 0);
+        }
+
+        /**
+         * Constructor for iOhioPosition.
+         *
+         * @param initRow The initial value for the row coordinate
+         * @param initCol The initial value for the column coordinate
+         */
+        public iOhioPosition(int initRow,
+                             int initCol) {
+
+            setRow(initRow);
+            setColumn(initCol);
+
+        }
+
+        /**
+         * Returns the row coordinate.
+         *
+         * @return The row coordinate
+         */
+        public int getRow() {
+
+            return row;
+        }
+
+        /**
+         * Sets the row coordinate.
+         *
+         * @param newRow The new row coordinate
+         */
+        public void setRow(int newRow) {
+            row = newRow;
+        }
+
+        /**
+         * Returns the column coordinate.
+         *
+         * @return The column coordinate
+         */
+        public int getColumn() {
+
+            return col;
+        }
+
+        /**
+         * Sets the column coordinate.
+         *
+         * @param newCol The new column coordinate
+         */
+        public void setColumn(int newCol) {
+            col = newCol;
+        }
+
+    }
+
+    protected class Data {
+
+
+        public final char[] graphic;
+        public final char[] field;
+        public char[] text;
+        public char[] attr;
+        public char[] isAttr;
+        public char[] color;
+        public char[] extended;
+        public Data(char[] text, char[] attr, char[] color, char[] extended, char[] graphic) {
+            this.text = text;
+            this.color = color;
+            this.extended = extended;
+            this.graphic = graphic;
+            this.attr = attr;
+            this.field = null;
+        }
+        public Data(int startRow, int startCol, int endRow, int endCol) {
+//         startRow++;
+//         startCol++;
+//         endRow++;
+//         endCol++;
+            int size = ((endCol - startCol) + 1) * ((endRow - startRow) + 1);
+
+            text = new char[size];
+            attr = new char[size];
+            isAttr = new char[size];
+            color = new char[size];
+            extended = new char[size];
+            graphic = new char[size];
+            field = null;
+
+            if (size == lenScreen) {
+//            log.info("full screen" + size);
+                screen.GetScreen(text, size, PLANE_TEXT);
+                screen.GetScreen(attr, size, PLANE_ATTR);
+                screen.GetScreen(isAttr, size, PLANE_IS_ATTR_PLACE);
+                screen.GetScreen(color, size, PLANE_COLOR);
+                screen.GetScreen(extended, size, PLANE_EXTENDED);
+                screen.GetScreen(graphic, size, PLANE_EXTENDED_GRAPHIC);
+            } else {
+                screen.GetScreenRect(text, size, startRow, startCol, endRow, endCol, PLANE_TEXT);
+                screen.GetScreenRect(attr, size, startRow, startCol, endRow, endCol, PLANE_ATTR);
+                screen.GetScreenRect(isAttr, size, startRow, startCol, endRow, endCol, PLANE_IS_ATTR_PLACE);
+                screen.GetScreenRect(color, size, startRow, startCol, endRow, endCol, PLANE_COLOR);
+                screen.GetScreenRect(extended, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED);
+                screen.GetScreenRect(graphic, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED_GRAPHIC);
+            }
+        }
+    }
 }
