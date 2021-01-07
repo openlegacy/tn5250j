@@ -58,7 +58,7 @@ public class Session5250 implements SessionInterface {
     private List<ScanListener> scanListeners = null;
 
     // flag that decides if to add sequence to device name
-    private Boolean enableSequentialDevice = false;
+    private Boolean enableSequentialDevice = true;
 
     public Session5250(Properties props,
                        String configurationResource,
