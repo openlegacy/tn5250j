@@ -104,6 +104,17 @@ public class Screen5250 {
 	//Added by Barry
 	private StringBuffer keybuf;
 
+	// OL
+	private String pcCommand;
+
+	public String getPcCommand() {
+		return pcCommand;
+	}
+
+	public void setPcCommand(String pcCommand) {
+		this.pcCommand = pcCommand;
+	}
+
 	public Screen5250() {
 
 		//Added by Barry
