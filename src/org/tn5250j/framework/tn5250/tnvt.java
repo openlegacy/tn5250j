@@ -2620,20 +2620,7 @@ public final class tnvt implements Runnable {
 	 * @return String
 	 */
 	private String negDeviceName() {
-		if (devSeq++ == -1) {
-			devNameUsed = devName;
-			return devName;
-		} else {
-			StringBuilder sb = new StringBuilder(devName + devSeq);
-			int ei = 1;
-			while (sb.length() > 10) {
-				sb.setLength(0);
-				sb.append(devName.substring(0, devName.length() - ei++));
-				sb.append(devSeq);
-			}
-			devNameUsed = sb.toString();
-			return devNameUsed;
-		}
+		return devName;
 	}
 
 	public final void setCodePage(String cp) {
