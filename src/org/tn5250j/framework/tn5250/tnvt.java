@@ -174,13 +174,16 @@ public final class tnvt implements Runnable {
 	private String sslType;
 	private WTDSFParser sfParser;
 
+	// flag that decides if to add sequence to device name
+	private Boolean enableSequentialDevice;
+
 	/**
 	 * @param session
 	 * @param screen52
 	 * @param type
 	 * @param support132
 	 */
-	public tnvt(Session5250 session, Screen5250 screen52, boolean type, boolean support132) {
+	public tnvt(Session5250 session, Screen5250 screen52, boolean type, boolean support132, Boolean enableSequentialDevice) {
 
 		controller = session;
 		if (log.isInfoEnabled()) {
@@ -192,6 +195,8 @@ public final class tnvt implements Runnable {
 		setCodePage("37");
 		this.screen52 = screen52;
 		dataIncluded = new boolean[24];
+
+		this.enableSequentialDevice = enableSequentialDevice;
 
 		if (System.getProperties().containsKey("SESSION_CONNECT_USER")) {
 			user = System.getProperties().getProperty("SESSION_CONNECT_USER");
@@ -2620,7 +2625,24 @@ public final class tnvt implements Runnable {
 	 * @return String
 	 */
 	private String negDeviceName() {
-		return devName;
+		if (this.enableSequentialDevice) {
+			if (devSeq++ == -1) {
+				devNameUsed = devName;
+				return devName;
+			} else {
+				StringBuilder sb = new StringBuilder(devName + devSeq);
+				int ei = 1;
+				while (sb.length() > 10) {
+					sb.setLength(0);
+					sb.append(devName.substring(0, devName.length() - ei++));
+					sb.append(devSeq);
+				}
+				devNameUsed = sb.toString();
+				return devNameUsed;
+			}
+		} else {
+			return devName;
+		}
 	}
 
 	public final void setCodePage(String cp) {

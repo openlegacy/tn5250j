@@ -59,6 +59,13 @@ public class Session5250 implements SessionInterface {
 	private List<ScanListener> scanListeners = null;
 	private final ReadWriteLock scanListenerLock = new ReentrantReadWriteLock();
 
+	// flag that decides if to add sequence to device name
+	private Boolean enableSequentialDevice = true;
+
+	public void setEnableSequentialDevice(Boolean enableSequentialDevice) {
+		this.enableSequentialDevice = enableSequentialDevice;
+	}
+
 	public Session5250 (Properties props, String configurationResource,
 			String sessionName,
 			SessionConfig config) {
@@ -209,7 +216,7 @@ public class Session5250 implements SessionInterface {
 			if ((sesProps.getProperty(TN5250jConstants.SESSION_SCREEN_SIZE)).equals(TN5250jConstants.SCREEN_SIZE_27X132_STR))
 				support132 = true;
 
-		final tnvt vt = new tnvt(this,screen,enhanced,support132);
+		final tnvt vt = new tnvt(this,screen,enhanced,support132,enableSequentialDevice);
 		setVT(vt);
 
 		//      vt.setController(this);
