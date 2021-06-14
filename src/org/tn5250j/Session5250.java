@@ -66,9 +66,9 @@ public class Session5250 implements SessionInterface {
 		this.enableSequentialDevice = enableSequentialDevice;
 	}
 
-	public Session5250 (Properties props, String configurationResource,
-			String sessionName,
-			SessionConfig config) {
+	public Session5250(Properties props, String configurationResource,
+					   String sessionName,
+					   SessionConfig config) {
 
 		propFileName = config.getConfigurationResource();
 
@@ -152,7 +152,7 @@ public class Session5250 implements SessionInterface {
 		return sesProps;
 	}
 
-	public void setGUI (SessionPanel gui) {
+	public void setGUI(SessionPanel gui) {
 		guiComponent = gui;
 	}
 
@@ -207,16 +207,24 @@ public class Session5250 implements SessionInterface {
 
 		String proxyPort = "1080"; // default socks proxy port
 		boolean enhanced = false;
-		boolean support132 = false;
+		String emulationMode = TN5250jConstants.DEFAULT_EMULATION_TYPE;
+
 		int port = 23; // default telnet port
 
 		enhanced = sesProps.containsKey(TN5250jConstants.SESSION_TN_ENHANCED);
 
-		if (sesProps.containsKey(TN5250jConstants.SESSION_SCREEN_SIZE))
-			if ((sesProps.getProperty(TN5250jConstants.SESSION_SCREEN_SIZE)).equals(TN5250jConstants.SCREEN_SIZE_27X132_STR))
-				support132 = true;
+		if(sesProps.containsKey(TN5250jConstants.SESSION_EMULATION_TYPE)) {
+			emulationMode = sesProps.getProperty(TN5250jConstants.SESSION_EMULATION_TYPE);
+		} else if (System.getProperty(TN5250jConstants.SESSION_EMULATION_TYPE)!=null) {
+			emulationMode = System.getProperty(TN5250jConstants.SESSION_EMULATION_TYPE);
+		} else {
+			// compatible with original tn5250j code
+			if (sesProps.containsKey(TN5250jConstants.SESSION_SCREEN_SIZE))
+				if ((sesProps.getProperty(TN5250jConstants.SESSION_SCREEN_SIZE)).equals(TN5250jConstants.SCREEN_SIZE_27X132_STR))
+					emulationMode = "IBM-3477-FC";
+		}
 
-		final tnvt vt = new tnvt(this,screen,enhanced,support132,enableSequentialDevice);
+			final tnvt vt = new tnvt(this, screen, enhanced, emulationMode, enableSequentialDevice);
 		setVT(vt);
 
 		//      vt.setController(this);
@@ -258,7 +266,7 @@ public class Session5250 implements SessionInterface {
 		Runnable connectIt = new Runnable() {
 			@Override
 			public void run() {
-				vt.connect(ses,portp);
+				vt.connect(ses, portp);
 			}
 
 		};
@@ -338,7 +346,7 @@ public class Session5250 implements SessionInterface {
 	 * This is a thread safe method and will be called
 	 * from the TNVT read thread!
 	 *
-	 * @param command discovered in the 5250 stream.
+	 * @param command   discovered in the 5250 stream.
 	 * @param remainder are all the other characters on the screen.
 	 *
 	 * @see tnvt#setCommandScanning(boolean);
@@ -392,7 +400,7 @@ public class Session5250 implements SessionInterface {
 	/**
 	 * Notify all registered listeners of the onSessionChanged event.
 	 *
-	 * @param state  The state change property object.
+	 * @param state The state change property object.
 	 */
 	public final void fireSessionChanged(int state) {
 		sessionListenerLock.readLock().lock();
@@ -412,7 +420,7 @@ public class Session5250 implements SessionInterface {
 	/**
 	 * Add a SessionListener to the listener list.
 	 *
-	 * @param listener  The SessionListener to be added
+	 * @param listener The SessionListener to be added
 	 */
 	@Override
 	public final void addSessionListener(SessionListener listener) {
@@ -430,7 +438,7 @@ public class Session5250 implements SessionInterface {
 	/**
 	 * Remove a SessionListener from the listener list.
 	 *
-	 * @param listener  The SessionListener to be removed
+	 * @param listener The SessionListener to be removed
 	 */
 	@Override
 	public final void removeSessionListener(SessionListener listener) {

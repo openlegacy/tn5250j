@@ -79,14 +79,14 @@ public final class tnvt implements Runnable {
 	 * Until OS V7R1, the length limit for the PCCMD parameter of STRPCCMD is 123 chars.
 	 * (Remark: since V7R2 the new limit is 1023, for now we stick to 123)
 	 * <a href="http://www-01.ibm.com/support/docview.wss?uid=nas8N1014202">
-	 *   CL Example Using the STRPCCMD Command
+	 * CL Example Using the STRPCCMD Command
 	 * </a>
 	 */
 	private static final int PCCMD_MAX_LENGTH = 123;
 
-  private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+	private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
-  private Socket sock;
+	private Socket sock;
 	private BufferedInputStream bin;
 	private BufferedOutputStream bout;
 	private final BlockingQueue<Object> dsq = new ArrayBlockingQueue<Object>(25);
@@ -103,7 +103,7 @@ public final class tnvt implements Runnable {
 	private String session = "";
 	private int port = 23;
 	private boolean connected = false;
-	private boolean support132 = true;
+	private String emulationMode = DEFAULT_EMULATION_TYPE;
 	private ByteArrayOutputStream baosp = null;
 	private ByteArrayOutputStream baosrsp = null;
 	private int devSeq = -1;
@@ -135,9 +135,9 @@ public final class tnvt implements Runnable {
 	 * @param session
 	 * @param screen52
 	 * @param type
-	 * @param support132
+	 * @param emulationMode
 	 */
-	public tnvt(Session5250 session, Screen5250 screen52, boolean type, boolean support132, Boolean enableSequentialDevice) {
+	public tnvt(Session5250 session, Screen5250 screen52, boolean type, String emulationMode, Boolean enableSequentialDevice) {
 
 		controller = session;
 		if (log.isInfoEnabled()) {
@@ -145,7 +145,7 @@ public final class tnvt implements Runnable {
 		}
 
 		enhanced = type;
-		this.support132 = support132;
+		this.emulationMode = emulationMode;
 		setCodePage("37");
 		this.screen52 = screen52;
 		dataIncluded = new boolean[24];
@@ -156,16 +156,16 @@ public final class tnvt implements Runnable {
 			user = System.getProperties().getProperty("SESSION_CONNECT_USER");
 			if (System.getProperties().containsKey("SESSION_CONNECT_PASSWORD"))
 				password = System.getProperties().getProperty(
-				"SESSION_CONNECT_PASSWORD");
+						"SESSION_CONNECT_PASSWORD");
 			if (System.getProperties().containsKey("SESSION_CONNECT_LIBRARY"))
 				library = System.getProperties().getProperty(
-				"SESSION_CONNECT_LIBRARY");
+						"SESSION_CONNECT_LIBRARY");
 			if (System.getProperties().containsKey("SESSION_CONNECT_MENU"))
 				initialMenu = System.getProperties().getProperty(
-				"SESSION_CONNECT_MENU");
+						"SESSION_CONNECT_MENU");
 			if (System.getProperties().containsKey("SESSION_CONNECT_PROGRAM"))
 				program = System.getProperties().getProperty(
-				"SESSION_CONNECT_PROGRAM");
+						"SESSION_CONNECT_PROGRAM");
 		}
 
 		baosp = new ByteArrayOutputStream();
@@ -259,7 +259,7 @@ public final class tnvt implements Runnable {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {
 						screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_SYSTEM_WAIT,
-								ScreenOIA.OIA_LEVEL_INPUT_INHIBITED,"X - Connecting");
+								ScreenOIA.OIA_LEVEL_INPUT_INHIBITED, "X - Connecting");
 					}
 				});
 
@@ -293,7 +293,7 @@ public final class tnvt implements Runnable {
 			bout = new BufferedOutputStream(out);
 
 			byte abyte0[];
-			while (negotiate(abyte0 = readNegotiations()));
+			while (negotiate(abyte0 = readNegotiations())) ;
 			try {
 				screen52.setCursorActive(false);
 			} catch (Exception excc) {
@@ -342,7 +342,7 @@ public final class tnvt implements Runnable {
 		// Added by LUC - LDC to fix a null pointer exception.
 		if (!connected) {
 			screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_SYSTEM_WAIT,
-					ScreenOIA.OIA_LEVEL_INPUT_INHIBITED,"X - Disconnected");
+					ScreenOIA.OIA_LEVEL_INPUT_INHIBITED, "X - Disconnected");
 			return false;
 		}
 
@@ -353,7 +353,7 @@ public final class tnvt implements Runnable {
 		}
 
 		screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_SYSTEM_WAIT,
-				ScreenOIA.OIA_LEVEL_INPUT_INHIBITED,"X - Disconnected");
+				ScreenOIA.OIA_LEVEL_INPUT_INHIBITED, "X - Disconnected");
 		screen52.getOIA().setKeyBoardLocked(false);
 		pendingUnlock = false;
 
@@ -422,7 +422,7 @@ public final class tnvt implements Runnable {
 
 	public final void sendHeartBeat() throws IOException {
 
-		byte[] b = { (byte) 0xff, (byte) 0xf1 };
+		byte[] b = {(byte) 0xff, (byte) 0xf1};
 		bout.write(b);
 		bout.flush();
 	}
@@ -505,57 +505,57 @@ public final class tnvt implements Runnable {
 
 		switch (aid) {
 
-		case PF1:
-			return !dataIncluded[0];
-		case PF2:
-			return !dataIncluded[1];
-		case PF3:
-			return !dataIncluded[2];
-		case PF4:
-			return !dataIncluded[3];
-		case PF5:
-			return !dataIncluded[4];
-		case PF6:
-			return !dataIncluded[5];
-		case PF7:
-			return !dataIncluded[6];
-		case PF8:
-			return !dataIncluded[7];
-		case PF9:
-			return !dataIncluded[8];
-		case PF10:
-			return !dataIncluded[9];
-		case PF11:
-			return !dataIncluded[10];
-		case PF12:
-			return !dataIncluded[11];
-		case PF13:
-			return !dataIncluded[12];
-		case PF14:
-			return !dataIncluded[13];
-		case PF15:
-			return !dataIncluded[14];
-		case PF16:
-			return !dataIncluded[15];
-		case PF17:
-			return !dataIncluded[16];
-		case PF18:
-			return !dataIncluded[17];
-		case PF19:
-			return !dataIncluded[18];
-		case PF20:
-			return !dataIncluded[19];
-		case PF21:
-			return !dataIncluded[20];
-		case PF22:
-			return !dataIncluded[21];
-		case PF23:
-			return !dataIncluded[22];
-		case PF24:
-			return !dataIncluded[23];
+			case PF1:
+				return !dataIncluded[0];
+			case PF2:
+				return !dataIncluded[1];
+			case PF3:
+				return !dataIncluded[2];
+			case PF4:
+				return !dataIncluded[3];
+			case PF5:
+				return !dataIncluded[4];
+			case PF6:
+				return !dataIncluded[5];
+			case PF7:
+				return !dataIncluded[6];
+			case PF8:
+				return !dataIncluded[7];
+			case PF9:
+				return !dataIncluded[8];
+			case PF10:
+				return !dataIncluded[9];
+			case PF11:
+				return !dataIncluded[10];
+			case PF12:
+				return !dataIncluded[11];
+			case PF13:
+				return !dataIncluded[12];
+			case PF14:
+				return !dataIncluded[13];
+			case PF15:
+				return !dataIncluded[14];
+			case PF16:
+				return !dataIncluded[15];
+			case PF17:
+				return !dataIncluded[16];
+			case PF18:
+				return !dataIncluded[17];
+			case PF19:
+				return !dataIncluded[18];
+			case PF20:
+				return !dataIncluded[19];
+			case PF21:
+				return !dataIncluded[20];
+			case PF22:
+				return !dataIncluded[21];
+			case PF23:
+				return !dataIncluded[22];
+			case PF24:
+				return !dataIncluded[23];
 
-		default:
-			return true;
+			default:
+				return true;
 
 		}
 
@@ -640,7 +640,7 @@ public final class tnvt implements Runnable {
 	public final void systemRequest(String sr) {
 		byte[] bytes = null;
 
-		if ( (sr != null) && (sr.length() > 0)) {
+		if ((sr != null) && (sr.length() > 0)) {
 			// XXX: Not sure, if this is a sufficient check for 'clear dataq'
 			if (sr.charAt(0) == '2') {
 				dsq.clear();
@@ -651,7 +651,7 @@ public final class tnvt implements Runnable {
 			bytes = baosp.toByteArray();
 		}
 
-		try	{
+		try {
 			writeGDS(4, 0, bytes);
 		} catch (IOException ioe) {
 			log.info(ioe.getMessage());
@@ -739,7 +739,7 @@ public final class tnvt implements Runnable {
 
 	// write gerneral data stream
 	private final void writeGDS(int flags, int opcode, byte abyte0[])
-	throws IOException {
+			throws IOException {
 
 		// Added to fix for JDK 1.4 this was null coming from another method.
 		//  There was a weird keyRelease event coming from another panel when
@@ -812,7 +812,7 @@ public final class tnvt implements Runnable {
 
 	protected boolean[] getActiveAidKeys() {
 		boolean aids[] = new boolean[dataIncluded.length];
-		System.arraycopy(dataIncluded,0,aids,0,dataIncluded.length);
+		System.arraycopy(dataIncluded, 0, aids, 0, dataIncluded.length);
 		return aids;
 	}
 
@@ -825,10 +825,10 @@ public final class tnvt implements Runnable {
 
 	}
 
-	private void strpccmd()	{
-		try	{
+	private void strpccmd() {
+		try {
 			int str = 11;
-			int offset = str+1;
+			int offset = str + 1;
 			ScreenPlanes planes = screen52.getPlanes();
 			char c = planes.getChar(str);
 			boolean waitFor = !(c == 'a');
@@ -993,83 +993,83 @@ public final class tnvt implements Runnable {
 				continue;
 
 			switch (bk.getOpCode()) {
-			case 0:
-				log.debug("No operation");
-				break;
-			case 1:
-				log.debug("Invite Operation");
-				parseIncoming();
-				//               screen52.setKeyboardLocked(false);
-				pendingUnlock = true;
-				cursorOn = true;
-				setInvited();
-				break;
-			case 2:
-				log.debug("Output Only");
-				parseIncoming();
-				screen52.updateDirty();
+				case 0:
+					log.debug("No operation");
+					break;
+				case 1:
+					log.debug("Invite Operation");
+					parseIncoming();
+					//               screen52.setKeyboardLocked(false);
+					pendingUnlock = true;
+					cursorOn = true;
+					setInvited();
+					break;
+				case 2:
+					log.debug("Output Only");
+					parseIncoming();
+					screen52.updateDirty();
 
-				//            invited = true;
+					//            invited = true;
 
-				break;
-			case 3:
-				log.debug("Put/Get Operation");
-				parseIncoming();
-				//               inviteIt =true;
-				setInvited();
-				if (!firstScreen) {
-					firstScreen = true;
-					controller.fireSessionChanged(TN5250jConstants.STATE_CONNECTED);
-				}
-				break;
-			case 4:
-				log.debug("Save Screen Operation");
-				parseIncoming();
-				break;
+					break;
+				case 3:
+					log.debug("Put/Get Operation");
+					parseIncoming();
+					//               inviteIt =true;
+					setInvited();
+					if (!firstScreen) {
+						firstScreen = true;
+						controller.fireSessionChanged(TN5250jConstants.STATE_CONNECTED);
+					}
+					break;
+				case 4:
+					log.debug("Save Screen Operation");
+					parseIncoming();
+					break;
 
-			case 5:
-				log.debug("Restore Screen Operation");
-				parseIncoming();
-				break;
-			case 6:
-				log.debug("Read Immediate");
-				sendAidKey(0);
-				break;
-			case 7:
-				log.debug("Reserved");
-				break;
-			case 8:
-				log.debug("Read Screen Operation");
-				try {
-					readScreen();
-				} catch (IOException ex) {
-					log.warn(ex.getMessage());
-				}
-				break;
+				case 5:
+					log.debug("Restore Screen Operation");
+					parseIncoming();
+					break;
+				case 6:
+					log.debug("Read Immediate");
+					sendAidKey(0);
+					break;
+				case 7:
+					log.debug("Reserved");
+					break;
+				case 8:
+					log.debug("Read Screen Operation");
+					try {
+						readScreen();
+					} catch (IOException ex) {
+						log.warn(ex.getMessage());
+					}
+					break;
 
-			case 9:
-				log.debug("Reserved");
-				break;
+				case 9:
+					log.debug("Reserved");
+					break;
 
-			case 10:
-				log.debug("Cancel Invite Operation");
-				cancelInvite();
-				break;
+				case 10:
+					log.debug("Cancel Invite Operation");
+					cancelInvite();
+					break;
 
-			case 11:
-				log.debug("Turn on message light");
-				screen52.getOIA().setMessageLightOn();
-				screen52.setCursorActive(true);
+				case 11:
+					log.debug("Turn on message light");
+					screen52.getOIA().setMessageLightOn();
+					screen52.setCursorActive(true);
 
-				break;
-			case 12:
-				log.debug("Turn off Message light");
-				screen52.getOIA().setMessageLightOff();
-				screen52.setCursorActive(true);
+					break;
+				case 12:
+					log.debug("Turn off Message light");
+					screen52.getOIA().setMessageLightOff();
+					screen52.setCursorActive(true);
 
-				break;
-			default:
-				break;
+					break;
+				default:
+					break;
 			}
 
 			if (screen52.isUsingGuiInterface())
@@ -1179,12 +1179,12 @@ public final class tnvt implements Runnable {
 					byte[] guiSeg = sfParser.getSegmentAtPos(i);
 					if (guiSeg != null) {
 						byte[] gsa = new byte[sa.length + guiSeg.length + 2];
-						System.arraycopy(sa,0,gsa,0,sa.length);
-						System.arraycopy(guiSeg,0,gsa,sac+2,guiSeg.length);
+						System.arraycopy(sa, 0, gsa, 0, sa.length);
+						System.arraycopy(guiSeg, 0, gsa, sac + 2, guiSeg.length);
 						sa = new byte[gsa.length];
-						System.arraycopy(gsa,0,sa,0,gsa.length);
-						sa[sac++] = (byte)0x04;
-						sa[sac++] = (byte)0x11;
+						System.arraycopy(gsa, 0, sa, 0, gsa.length);
+						sa[sac++] = (byte) 0x04;
+						sa[sac++] = (byte) 0x11;
 						sac += guiSeg.length;
 					}
 				}
@@ -1219,7 +1219,7 @@ public final class tnvt implements Runnable {
 	public final void saveScreen() throws IOException {
 
 		ByteArrayOutputStream sc = new ByteArrayOutputStream();
-		sc.write(new byte[] {4, 0x12, 0, 0});
+		sc.write(new byte[]{4, 0x12, 0, 0});
 
 		sc.write((byte) screen52.getRows()); // store the current size
 		sc.write((byte) screen52.getColumns());
@@ -1392,7 +1392,7 @@ public final class tnvt implements Runnable {
 					while (fLen-- > 0) {
 
 						// now we set the field plane attributes
-						planes.setScreenFieldAttr(fPos++,ffw1);
+						planes.setScreenFieldAttr(fPos++, ffw1);
 
 					}
 
@@ -1448,122 +1448,122 @@ public final class tnvt implements Runnable {
 				byte b = bk.getNextByte();
 
 				switch (b) {
-				case 0:
-				case 1:
-					break;
-				case CMD_SAVE_SCREEN: // 0x02 2 Save Screen
-				case 3: // 0x03 3 Save Partial Screen
-					log.debug("save screen partial");
-					saveScreen();
-					break;
+					case 0:
+					case 1:
+						break;
+					case CMD_SAVE_SCREEN: // 0x02 2 Save Screen
+					case 3: // 0x03 3 Save Partial Screen
+						log.debug("save screen partial");
+						saveScreen();
+						break;
 
-				case ESC: // ESCAPE
-					break;
-				case 7: // audible bell
-					controller.signalBell();
-					bk.getNextByte();
-					bk.getNextByte();
-					break;
-				case CMD_WRITE_TO_DISPLAY: // 0x11 17 write to display
-					error = writeToDisplay(true);
-					// WVL - LDC : TR.000300 : Callback scenario from 5250
-					// Only scan when WRITE_TO_DISPLAY operation (i.e. refill
-					// screen buffer)
-					// has been issued!
-					if (scan)
-						scan();
+					case ESC: // ESCAPE
+						break;
+					case 7: // audible bell
+						controller.signalBell();
+						bk.getNextByte();
+						bk.getNextByte();
+						break;
+					case CMD_WRITE_TO_DISPLAY: // 0x11 17 write to display
+						error = writeToDisplay(true);
+						// WVL - LDC : TR.000300 : Callback scenario from 5250
+						// Only scan when WRITE_TO_DISPLAY operation (i.e. refill
+						// screen buffer)
+						// has been issued!
+						if (scan)
+							scan();
 
-					break;
-				case CMD_RESTORE_SCREEN: // 0x12 18 Restore Screen
-				case 13: // 0x13 19 Restore Partial Screen
-					log.debug("restore screen partial");
-					restoreScreen();
-					break;
+						break;
+					case CMD_RESTORE_SCREEN: // 0x12 18 Restore Screen
+					case 13: // 0x13 19 Restore Partial Screen
+						log.debug("restore screen partial");
+						restoreScreen();
+						break;
 
-				case CMD_CLEAR_UNIT_ALTERNATE: // 0x20 32 clear unit alternate
-					int param = bk.getNextByte();
-					if (param != 0) {
-						log.debug(" clear unit alternate error "
-								+ Integer.toHexString(param));
-						sendNegResponse(NR_REQUEST_ERROR, 03, 01, 05,
-						" clear unit alternate not supported");
-						done = true;
-					} else {
-						if (screen52.getRows() != 27)
-							screen52.setRowsCols(27, 132);
+					case CMD_CLEAR_UNIT_ALTERNATE: // 0x20 32 clear unit alternate
+						int param = bk.getNextByte();
+						if (param != 0) {
+							log.debug(" clear unit alternate error "
+									+ Integer.toHexString(param));
+							sendNegResponse(NR_REQUEST_ERROR, 03, 01, 05,
+									" clear unit alternate not supported");
+							done = true;
+						} else {
+							if (screen52.getRows() != 27)
+								screen52.setRowsCols(27, 132);
 
+							screen52.clearAll();
+							if (sfParser != null && sfParser.isGuisExists())
+								sfParser.clearGuiStructs();
+
+
+						}
+						break;
+
+					case CMD_WRITE_ERROR_CODE: // 0x21 33 Write Error Code
+						writeErrorCode();
+						error = writeToDisplay(false);
+						break;
+					case CMD_WRITE_ERROR_CODE_TO_WINDOW: // 0x22 34
+						// Write Error Code to window
+						writeErrorCodeToWindow();
+						error = writeToDisplay(false);
+						break;
+
+					case CMD_READ_SCREEN_IMMEDIATE: // 0x62 98
+					case CMD_READ_SCREEN_TO_PRINT: // 0x66 102 read screen to print
+						readScreen();
+						break;
+
+					case CMD_CLEAR_UNIT: // 64 0x40 clear unit
+						if (screen52.getRows() != 24)
+							screen52.setRowsCols(24, 80);
 						screen52.clearAll();
 						if (sfParser != null && sfParser.isGuisExists())
 							sfParser.clearGuiStructs();
 
+						break;
 
-					}
-					break;
+					case CMD_CLEAR_FORMAT_TABLE: // 80 0x50 Clear format table
+						screen52.clearTable();
+						break;
 
-				case CMD_WRITE_ERROR_CODE: // 0x21 33 Write Error Code
-					writeErrorCode();
-					error = writeToDisplay(false);
-					break;
-				case CMD_WRITE_ERROR_CODE_TO_WINDOW: // 0x22 34
-					// Write Error Code to window
-					writeErrorCodeToWindow();
-					error = writeToDisplay(false);
-					break;
+					case CMD_READ_INPUT_FIELDS: //0x42 66 read input fields
+					case CMD_READ_MDT_FIELDS: // 0x52 82 read MDT Fields
+						bk.getNextByte();
+						bk.getNextByte();
+						readType = b;
+						screen52.goHome();
+						// do nothing with the cursor here it is taken care of
+						//   in the main loop.
+						//////////////// screen52.setCursorOn();
+						waitingForInput = true;
+						pendingUnlock = true;
+						//                  screen52.setKeyboardLocked(false);
+						break;
+					case CMD_READ_MDT_IMMEDIATE_ALT: // 0x53 83
+						readType = b;
+						//                  screen52.goHome();
+						//                  waitingForInput = true;
+						//                  screen52.setKeyboardLocked(false);
+						readImmediate(readType);
+						break;
+					case CMD_WRITE_STRUCTURED_FIELD: // 243 0xF3 -13 Write
+						// structured field
+						writeStructuredField();
+						break;
+					case CMD_ROLL: // 0x23 35 Roll Not sure what it does right now
+						int updown = bk.getNextByte();
+						int topline = bk.getNextByte();
+						int bottomline = bk.getNextByte();
+						screen52.rollScreen(updown, topline, bottomline);
+						break;
 
-				case CMD_READ_SCREEN_IMMEDIATE: // 0x62 98
-				case CMD_READ_SCREEN_TO_PRINT: // 0x66 102 read screen to print
-					readScreen();
-					break;
-
-				case CMD_CLEAR_UNIT: // 64 0x40 clear unit
-					if (screen52.getRows() != 24)
-						screen52.setRowsCols(24, 80);
-					screen52.clearAll();
-					if (sfParser != null && sfParser.isGuisExists())
-						sfParser.clearGuiStructs();
-
-					break;
-
-				case CMD_CLEAR_FORMAT_TABLE: // 80 0x50 Clear format table
-					screen52.clearTable();
-					break;
-
-				case CMD_READ_INPUT_FIELDS: //0x42 66 read input fields
-				case CMD_READ_MDT_FIELDS: // 0x52 82 read MDT Fields
-					bk.getNextByte();
-					bk.getNextByte();
-					readType = b;
-					screen52.goHome();
-					// do nothing with the cursor here it is taken care of
-					//   in the main loop.
-					//////////////// screen52.setCursorOn();
-					waitingForInput = true;
-					pendingUnlock = true;
-					//                  screen52.setKeyboardLocked(false);
-					break;
-				case CMD_READ_MDT_IMMEDIATE_ALT: // 0x53 83
-					readType = b;
-					//                  screen52.goHome();
-					//                  waitingForInput = true;
-					//                  screen52.setKeyboardLocked(false);
-					readImmediate(readType);
-					break;
-				case CMD_WRITE_STRUCTURED_FIELD: // 243 0xF3 -13 Write
-					// structured field
-					writeStructuredField();
-					break;
-				case CMD_ROLL: // 0x23 35 Roll Not sure what it does right now
-					int updown = bk.getNextByte();
-					int topline = bk.getNextByte();
-					int bottomline = bk.getNextByte();
-					screen52.rollScreen(updown, topline, bottomline);
-					break;
-
-				default:
-					done = true;
-					sendNegResponse(NR_REQUEST_ERROR, 03, 01, 01,
-					"parseIncoming");
-					break;
+					default:
+						done = true;
+						sendNegResponse(NR_REQUEST_ERROR, 03, 01, 01,
+								"parseIncoming");
+						break;
 				}
 
 				if (error)
@@ -1590,7 +1590,7 @@ public final class tnvt implements Runnable {
 	 *
 	 */
 	protected void sendNegResponse(int cat, int modifier, int uByte1,
-			int uByte2, String from) {
+								   int uByte2, String from) {
 
 		try {
 
@@ -1654,164 +1654,164 @@ public final class tnvt implements Runnable {
 
 				switch (bytebk) {
 
-				case 1: // SOH - Start of Header Order
-					error = processStartOfHeaderOrder();
-					break;
-					
-				case 2: // RA - Repeat to address
-					error = processRepeatToAddress();
-					break;
-						
-				case 3: // EA - Erase to address
-					processEraseToAddress();
-					break;
-					
-				case 4: // Command - Escape
-					log.debug("Command - Escape");
-					done = true;
-					break;
+					case 1: // SOH - Start of Header Order
+						error = processStartOfHeaderOrder();
+						break;
 
-				case 16: // TD - Transparent Data
-					log.debug("TD - Transparent Data");
-					int j = (bk.getNextByte() & 0xff) << 8 | bk.getNextByte()
-					& 0xff; // length
-					break;
+					case 2: // RA - Repeat to address
+						error = processRepeatToAddress();
+						break;
 
-				case 17: // SBA - set buffer address order (row column)
-					error = processSetBufferAddressOrder();
-					break;
+					case 3: // EA - Erase to address
+						processEraseToAddress();
+						break;
 
-				case 18: // WEA - Extended Attribute
-					log.debug("WEA - Extended Attribute");
-					bk.getNextByte();
-					bk.getNextByte();
-					break;
+					case 4: // Command - Escape
+						log.debug("Command - Escape");
+						done = true;
+						break;
 
-				case 19: // IC - Insert Cursor
-					log.debug("IC - Insert Cursor");
-					int icX = bk.getNextByte();
-					int icY = bk.getNextByte() & 0xff;
-					if (icX <= saRows && icY <= saCols) {
+					case 16: // TD - Transparent Data
+						log.debug("TD - Transparent Data");
+						int j = (bk.getNextByte() & 0xff) << 8 | bk.getNextByte()
+								& 0xff; // length
+						break;
 
-						log.debug(" IC " + icX + " " + icY);
-						screen52.setPendingInsert(true, icX, icY);
-					} else {
-						sendNegResponse(NR_REQUEST_ERROR, 0x05, 0x01, 0x22,
-						" IC/IM position invalid ");
-						error = true;
-					}
+					case 17: // SBA - set buffer address order (row column)
+						error = processSetBufferAddressOrder();
+						break;
 
-					break;
+					case 18: // WEA - Extended Attribute
+						log.debug("WEA - Extended Attribute");
+						bk.getNextByte();
+						bk.getNextByte();
+						break;
 
-				case 20: // MC - Move Cursor
-					log.debug("MC - Move Cursor");
-					int imcX = bk.getNextByte();
-					int imcY = bk.getNextByte() & 0xff;
-					if (imcX <= saRows && imcY <= saCols) {
+					case 19: // IC - Insert Cursor
+						log.debug("IC - Insert Cursor");
+						int icX = bk.getNextByte();
+						int icY = bk.getNextByte() & 0xff;
+						if (icX <= saRows && icY <= saCols) {
 
-						log.debug(" MC " + imcX + " " + imcY);
-						screen52.setPendingInsert(false, imcX, imcY);
-					} else {
-						sendNegResponse(NR_REQUEST_ERROR, 0x05, 0x01, 0x22,
-						" IC/IM position invalid ");
-						error = true;
-					}
+							log.debug(" IC " + icX + " " + icY);
+							screen52.setPendingInsert(true, icX, icY);
+						} else {
+							sendNegResponse(NR_REQUEST_ERROR, 0x05, 0x01, 0x22,
+									" IC/IM position invalid ");
+							error = true;
+						}
 
-					break;
+						break;
 
-				case 21: // WTDSF - Write To Display Structured Field order
-					log
-					.debug("WTDSF - Write To Display Structured Field order");
-					byte[] seg = bk.getSegment();
-					error = sfParser.parseWriteToDisplayStructuredField(seg);
+					case 20: // MC - Move Cursor
+						log.debug("MC - Move Cursor");
+						int imcX = bk.getNextByte();
+						int imcY = bk.getNextByte() & 0xff;
+						if (imcX <= saRows && imcY <= saCols) {
 
-					//                  error = writeToDisplayStructuredField();
-					break;
+							log.debug(" MC " + imcX + " " + imcY);
+							screen52.setPendingInsert(false, imcX, imcY);
+						} else {
+							sendNegResponse(NR_REQUEST_ERROR, 0x05, 0x01, 0x22,
+									" IC/IM position invalid ");
+							error = true;
+						}
 
-				case 29: // SF - Start of Field
-					log.debug("SF - Start of Field");
-					int fcw1 = 0;
-					int fcw2 = 0;
-					int ffw1 = 0;
-					int ffw0 = bk.getNextByte() & 0xff; // FFW
+						break;
 
-					if ((ffw0 & 0x40) == 0x40) {
-						ffw1 = bk.getNextByte() & 0xff; // FFW 1
+					case 21: // WTDSF - Write To Display Structured Field order
+						log
+								.debug("WTDSF - Write To Display Structured Field order");
+						byte[] seg = bk.getSegment();
+						error = sfParser.parseWriteToDisplayStructuredField(seg);
 
-						fcw1 = bk.getNextByte() & 0xff; // check for field
-						// control word
+						//                  error = writeToDisplayStructuredField();
+						break;
 
-						// check if the first fcw1 is an 0x81 if it is then get
-						// the
-						// next pair for checking
-						if (fcw1 == 0x81) {
-							bk.getNextByte();
+					case 29: // SF - Start of Field
+						log.debug("SF - Start of Field");
+						int fcw1 = 0;
+						int fcw2 = 0;
+						int ffw1 = 0;
+						int ffw0 = bk.getNextByte() & 0xff; // FFW
+
+						if ((ffw0 & 0x40) == 0x40) {
+							ffw1 = bk.getNextByte() & 0xff; // FFW 1
+
 							fcw1 = bk.getNextByte() & 0xff; // check for field
 							// control word
-						}
 
-						if (!isAttribute(fcw1)) {
+							// check if the first fcw1 is an 0x81 if it is then get
+							// the
+							// next pair for checking
+							if (fcw1 == 0x81) {
+								bk.getNextByte();
+								fcw1 = bk.getNextByte() & 0xff; // check for field
+								// control word
+							}
 
-							fcw2 = bk.getNextByte() & 0xff; // FCW 2
-							attr = bk.getNextByte() & 0xff; // attribute field
+							if (!isAttribute(fcw1)) {
 
-							while (!isAttribute(attr)) {
-								log.info(Integer.toHexString(fcw1) + " "
-										+ Integer.toHexString(fcw2)
-										+ " ");
-								log.info(Integer.toHexString(attr)
-										+ " "
-										+ Integer.toHexString(bk
-												.getNextByte() & 0xff));
-								//                           bk.getNextByte();
-								attr = bk.getNextByte() & 0xff; // attribute
-								// field
+								fcw2 = bk.getNextByte() & 0xff; // FCW 2
+								attr = bk.getNextByte() & 0xff; // attribute field
+
+								while (!isAttribute(attr)) {
+									log.info(Integer.toHexString(fcw1) + " "
+											+ Integer.toHexString(fcw2)
+											+ " ");
+									log.info(Integer.toHexString(attr)
+											+ " "
+											+ Integer.toHexString(bk
+											.getNextByte() & 0xff));
+									//                           bk.getNextByte();
+									attr = bk.getNextByte() & 0xff; // attribute
+									// field
+								}
+							} else {
+								attr = fcw1; // attribute of field
+								fcw1 = 0;
 							}
 						} else {
-							attr = fcw1; // attribute of field
-							fcw1 = 0;
+							attr = ffw0;
 						}
-					} else {
-						attr = ffw0;
-					}
 
-					int fLength = (bk.getNextByte() & 0xff) << 8
-					| bk.getNextByte() & 0xff;
-					screen52.addField(attr, fLength, ffw0, ffw1, fcw1, fcw2);
+						int fLength = (bk.getNextByte() & 0xff) << 8
+								| bk.getNextByte() & 0xff;
+						screen52.addField(attr, fLength, ffw0, ffw1, fcw1, fcw2);
 
-					break;
+						break;
 
-				case -128: //STRPCCMD
-					//          if (screen52.getCurrentPos() == 82) {
-					log.debug("STRPCCMD got a -128 command at " + screen52.getCurrentPos());
-					StringBuilder value = new StringBuilder();
-					int[] pco = new int[9];
-					int[] pcoOk = {0xfc, 0xd7, 0xc3, 0xd6, 0x40, 0x83, 0x80, 0xa1, 0x80};
+					case -128: //STRPCCMD
+						//          if (screen52.getCurrentPos() == 82) {
+						log.debug("STRPCCMD got a -128 command at " + screen52.getCurrentPos());
+						StringBuilder value = new StringBuilder();
+						int[] pco = new int[9];
+						int[] pcoOk = {0xfc, 0xd7, 0xc3, 0xd6, 0x40, 0x83, 0x80, 0xa1, 0x80};
 
 					for (int i = 0; i < 9; i++)
 					{
-						byte b = bk.getNextByte();
-						pco[i] = ((b & 0xff));
-						char c = codePage.ebcdic2uni(b);
-						value.append(c);
-					}
+							byte b = bk.getNextByte();
+							pco[i] = ((b & 0xff));
+							char c = codePage.ebcdic2uni(b);
+							value.append(c);
+						}
 
-					// Check "PCO-String"
-					if (Arrays.equals(pco, pcoOk)) {
-						strpccmd = true;
-					}
-					// we return in the stream to have all chars
-					// arrive at the screen for later processing
-					for (int i = 0; i < 9; i++)
-						bk.setPrevByte();
-					//}
-					// no break: so every chars arrives
-					// on the screen for later parsing
-					//break;
+						// Check "PCO-String"
+						if (Arrays.equals(pco, pcoOk)) {
+							strpccmd = true;
+						}
+						// we return in the stream to have all chars
+						// arrive at the screen for later processing
+						for (int i = 0; i < 9; i++)
+							bk.setPrevByte();
+						//}
+						// no break: so every chars arrives
+						// on the screen for later parsing
+						//break;
 
-				default:
-					processAppendByteToScreen();
-					break;
+					default:
+						processAppendByteToScreen();
+						break;
 				}
 
 				if (error)
@@ -1858,11 +1858,11 @@ public final class tnvt implements Runnable {
 	}
 
 	private void setCharFromBuffer(byte byte0) {
-        char c = codePage.ebcdic2uni(byte0);
-        if (isShiftIn(byte0)) {
+		char c = codePage.ebcdic2uni(byte0);
+		if (isShiftIn(byte0)) {
 			codePage.ebcdic2uni(bk.getNextByte());
-		} 
-        if (codePage.isDoubleByteActive() && codePage.secondByteNeeded()) {
+		}
+		if (codePage.isDoubleByteActive() && codePage.secondByteNeeded()) {
 			c = codePage.ebcdic2uni(bk.getNextByte());
 		}
 		screen52.setChar(c);
@@ -1882,8 +1882,8 @@ public final class tnvt implements Runnable {
 
 			sendNegResponse(NR_REQUEST_ERROR, 0x05, 0x01, 0x22,
 					"invalid row/col order" + " saRow = " + saRow
-					+ " saRows = " + screen52.getRows()
-					+ " saCol = " + saCol);
+							+ " saRows = " + screen52.getRows()
+							+ " saCol = " + saCol);
 
 			return true;
 
@@ -1893,7 +1893,7 @@ public final class tnvt implements Runnable {
 
 	private boolean processStartOfHeaderOrder() throws Exception {
 		log.debug("SOH - Start of Header Order");
-		
+
 		int l = bk.getNextByte(); // length
 		log.debug(" byte 0 " + l);
 
@@ -2015,7 +2015,7 @@ public final class tnvt implements Runnable {
 			screen52.clearScreen();
 		else {
 			int times = ((toEARow * screen52.getColumns()) + toEACol)
-			- ((EArow * screen52.getColumns()) + EAcol);
+					- ((EArow * screen52.getColumns()) + EAcol);
 			while (times-- >= 0) {
 				screen52.setChar(EAAttr);
 			}
@@ -2046,28 +2046,28 @@ public final class tnvt implements Runnable {
 
 		switch (byte0 & 0xE0) {
 
-		case 0x40:
-			resetMDT = true;
-			break;
-		case 0x60:
-			resetMDTAll = true;
-			break;
-		case 0x80:
-			nullMDT = true;
-			break;
-		case 0xA0:
-			resetMDT = true;
-			nullAll = true;
-			break;
-		case 0xC0:
-			resetMDT = true;
-			nullMDT = true;
-			break;
+			case 0x40:
+				resetMDT = true;
+				break;
+			case 0x60:
+				resetMDTAll = true;
+				break;
+			case 0x80:
+				nullMDT = true;
+				break;
+			case 0xA0:
+				resetMDT = true;
+				nullAll = true;
+				break;
+			case 0xC0:
+				resetMDT = true;
+				nullMDT = true;
+				break;
 
-		case 0xE0:
-			resetMDTAll = true;
-			nullAll = true;
-			break;
+			case 0xE0:
+				resetMDTAll = true;
+				nullAll = true;
+				break;
 
 		}
 
@@ -2159,23 +2159,23 @@ public final class tnvt implements Runnable {
 			while (bk.hasNext() && !done) {
 				switch (bk.getNextByte()) {
 
-				case -39: // SOH - Start of Header Order
+					case -39: // SOH - Start of Header Order
 
-					switch (bk.getNextByte()) {
-					case 112: // 5250 Query
-						bk.getNextByte(); // get null required field
-						sendQueryResponse();
+						switch (bk.getNextByte()) {
+							case 112: // 5250 Query
+								bk.getNextByte(); // get null required field
+								sendQueryResponse();
+								break;
+							default:
+								log.debug("invalid structured field sub command "
+										+ bk.getByteOffset(-1));
+								break;
+						}
 						break;
 					default:
-						log.debug("invalid structured field sub command "
+						log.debug("invalid structured field command "
 								+ bk.getByteOffset(-1));
 						break;
-					}
-					break;
-				default:
-					log.debug("invalid structured field command "
-							+ bk.getByteOffset(-1));
-					break;
 				}
 			}
 		} catch (Exception e) {
@@ -2331,136 +2331,134 @@ public final class tnvt implements Runnable {
 
 
 		// from server negotiations
-		if(abyte0[i] == IAC) { // -1
+		if (abyte0[i] == IAC) { // -1
 
-			while(i < abyte0.length && abyte0[i++] == -1)
+			while (i < abyte0.length && abyte0[i++] == -1)
 				//         while(i < abyte0.length && (abyte0[i] == -1 || abyte0[i++] == 0x20))
-				switch(abyte0[i++]) {
+				switch (abyte0[i++]) {
 
-				// we will not worry about what it WONT do
-				case WONT:            // -4
-				default:
-					break;
+					// we will not worry about what it WONT do
+					case WONT:            // -4
+					default:
+						break;
 
-				case DO: //-3
+					case DO: //-3
 
-					// not sure why but since moving to V5R2 we are receiving a
-					//   DO with no option when connecting a second session with
-					//   device name.  Can not find the cause at all.  If anybody
-					//   is interested please debug this until then this works.
-					if (i < abyte0.length) {
-						switch(abyte0[i]) {
-						case TERMINAL_TYPE: // 24
-							baosp.write(IAC);
-							baosp.write(WILL);
-							baosp.write(TERMINAL_TYPE);
-							writeByte(baosp.toByteArray());
-							baosp.reset();
+						// not sure why but since moving to V5R2 we are receiving a
+						//   DO with no option when connecting a second session with
+						//   device name.  Can not find the cause at all.  If anybody
+						//   is interested please debug this until then this works.
+						if (i < abyte0.length) {
+							switch (abyte0[i]) {
+								case TERMINAL_TYPE: // 24
+									baosp.write(IAC);
+									baosp.write(WILL);
+									baosp.write(TERMINAL_TYPE);
+									writeByte(baosp.toByteArray());
+									baosp.reset();
 
-							break;
+									break;
 
-						case OPT_END_OF_RECORD: // 25
+								case OPT_END_OF_RECORD: // 25
 
-							baosp.write(IAC);
-							baosp.write(WILL);
-							baosp.write(OPT_END_OF_RECORD);
-							writeByte(baosp.toByteArray());
-							baosp.reset();
-							break;
+									baosp.write(IAC);
+									baosp.write(WILL);
+									baosp.write(OPT_END_OF_RECORD);
+									writeByte(baosp.toByteArray());
+									baosp.reset();
+									break;
 
-						case TRANSMIT_BINARY: // 0
+								case TRANSMIT_BINARY: // 0
 
-							baosp.write(IAC);
-							baosp.write(WILL);
-							baosp.write(TRANSMIT_BINARY);
-							writeByte(baosp.toByteArray());
-							baosp.reset();
+									baosp.write(IAC);
+									baosp.write(WILL);
+									baosp.write(TRANSMIT_BINARY);
+									writeByte(baosp.toByteArray());
+									baosp.reset();
 
-							break;
+									break;
 
-						case TIMING_MARK: // 6   rfc860
-							log.debug("Timing Mark Received and notifying the server that we will not do it.");
-							baosp.write(IAC);
-							baosp.write(WONT);
-							baosp.write(TIMING_MARK);
-							writeByte(baosp.toByteArray());
-							baosp.reset();
+								case TIMING_MARK: // 6   rfc860
+									log.debug("Timing Mark Received and notifying the server that we will not do it.");
+									baosp.write(IAC);
+									baosp.write(WONT);
+									baosp.write(TIMING_MARK);
+									writeByte(baosp.toByteArray());
+									baosp.reset();
 
-							break;
+									break;
 
-						case NEW_ENVIRONMENT: // 39 rfc1572, rfc4777
-							// allways send new environment vars ...
-							baosp.write(IAC);
-							baosp.write(WILL);
-							baosp.write(NEW_ENVIRONMENT);
-							writeByte(baosp.toByteArray());
-							baosp.reset();
-							break;
+								case NEW_ENVIRONMENT: // 39 rfc1572, rfc4777
+									// allways send new environment vars ...
+									baosp.write(IAC);
+									baosp.write(WILL);
+									baosp.write(NEW_ENVIRONMENT);
+									writeByte(baosp.toByteArray());
+									baosp.reset();
+									break;
 
-						default:  // every thing else we will not do at this time
-							baosp.write(IAC);
-							baosp.write(WONT);
-							baosp.write(abyte0[i]); // either
-							writeByte(baosp.toByteArray());
-							baosp.reset();
+								default:  // every thing else we will not do at this time
+									baosp.write(IAC);
+									baosp.write(WONT);
+									baosp.write(abyte0[i]); // either
+									writeByte(baosp.toByteArray());
+									baosp.reset();
 
-							break;
+									break;
+							}
 						}
-					}
-
-					i++;
-					break;
-
-				case WILL:
-
-					switch(abyte0[i]) {
-					case OPT_END_OF_RECORD: // 25
-						baosp.write(IAC);
-						baosp.write(DO);
-						baosp.write(OPT_END_OF_RECORD);
-						writeByte(baosp.toByteArray());
-						baosp.reset();
-
-						break;
-
-					case TRANSMIT_BINARY: // '\0'
-						baosp.write(IAC);
-						baosp.write(DO);
-						baosp.write(TRANSMIT_BINARY);
-						writeByte(baosp.toByteArray());
-						baosp.reset();
-
-						break;
-					}
-					i++;
-					break;
-
-				case SB: // -6
-
-					if(abyte0[i] == NEW_ENVIRONMENT && abyte0[i + 1] == 1) {
-						negNewEnvironment();
-
-						while (++i < abyte0.length && abyte0[i + 1] != IAC);
-					}
-
-					if(abyte0[i] == TERMINAL_TYPE && abyte0[i + 1] == 1) {
-						baosp.write(IAC);
-						baosp.write(SB);
-						baosp.write(TERMINAL_TYPE);
-						baosp.write(QUAL_IS);
-						if(!support132)
-							baosp.write("IBM-3179-2".getBytes());
-						else
-							baosp.write("IBM-3477-FC".getBytes());
-						baosp.write(IAC);
-						baosp.write(SE);
-						writeByte(baosp.toByteArray());
-						baosp.reset();
 
 						i++;
-					}
-					i++;
-					break;
+						break;
+
+					case WILL:
+
+						switch (abyte0[i]) {
+							case OPT_END_OF_RECORD: // 25
+								baosp.write(IAC);
+								baosp.write(DO);
+								baosp.write(OPT_END_OF_RECORD);
+								writeByte(baosp.toByteArray());
+								baosp.reset();
+
+								break;
+
+							case TRANSMIT_BINARY: // '\0'
+								baosp.write(IAC);
+								baosp.write(DO);
+								baosp.write(TRANSMIT_BINARY);
+								writeByte(baosp.toByteArray());
+								baosp.reset();
+
+								break;
+						}
+						i++;
+						break;
+
+					case SB: // -6
+
+						if (abyte0[i] == NEW_ENVIRONMENT && abyte0[i + 1] == 1) {
+							negNewEnvironment();
+
+						while (++i < abyte0.length && abyte0[i + 1] != IAC);
+						}
+
+						if (abyte0[i] == TERMINAL_TYPE && abyte0[i + 1] == 1) {
+							baosp.write(IAC);
+							baosp.write(SB);
+							baosp.write(TERMINAL_TYPE);
+							baosp.write(QUAL_IS);
+							baosp.write(emulationMode.getBytes());
+
+							baosp.write(IAC);
+							baosp.write(SE);
+							writeByte(baosp.toByteArray());
+							baosp.reset();
+
+							i++;
+						}
+						i++;
+						break;
 				}
 			return true;
 		}
@@ -2598,7 +2596,7 @@ public final class tnvt implements Runnable {
 		codePage = CharMappings.getCodePage(cp);
 		cp = cp.toLowerCase();
 		for (KbdTypesCodePages kbdtyp : KbdTypesCodePages.values()) {
-			if (("cp"+kbdtyp.codepage).equals(cp) || kbdtyp.ccsid.equals(cp)) {
+			if (("cp" + kbdtyp.codepage).equals(cp) || kbdtyp.ccsid.equals(cp)) {
 				kbdTypesCodePage = kbdtyp;
 				break;
 			}
