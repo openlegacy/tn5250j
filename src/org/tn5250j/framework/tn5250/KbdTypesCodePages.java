@@ -41,7 +41,7 @@ public enum KbdTypesCodePages {
 	ITI("Italian MNCS","ITI","697","500","500"),
 	JEB("Japanese-English","JEB","697","281","65535"),
 	JEI("Japanese- English MNCS","JEI","697","500","500"),
-	JKB("Japanese Kanji and Katakana","JKB","332","290","5026"),
+	JKB("Japanese Kanji and Katakana","JKB","332","930","5026"),
 //	JUB("Japanese Kanji and US English","JUB","697","37","See note 3."),
 	KAB("Japanese Katakana","KAB","332","290","290"),
 	JPB("Japanese Latin Extended","JPB","1172","1027","1027"),

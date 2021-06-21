@@ -2449,7 +2449,6 @@ public final class tnvt implements Runnable {
 							baosp.write(TERMINAL_TYPE);
 							baosp.write(QUAL_IS);
 							baosp.write(emulationMode.getBytes());
-
 							baosp.write(IAC);
 							baosp.write(SE);
 							writeByte(baosp.toByteArray());
@@ -2596,7 +2595,7 @@ public final class tnvt implements Runnable {
 		codePage = CharMappings.getCodePage(cp);
 		cp = cp.toLowerCase();
 		for (KbdTypesCodePages kbdtyp : KbdTypesCodePages.values()) {
-			if (("cp" + kbdtyp.codepage).equals(cp) || kbdtyp.ccsid.equals(cp)) {
+			if (("cp" + kbdtyp.codepage).equals(cp) || kbdtyp.ccsid.equals(cp) || kbdtyp.codepage.equals(cp)) {
 				kbdTypesCodePage = kbdtyp;
 				break;
 			}
