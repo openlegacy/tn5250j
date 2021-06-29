@@ -208,16 +208,24 @@ public class Session5250 implements SessionInterface {
 
         String proxyPort = "1080"; // default socks proxy port
         boolean enhanced = false;
-        boolean support132 = false;
+		String emulationMode = TN5250jConstants.DEFAULT_EMULATION_TYPE;
+
         int port = 23; // default telnet port
 
         enhanced = sesProps.containsKey(TN5250jConstants.SESSION_TN_ENHANCED);
 
+		if(sesProps.containsKey(TN5250jConstants.SESSION_EMULATION_TYPE)) {
+			emulationMode = sesProps.getProperty(TN5250jConstants.SESSION_EMULATION_TYPE);
+		} else if (System.getProperty(TN5250jConstants.SESSION_EMULATION_TYPE)!=null) {
+			emulationMode = System.getProperty(TN5250jConstants.SESSION_EMULATION_TYPE);
+		} else {
+			// compatible with original tn5250j code
         if (sesProps.containsKey(TN5250jConstants.SESSION_SCREEN_SIZE))
             if ((sesProps.getProperty(TN5250jConstants.SESSION_SCREEN_SIZE)).equals(TN5250jConstants.SCREEN_SIZE_27X132_STR))
-                support132 = true;
+					emulationMode = "IBM-3477-FC";
+		}
 
-        final tnvt vt = new tnvt(this,screen,enhanced,support132,enableSequentialDevice);
+			final tnvt vt = new tnvt(this, screen, enhanced, emulationMode, enableSequentialDevice);
         setVT(vt);
 
         //      vt.setController(this);

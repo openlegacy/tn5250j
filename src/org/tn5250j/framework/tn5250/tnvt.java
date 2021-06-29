@@ -103,7 +103,7 @@ public final class tnvt implements Runnable {
     private String session = "";
     private int port = 23;
     private boolean connected = false;
-    private boolean support132 = true;
+	private String emulationMode = DEFAULT_EMULATION_TYPE;
     private ByteArrayOutputStream baosp = null;
     private ByteArrayOutputStream baosrsp = null;
     private int devSeq = -1;
@@ -135,9 +135,9 @@ public final class tnvt implements Runnable {
      * @param session
      * @param screen52
      * @param type
-     * @param support132
+	 * @param emulationMode
      */
-    public tnvt(Session5250 session, Screen5250 screen52, boolean type, boolean support132, Boolean enableSequentialDevice) {
+	public tnvt(Session5250 session, Screen5250 screen52, boolean type, String emulationMode, Boolean enableSequentialDevice) {
 
         controller = session;
         if (log.isInfoEnabled()) {
@@ -145,7 +145,7 @@ public final class tnvt implements Runnable {
         }
 
         enhanced = type;
-        this.support132 = support132;
+		this.emulationMode = emulationMode;
         setCodePage("37");
         this.screen52 = screen52;
         dataIncluded = new boolean[24];
@@ -852,25 +852,29 @@ public final class tnvt implements Runnable {
     }
 
     // WVL - LDC : 05/08/2005 : TFX.006253 - Support STRPCCMD
-    private void run(String cmd, boolean waitFor) {
-        try {
+	private void run(String cmd, boolean waitFor)
+	{
+		try
+		{
             log.debug("RUN cmd = " + cmd);
             log.debug("RUN wait = " + waitFor);
 
             Runtime r = Runtime.getRuntime();
             Process p = r.exec(cmd);
-            if (waitFor) {
+			if (waitFor)
+			{
                 int result = p.waitFor();
                 log.debug("RUN result = " + result);
             }
-        } catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
             log.error(t);
         }
     }
 
 
     // WVL - LDC : TR.000300 : Callback scenario from 5250
-
     /**
      * Activate or deactivate the command scanning behaviour.
      *
@@ -882,7 +886,6 @@ public final class tnvt implements Runnable {
     }
 
     // WVL - LDC : TR.000300 : Callback scenario from 5250
-
     /**
      * Checks whether command scanning is enabled.
      *
@@ -893,7 +896,6 @@ public final class tnvt implements Runnable {
     }
 
     // WVL - LDC : TR.000300 : Callback scenario from 5250
-
     /**
      * When command scanning is activated, the terminal reads the first and
      * second character in the datastream (the zero position allows to
@@ -920,7 +922,6 @@ public final class tnvt implements Runnable {
     }
 
     // WVL - LDC : TR.000300 : Callback scenario from 5250
-
     /**
      * The screen is parsed starting from second position until a white space is
      * encountered. When found the Session#execCommand(String, int) is
@@ -2436,10 +2437,7 @@ public final class tnvt implements Runnable {
                             baosp.write(SB);
                             baosp.write(TERMINAL_TYPE);
                             baosp.write(QUAL_IS);
-                            if (!support132)
-                                baosp.write("IBM-3179-2".getBytes());
-                            else
-                                baosp.write("IBM-3477-FC".getBytes());
+							baosp.write(emulationMode.getBytes());
                             baosp.write(IAC);
                             baosp.write(SE);
                             writeByte(baosp.toByteArray());
@@ -2585,7 +2583,7 @@ public final class tnvt implements Runnable {
         codePage = CharMappings.getCodePage(cp);
         cp = cp.toLowerCase();
         for (KbdTypesCodePages kbdtyp : KbdTypesCodePages.values()) {
-            if (("cp" + kbdtyp.codepage).equals(cp) || kbdtyp.ccsid.equals(cp)) {
+			if (("cp" + kbdtyp.codepage).equals(cp) || kbdtyp.ccsid.equals(cp) || kbdtyp.codepage.equals(cp)) {
                 kbdTypesCodePage = kbdtyp;
                 break;
             }

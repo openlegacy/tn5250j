@@ -24,7 +24,7 @@ package org.tn5250j;
 public interface TN5250jConstants {
 
     // Version information
-    String VERSION_INFO = "0.8.0-beta2";
+    String VERSION_INFO = "0.8.0-3";
 
     // STATE
     static final int STATE_DISCONNECTED = 0;
@@ -50,6 +50,8 @@ public interface TN5250jConstants {
     String SESSION_TERM_NAME = "SESSION_TERM_NAME";
     String SESSION_IS_APPLET = "SESSION_IS_APPLET";
     String SESSION_HEART_BEAT = "SESSION_KEEP_ALIVE_ENABLED";
+  String SESSION_EMULATION_TYPE = "SESSION_EMULATION_TYPE";
+  String DEFAULT_EMULATION_TYPE = "IBM-3179-2";
 
     //    String GUI_MDI_TYPE = "GUI_MDI_TYPE";
     String GUI_FRAME_WIDTH = "GUI_FRAME_WIDTH";
